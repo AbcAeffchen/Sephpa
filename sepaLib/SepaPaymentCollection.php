@@ -21,7 +21,7 @@ abstract class SepaPaymentCollection
       @param transferinfo mixed[]
       @return void|false
      */
-    abstract public function __construct($pmtInfId, array $info);
+    abstract public function __construct(array $info);
     /**
       calculates the sum of all payments in this collection
       @param $paymentInfo mixed[]

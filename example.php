@@ -13,14 +13,14 @@ $creditTransferFile = new SepaXmlFile('Initiator Name', 'MessageID-1234', 'CT');
 $creditTransferCollection = $creditTransferFile->addCreditTransferCollection(array(
                     // needed information about the payer
                         'pmtInfId'      => 'PaymentID-1234',    // ID of the paymentcollection
-                        'dbtr'          => 'Name of Debtor2',    // (max 70 characters)
+                        'dbtr'          => 'Name of Debtor2',   // (max 70 characters)
                         'iban'          => 'DE87200500001234567890',// IBAN of the Debtor
-                        'bic'           => 'BELADEBEXXX',      // BIC of the Debtor
+                        'bic'           => 'BELADEBEXXX',       // BIC of the Debtor
                     // optional
                         'ccy'           => 'EUR',               // Currency. Default is 'EUR'
                         'btchBookg'     => 'true',              // BatchBooking, only 'true' or 'false'
                         //'ctgyPurp'      => ,                  // Do not use this if you not know how. For further information read the SEPA documentation
-                        'reqdExctnDt'   => '2013-11-25',         // Date: YYYY-MM-DD
+                        'reqdExctnDt'   => '2013-11-25',        // Date: YYYY-MM-DD
                         'ultmtDebtr'    => 'Ultimate Debtor Name'   // just an information, this do not affect the payment (max 70 characters)
                     ));
                     
@@ -30,7 +30,7 @@ $creditTransferCollection->addPayment(array(
                         'pmtId'     => 'TransferID-1234-1',     // ID of the payment (EndToEndId)
                         'instdAmt'  => 1.14,                    // amount, 
                         'iban'      => 'DE87200500001234567890',// IBAN of the Creditor
-                        'bic'       => 'BELADEBEXXX',          // BIC of the Creditor
+                        'bic'       => 'BELADEBEXXX',           // BIC of the Creditor
                         'cdtr'      => 'Name of Creditor',      // (max 70 characters)
                     // optional
                         'ultmtCdrt' => 'Ultimate Creditor Name',// just an information, this do not affect the payment (max 70 characters)
@@ -57,7 +57,7 @@ $directDebitCollection = $directDebitFile->addDirectDebitCollection(array(
                         'seqTp'         => 'RCUR',                  // only 'FRST', 'RCUR', 'OOFF' or 'FNAL'
                         'cdtr'          => 'Name of Creditor',      // (max 70 characters)
                         'iban'          => 'DE87200500001234567890',// IBAN of the Creditor
-                        'bic'           => 'BELADEBEXXX',          // BIC of the Creditor
+                        'bic'           => 'BELADEBEXXX',           // BIC of the Creditor
                         'ci'            => 'DE00ZZZ00099999999',    // Creditor-Identifier
                     // optional
                         'ccy'           => 'EUR',                   // Currency. Default is 'EUR'
@@ -74,7 +74,7 @@ $directDebitCollection->addPayment(array(
                         'instdAmt'      => 2.34,                    // amount
                         'mndtId'        => 'Mandate-Id',            // Mandate ID
                         'dtOfSgntr'     => '2010-04-12',            // Date of signature
-                        'bic'           => 'BELADEBEXXX',          // BIC of the Debtor
+                        'bic'           => 'BELADEBEXXX',           // BIC of the Debtor
                         'dbtr'          => 'Name of Debtor',        // (max 70 characters)
                         'iban'          => 'DE87200500001234567890',// IBAN of the Debtor
                     // optional
