@@ -40,10 +40,13 @@ $creditTransferCollection->addPayment(array(
 
 
 
-
+// save the file on the server
 $ct = fopen('credit_transfer.xml', 'w');
 fwrite($ct, $creditTransferFile->generateXml());
 fclose($ct);
+// or download the file without saving it on the server
+header('Content-Disposition: attachment; filename="credit_transfer.xml"');
+print $creditTransferFile->generateXml();
 
 
 // generate a SepaDirectDebit object. Here you can not use credit transfer! (pain.008.002.02)
