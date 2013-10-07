@@ -63,10 +63,10 @@ class SepaCreditTransfer extends SepaPaymentCollection
                 return false;
         }
         
-        $this->payments[] = $paymentInfo;
+        $this->payments[] = array_map("self::removeUmlauts", $paymentInfo);
         
         return true;
-        
+
     }
     
     /**
@@ -160,6 +160,15 @@ class SepaCreditTransfer extends SepaPaymentCollection
         if(isset($payment['rmtInf']))
             $cdtTrfTxInf->addChild('RmtInf')->addChild('Ustrd', $this->shorten(140, $payment['rmtInf']));
     }
+    
+    private function removeUmlauts($str)
+    {
+        $umlauts = array('Ä', 'ä', 'Ü', 'ü', 'Ö', 'ö', 'ß');
+        $umlautReplacements = array('Ae', 'ae', 'Ue', 'ue', 'Oe', 'oe', 'ss');
+        
+        return str_replace($umlauts, $umlautReplacements, $str);
+    }
+
 
 
 }

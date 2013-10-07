@@ -94,9 +94,13 @@ $directDebitCollection->addPayment(array(
                         'orgnlDbtrAgt'          => 'SMNDA'          // only 'SMNDA' allowed if used
 ));
 
-
+// save the file on the server
 $dd = fopen('direct_debit.xml', 'w');
 fwrite($dd, $directDebitFile->generateXml());
 fclose($dd);
+// or download the file without saving it on the server
+header('Content-Disposition: attachment; filename="credit_transfer.xml"');
+print $directDebitFile->generateXml();
+
 
 ?>

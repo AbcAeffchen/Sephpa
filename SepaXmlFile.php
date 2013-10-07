@@ -9,9 +9,6 @@
  * @author  Alexander Schickedanz <alex@abcaeffchen.net>
  */
 
- 
- 
- 
 require_once 'sepaLib/SepaCreditTransfer.php';
 require_once 'sepaLib/SepaDirectDebit.php';
 
@@ -86,16 +83,16 @@ class SepaXmlFile
         if(strcasecmp($this->type, 'CT') != 0)
             return false;
         
-        
         $needed = array(
             'pmtInfId', 'dbtr', 'iban', 'bic'
         );
+        
         foreach ($needed as $key) {
             if (!isset($transferInfo[$key]))
                 return false;
         }
         
-        $paymentCollection = new SepaCreditTransfer($transferInfo);
+        $paymentCollection = new SepaCreditTransfer(array_map("self::removeUmlauts", $transferInfo));
         $this->paymentCollections[] = $paymentCollection;
         
         return $paymentCollection;
@@ -128,7 +125,7 @@ class SepaXmlFile
         if(!in_array(strtoupper($debitInfo['seqTp']), $allowed))
             return false;
         
-        $paymentCollection = new SepaDirectDebit($debitInfo);
+        $paymentCollection = new SepaDirectDebit(array_map("self::removeUmlauts", $debitInfo));
         $this->paymentCollections[] = $paymentCollection;
         
         return $paymentCollection;
@@ -202,6 +199,14 @@ class SepaXmlFile
         }
         
         return $nbOfTxs;
+    }
+    
+    private function removeUmlauts($str)
+    {
+        $umlauts = array('Ä', 'ä', 'Ü', 'ü', 'Ö', 'ö', 'ß');
+        $umlautReplacements = array('Ae', 'ae', 'Ue', 'ue', 'Oe', 'oe', 'ss');
+        
+        return str_replace($umlauts, $umlautReplacements, $str);
     }
     
     
