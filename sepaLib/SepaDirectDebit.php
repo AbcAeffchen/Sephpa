@@ -84,7 +84,7 @@ class SepaDirectDebit extends SepaPaymentCollection
         }
         
         
-        $this->payments[] = array_map("self::removeUmlauts", $paymentInfo);
+        $this->payments[] = array_map(array('self','removeUmlauts'), $paymentInfo);
         
         return true;
         

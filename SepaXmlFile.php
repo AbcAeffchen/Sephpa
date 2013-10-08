@@ -92,7 +92,7 @@ class SepaXmlFile
                 return false;
         }
         
-        $paymentCollection = new SepaCreditTransfer(array_map("self::removeUmlauts", $transferInfo));
+        $paymentCollection = new SepaCreditTransfer(array_map(array('self','removeUmlauts'), $transferInfo));
         $this->paymentCollections[] = $paymentCollection;
         
         return $paymentCollection;
@@ -125,7 +125,7 @@ class SepaXmlFile
         if(!in_array(strtoupper($debitInfo['seqTp']), $allowed))
             return false;
         
-        $paymentCollection = new SepaDirectDebit(array_map("self::removeUmlauts", $debitInfo));
+        $paymentCollection = new SepaDirectDebit(array_map(array('self','removeUmlauts'), $debitInfo));
         $this->paymentCollections[] = $paymentCollection;
         
         return $paymentCollection;

@@ -63,7 +63,7 @@ class SepaCreditTransfer extends SepaPaymentCollection
                 return false;
         }
         
-        $this->payments[] = array_map("self::removeUmlauts", $paymentInfo);
+        $this->payments[] = array_map(array('self','removeUmlauts'), $paymentInfo);
         
         return true;
 
