@@ -209,7 +209,7 @@ class SepaDirectDebit extends SepaPaymentCollection
             $drctDbtTxInf->addChild('UltmtDbtr')->addChild('Nm', $payment['ultmtDbtr']);
         if(isset($payment['purp']))
             $drctDbtTxInf->addChild('Purp')->addChild('Cd', $payment['purp']);
-        if(isset($payment['rmtinf']))
+        if(isset($payment['rmtInf']))
             $drctDbtTxInf->addChild('RmtInf')->addChild('Ustrd', $this->shorten(140, $payment['rmtInf']));
     }
 
