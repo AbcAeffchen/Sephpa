@@ -3,7 +3,7 @@
  * SEPA XML FILE GENERATOR
  *  
  * @license MIT License
- * @copyright © 2013 Alexander Schickedanz 
+ * @copyright Â© 2013 Alexander Schickedanz 
  * @link      http://abcaeffchen.net
  *
  * @author  Alexander Schickedanz <alex@abcaeffchen.net>

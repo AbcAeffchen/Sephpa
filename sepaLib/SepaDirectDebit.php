@@ -3,7 +3,7 @@
  * SEPA XML FILE GENERATOR
  *  
  * @license MIT License
- * @copyright © 2013 Alexander Schickedanz 
+ * @copyright Â© 2013 Alexander Schickedanz 
  * @link      http://abcaeffchen.net
  *
  * @author  Alexander Schickedanz <alex@abcaeffchen.net>
@@ -215,7 +215,7 @@ class SepaDirectDebit extends SepaPaymentCollection
 
     private function removeUmlauts($str)
     {
-        $umlauts = array('Ä', 'ä', 'Ü', 'ü', 'Ö', 'ö', 'ß');
+        $umlauts = array('Ã„', 'Ã¤', 'Ãœ', 'Ã¼', 'Ã–', 'Ã¶', 'ÃŸ');
         $umlautReplacements = array('Ae', 'ae', 'Ue', 'ue', 'Oe', 'oe', 'ss');
         
         return str_replace($umlauts, $umlautReplacements, $str);

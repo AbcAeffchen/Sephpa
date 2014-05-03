@@ -3,7 +3,7 @@
  * SEPA XML FILE GENERATOR
  *  
  * @license MIT License
- * @copyright © 2013 Alexander Schickedanz 
+ * @copyright Â© 2013 Alexander Schickedanz 
  * @link      http://abcaeffchen.net
  *
  * @author  Alexander Schickedanz <alex@abcaeffchen.net>
@@ -43,7 +43,7 @@ class SepaXmlFile
      */
     private $paymentCollections = array();
     /**
-      @var INITIAL_STRING_CT initial sting for credit transfer (Überweisung)
+      @var INITIAL_STRING_CT initial sting for credit transfer (Ãœberweisung)
      */    
     const INITIAL_STRING_CT = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.002.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.002.03 pain.001.002.03.xsd"></Document>';
     /**
@@ -203,7 +203,7 @@ class SepaXmlFile
     
     private function removeUmlauts($str)
     {
-        $umlauts = array('Ä', 'ä', 'Ü', 'ü', 'Ö', 'ö', 'ß');
+        $umlauts = array('Ã„', 'Ã¤', 'Ãœ', 'Ã¼', 'Ã–', 'Ã¶', 'ÃŸ');
         $umlautReplacements = array('Ae', 'ae', 'Ue', 'ue', 'Oe', 'oe', 'ss');
         
         return str_replace($umlauts, $umlautReplacements, $str);
