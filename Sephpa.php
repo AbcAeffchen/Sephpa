@@ -1,6 +1,6 @@
 <?php
 /**
- * SEPA XML FILE GENERATOR
+ * Sephpa
  *  
  * @license MIT License
  * @copyright © 2013 Alexander Schickedanz 
@@ -13,51 +13,50 @@ require_once 'sepaLib/SepaCreditTransfer.php';
 require_once 'sepaLib/SepaDirectDebit.php';
 
 /**
- Base class for both credit transfer and direkt debit
+ Base class for both credit transfer and direct debit
 */
 class SepaXmlFile
 {
-    
     /**
-      @var $xml SimpleXMLElement xml object
+     * @var SimpleXMLElement $xml xml object
      */
     private $xml;
     /**
-      @var $type sting saves the type of the object 'CT' (transfer) or 'DD' (debit)
+     * @var string $type Saves the type of the object 'CT' (transfer) or 'DD' (debit)
      */
     private $type;
     /**
-      @var $initgPty string either 'CstmrCdtTrfInitn' or 'CstmrDrctDbtInitn'
+     * @var string $xmlType Either 'CstmrCdtTrfInitn' or 'CstmrDrctDbtInitn'
      */
     private $xmlType;
     /**
-      @var $initgPty string Name of the party that initiates the transfer
+     * @var string $initgPty Name of the party that initiates the transfer
      */
     private $initgPty;
     /**
-      @var $msgId identify the Sepafile (unique id for all files)
+     * @var string $msgId identify the Sepa file (unique id for all files)
      */
     private $msgId;
     /**
-      @var $paymentCollections SepaPaymentCollection[] saves all payment objects
+     * @var SepaPaymentCollection[] $paymentCollections saves all payment objects
      */
     private $paymentCollections = array();
     /**
-      @var INITIAL_STRING_CT initial sting for credit transfer (Überweisung)
+     * @var string INITIAL_STRING_CT Initial sting for credit transfer (Überweisung)
      */    
     const INITIAL_STRING_CT = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.002.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.002.03 pain.001.002.03.xsd"></Document>';
     /**
-      @var INITIAL_STRING_DD initial sting for direct debit (Lastschrift)
+     * @var string INITIAL_STRING_DD Initial sting for direct debit (Lastschrift)
      */
     const INITIAL_STRING_DD = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.002.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.002.02 pain.008.002.02.xsd"></Document>';
     
     
     /**
-      Creates a SepaXmlFile object and sets the head data
-      @param $initgPty string the name of the initiating party (max. 70 characters)
-      @param $msgId string the unique id of the file
-      @param $type string sets the type of the sepa file 'CT' or 'DD' (default = 'CT')
-    */
+     * Creates a SepaXmlFile object and sets the head data
+     * @param string $initgPty The name of the initiating party (max. 70 characters)
+     * @param string $msgId The unique id of the file
+     * @param string $type Sets the type of the sepa file 'CT' or 'DD' (default = 'CT')
+     */
     public function __construct($initgPty, $msgId, $type = 'CT')
     {
         if( strcasecmp ( $type , 'CT' ) == 0 ){
@@ -74,9 +73,9 @@ class SepaXmlFile
     }
     
     /**
-      adds a new collection of transfers and sets main data
-      @param $transferInfo mixed[] needed keys: 'pmtInfId', 'dbtr', 'iban', 'bic'; optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt', 'ultmtDbtr'
-      @return false|SepaCreditTransfer
+     * Adds a new collection of transfers and sets main data
+     * @param mixed[] $transferInfo Required keys: 'pmtInfId', 'dbtr', 'iban', 'bic'; optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt', 'ultmtDbtr'
+     * @return false|SepaCreditTransfer
      */
     public function addCreditTransferCollection(array $transferInfo)
     {
@@ -99,9 +98,9 @@ class SepaXmlFile
     }
     
     /**
-      adds a new collection of transfers and sets main data
-      @param $debitInfo mixed[] needed keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'reqdColltnDt', 'cdtr', 'iban', 'bic', 'ci'; optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt'
-      @return false|SepaDirectDebit
+     * Adds a new collection of transfers and sets main data
+     * @param mixed[] $debitInfo Required keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'reqdColltnDt', 'cdtr', 'iban', 'bic', 'ci'; optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt'
+     * @return false|SepaDirectDebit
      */
     public function addDirectDebitCollection(array $debitInfo)
     {
@@ -133,14 +132,14 @@ class SepaXmlFile
 
     
     /**
-      generates the XML file from the given data
-      @return simplexml
+     * Generates the XML file from the given data
+     * @return string Just the xml code of the file
      */
     public function generateXml()
     {
         
         $datetime = new DateTime();
-		$creDtTm = $datetime->format('Y-m-d\TH:i:s');
+        $creDtTm = $datetime->format('Y-m-d\TH:i:s');
         
         
         $fileHead = $this->xml->addChild($this->xmlType);
@@ -163,10 +162,10 @@ class SepaXmlFile
 
        
     /**
-      shortens a string $str down to a lenght of $len
-      @param $len int 
-      @param $str string
-      @return string
+     * Shortens a string $str down to a length of $len
+     * @param int $len
+     * @param string $str
+     * @return string
      */
     private function shorten($len, $str)
     {
@@ -174,8 +173,8 @@ class SepaXmlFile
     }
     
     /**
-      calulates the sum of all payments
-      @return float
+     * Calculates the sum of all payments
+     * @return float
      */
     private function getCtrlSum()
     {
@@ -188,8 +187,8 @@ class SepaXmlFile
     }
     
     /**
-      calulates the number payments in all collections
-      @return int
+     * Calculates the number payments in all collections
+     * @return int
      */
     private function getNumberOfTransactions()
     {
@@ -200,7 +199,14 @@ class SepaXmlFile
         
         return $nbOfTxs;
     }
-    
+
+    /**
+     * Removes all german Umlauts from $str and replace them with a common substitution.
+     * (ß -> ss, Ä -> Ae)
+     *
+     * @param string $str
+     * @return string
+     */
     private function removeUmlauts($str)
     {
         $umlauts = array('Ä', 'ä', 'Ü', 'ü', 'Ö', 'ö', 'ß');
@@ -209,7 +215,4 @@ class SepaXmlFile
         return str_replace($umlauts, $umlautReplacements, $str);
     }
     
-    
 }
-
-?>

@@ -12,45 +12,41 @@
 require_once 'SepaPaymentCollection.php';
  
 /**
- manages the debits
-*/
+ * Manages direct debits
+ */
 class SepaDirectDebit extends SepaPaymentCollection
 {
-    
     /**
-      @var $pmtInfId string the uniquie id of the collection
+     * @var string $pmtInfId The unique id of the collection
      */
     private $pmtInfId;
     /**
-      @var $payments mixed[] saves all payments
+     * @var mixed[] $payments Saves all payments
      */
     private $payments = array();
     /**
-      @var $debitInfo saves the transfer information for the collection.
+     * @var mixed[] $debitInfo Saves the transfer information for the collection.
      */
     private $debitInfo;
     /**
-      @var CCY string default currency
+     * @var string CCY Default currency
      */
     const CCY = 'EUR';
-    
-    
+
     /**
-      calculates the sum of all payments in this collection
-      @param $debitInfo mixed[] needed keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'cdtr', 'iban', 'bic', 'ci'; optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt'
+     * Calculates the sum of all payments in this collection
+     * @param mixed[] $debitInfo Needed keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'cdtr', 'iban', 'bic', 'ci'; optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt'
      */
     public function __construct(array $debitInfo)
     {
-       
-        // allready checkt for needed keys in SepaXmlFile
+        // already checked for needed keys in SepaXmlFile
         $this->debitInfo = $debitInfo;
-       
     }
     
     /**
-      calculates the sum of all payments in this collection
-      @param $paymentInfo mixed[] needes keys: 'pmtId', 'instdAmt', 'mndtId', 'dtOfSgntr', 'bic', 'dbtr', 'iban'; optional keys: 'amdmntInd', 'orgnlMndtId', 'orgnlCdtrSchmeId_nm', 'orgnlCdtrSchmeId_id', 'orgnlDbtrAcct_iban', 'orgnlDbtrAgt', 'elctrncSgntr', 'ultmtDbtr', 'purp', 'rmtInf'
-      @return boolean
+     * calculates the sum of all payments in this collection
+     * @param mixed[] $paymentInfo needed keys: 'pmtId', 'instdAmt', 'mndtId', 'dtOfSgntr', 'bic', 'dbtr', 'iban'; optional keys: 'amdmntInd', 'orgnlMndtId', 'orgnlCdtrSchmeId_nm', 'orgnlCdtrSchmeId_id', 'orgnlDbtrAcct_iban', 'orgnlDbtrAgt', 'elctrncSgntr', 'ultmtDbtr', 'purp', 'rmtInf'
+     * @return boolean
      */
     public function addPayment(array $paymentInfo)
     {
@@ -91,8 +87,8 @@ class SepaDirectDebit extends SepaPaymentCollection
     }
     
     /**
-      calculates the sum of all payments in this collection
-      @return float
+     * Calculates the sum of all payments in this collection
+     * @return float
      */
     public function getCtrlSum()
     {
@@ -104,8 +100,8 @@ class SepaDirectDebit extends SepaPaymentCollection
     }
     
     /**
-      counts the payments in this collection
-      @return int
+     * Counts the payments in this collection
+     * @return int
      */
     public function getNumberOfTransactions()
     {
@@ -113,17 +109,17 @@ class SepaDirectDebit extends SepaPaymentCollection
     }
     
     /**
-      generates the xml for the collection using generatePaymentXml
-      @param pmtInf xml the PmtInf-Child of the xml object
-      @return void
+     * Generates the xml for the collection using generatePaymentXml
+     * @param SimpleXMLElement $pmtInf The PmtInf-Child of the xml object
+     * @return void
      */
-    public function generateCollectionXml($pmtInf)
+    public function generateCollectionXml(SimpleXMLElement $pmtInf)
     {
         
         $ccy = (isset($this->debitInfo['ccy']) && strlen($this->debitInfo['ccy']) == 3) ? strtoupper($this->debitInfo['ccy']) : self::CCY;
         
         $datetime = new DateTime();
-		$reqdColltnDt = (isset($this->debitInfo['reqdColltnDt'])) ? $this->debitInfo['reqdColltnDt'] : $datetime->format('Y-m-d');
+        $reqdColltnDt = (isset($this->debitInfo['reqdColltnDt'])) ? $this->debitInfo['reqdColltnDt'] : $datetime->format('Y-m-d');
         
         $pmtInf->addChild('PmtInfId', $this->debitInfo['pmtInfId']);
         $pmtInf->addChild('PmtMtd', 'DD');
@@ -165,13 +161,13 @@ class SepaDirectDebit extends SepaPaymentCollection
     }
     
     /**
-      generates the xml for a single payment
-      @param $drctDbtTxInf xml
-      @param $payment mixed[] one of the payments in $this->payments
-      @param $ccy string currency
-      @return void
+     * generates the xml for a single payment
+     * @param SimpleXMLElement $drctDbtTxInf
+     * @param mixed[] $payment One of the payments in $this->payments
+     * @param string $ccy currency
+     * @return void
      */
-    private function generatePaymentXml($drctDbtTxInf, $payment, $ccy)
+    private function generatePaymentXml(SimpleXMLElement $drctDbtTxInf, $payment, $ccy)
     {
         $drctDbtTxInf->addChild('PmtId')->addChild('EndToEndId', $payment['pmtId']);
         $drctDbtTxInf->addChild('InstdAmt', sprintf("%01.2f", $payment['instdAmt']))->addAttribute('Ccy', $ccy);

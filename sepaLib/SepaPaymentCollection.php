@@ -11,44 +11,41 @@
 
 
 /**
- Abstract class for credit transfer and debit 
-*/
+ * Abstract class for credit transfer and debit
+ */
 abstract class SepaPaymentCollection
 {
     /**
-      calculates the sum of all payments in this collection
-      @param pmtInfId string the id of this collection
-      @param transferinfo mixed[]
-      @return void|false
+     * @param mixed[] $info
      */
     abstract public function __construct(array $info);
     /**
-      calculates the sum of all payments in this collection
-      @param $paymentInfo mixed[]
-      @return boolean
+     * Calculates the sum of all payments in this collection
+     * @param mixed[] $paymentInfo
+     * @return boolean
      */
     abstract public function addPayment(array $paymentInfo);
     /**
-      calculates the sum of all payments in this collection
-      @return float
+     * Calculates the sum of all payments in this collection
+     * @return float
      */
     abstract public function getCtrlSum();
     /**
-      counts the payments in this collection
-      @return int
+     * Counts the payments in this collection
+     * @return int
      */
     abstract public function getNumberOfTransactions();
     /**
-      generates the xml for the collection using generatePaymentXml
-      @param pmtInf xml the PmtInf-Child of the xml object
-      @return void
+     * Generates the xml for the collection using generatePaymentXml
+     * @param SimpleXMLElement $pmtInf The PmtInf-Child of the xml object
+     * @return void
      */
-    abstract public function generateCollectionXml($pmtInf);
+    abstract public function generateCollectionXml(SimpleXMLElement $pmtInf);
     /**
-      shortens a string $str down to a lenght of $len
-      @param $len int 
-      @param $str string
-      @return string
+     * Shortens a string $str down to a length of $len
+     * @param $len int
+     * @param $str string
+     * @return string
      */
     public function shorten($len, $str)
     {
@@ -56,5 +53,3 @@ abstract class SepaPaymentCollection
     }
 
 }
-
-?>

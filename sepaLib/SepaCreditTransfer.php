@@ -12,45 +12,41 @@
 require_once 'SepaPaymentCollection.php';
 
 /**
- manages the transfers
-*/
+ * Manages credit transfers
+ */
 class SepaCreditTransfer extends SepaPaymentCollection
 {
-    
     /**
-      @var $pmtInfId string the uniquie id of the collection
+     * @var string $pmtInfId The unique id of the collection
      */
     private $pmtInfId;
     /**
-      @var $payments mixed[] saves all payments
+     * @var mixed[] $payments Saves all payments
      */
     private $payments = array();
     /**
-      @var $transferInfo saves the transfer information for the collection.
+     * @var mixed[] $transferInfo Saves the transfer information for the collection.
      */
     private $transferInfo;
     /**
-      @var CCY string default currency
+     * @var string CCY Default currency
      */
     const CCY = 'EUR';
     
-    
     /**
-      calculates the sum of all payments in this collection
-      @param transferInfo mixed[] needed keys: pmtInfId, dbtr, iban, bic; optional keys: ccy, btchBookg, ctgyPurp, reqdExctnDt, ultmtDebtr
+     * Calculates the sum of all payments in this collection
+     * @param mixed[] transferInfo needed keys: 'pmtInfId', 'dbtr', 'iban', 'bic'; optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt', 'ultmtDebtr'
      */
     public function __construct(array $transferInfo)
     {
-       
-        // allready checkt for needed keys in SepaXmlFile
+        // already checked for needed keys in Sephpa-Class
         $this->transferInfo = $transferInfo;
-       
     }
     
     /**
-      calculates the sum of all payments in this collection
-      @param $paymentInfo mixed[] needes keys: 'pmtId', 'instdAmt', 'iban', 'bic', 'cdtr'; optional keys: 'ultmtCdrt', 'purp', 'rmtInf'
-      @return boolean
+     * Calculates the sum of all payments in this collection
+     * @param mixed[] $paymentInfo needed keys: 'pmtId', 'instdAmt', 'iban', 'bic', 'cdtr'; optional keys: 'ultmtCdrt', 'purp', 'rmtInf'
+     * @return boolean
      */
     public function addPayment(array $paymentInfo)
     {
@@ -70,8 +66,8 @@ class SepaCreditTransfer extends SepaPaymentCollection
     }
     
     /**
-      calculates the sum of all payments in this collection
-      @return float
+     * calculates the sum of all payments in this collection
+     * @return float
      */
     public function getCtrlSum()
     {
@@ -79,12 +75,13 @@ class SepaCreditTransfer extends SepaPaymentCollection
         foreach($this->payments as $payment){
             $sum += $payment['instdAmt'];
         }
+
         return $sum;
     }
     
     /**
-      counts the payments in this collection
-      @return int
+     * counts the payments in this collection
+     * @return int
      */
     public function getNumberOfTransactions()
     {
@@ -92,17 +89,17 @@ class SepaCreditTransfer extends SepaPaymentCollection
     }
     
     /**
-      generates the xml for the collection using generatePaymentXml
-      @param pmtInf xml the PmtInf-Child of the xml object
-      @return void
+     * Generates the xml for the collection using generatePaymentXml
+     * @param SimpleXMLElement $pmtInf The PmtInf-Child of the xml object
+     * @return void
      */
-    public function generateCollectionXml($pmtInf)
+    public function generateCollectionXml(SimpleXMLElement $pmtInf)
     {
         
         $ccy = (isset($this->transferInfo['ccy']) && strlen($this->transferInfo['ccy']) == 3) ? strtoupper($this->transferInfo['ccy']) : self::CCY;
         
         $datetime = new DateTime();
-		$reqdExctnDt = (isset($this->transferInfo['reqdExctnDt'])) ? $this->transferInfo['reqdExctnDt'] : $datetime->format('Y-m-d');
+        $reqdExctnDt = (isset($this->transferInfo['reqdExctnDt'])) ? $this->transferInfo['reqdExctnDt'] : $datetime->format('Y-m-d');
         
         $pmtInf->addChild('PmtInfId', $this->transferInfo['pmtInfId']);
         $pmtInf->addChild('PmtMtd', 'TRF');
@@ -139,11 +136,11 @@ class SepaCreditTransfer extends SepaPaymentCollection
     }
     
     /**
-      generates the xml for a single payment
-      @param $cdtTrfTxInf xml
-      @param $payment mixed[] one of the payments in $this->payments
-      @param $ccy string currency
-      @return void
+     * generates the xml for a single payment
+     * @param SimpleXMLElement $cdtTrfTxInf
+     * @param mixed[] $payment one of the payments in $this->payments
+     * @param string $ccy currency
+     * @return void
      */
     private function generatePaymentXml($cdtTrfTxInf, $payment, $ccy)
     {
