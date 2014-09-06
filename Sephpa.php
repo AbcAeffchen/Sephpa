@@ -15,7 +15,7 @@ require_once 'sepaLib/SepaDirectDebit.php';
 /**
  Base class for both credit transfer and direct debit
 */
-class SepaXmlFile
+class Sephpa
 {
     /**
      * @var SimpleXMLElement $xml xml object
@@ -91,7 +91,7 @@ class SepaXmlFile
                 return false;
         }
         
-        $paymentCollection = new SepaCreditTransfer(array_map(array('self','removeUmlauts'), $transferInfo));
+        $paymentCollection = new SepaCreditTransfer(array_map(array( 'Sephpa','removeUmlauts'), $transferInfo));
         $this->paymentCollections[] = $paymentCollection;
         
         return $paymentCollection;
@@ -124,7 +124,7 @@ class SepaXmlFile
         if(!in_array(strtoupper($debitInfo['seqTp']), $allowed))
             return false;
         
-        $paymentCollection = new SepaDirectDebit(array_map(array('self','removeUmlauts'), $debitInfo));
+        $paymentCollection = new SepaDirectDebit(array_map(array( 'Sephpa','removeUmlauts'), $debitInfo));
         $this->paymentCollections[] = $paymentCollection;
         
         return $paymentCollection;

@@ -1,18 +1,18 @@
 <?php
 /*
- This is just an example. Please read the dokumentation
- of SEPA to learn more about using SEPA.
-*/
+ * This is just an example. Please read the documentation
+ * of the SEPA file format to learn more about using SEPA files.
+ */
 
-require_once 'SepaXmlFile.php';
+require_once 'Sephpa.php';
 
-// generate a SepaCreditTranfer object. Here you can not use direct debit! (pain.001.002.03)
-$creditTransferFile = new SepaXmlFile('Initiator Name', 'MessageID-1234', 'CT');
+// generate a SepaCreditTransfer object (pain.001.002.03). Here you can not use direct debit!
+$creditTransferFile = new Sephpa('Initiator Name', 'MessageID-1234', 'CT');
 
 // at least one in every SepaXmlFile (of type CT). No limit.
 $creditTransferCollection = $creditTransferFile->addCreditTransferCollection(array(
                     // needed information about the payer
-                        'pmtInfId'      => 'PaymentID-1234',    // ID of the paymentcollection
+                        'pmtInfId'      => 'PaymentID-1234',    // ID of the payment collection
                         'dbtr'          => 'Name of Debtor2',   // (max 70 characters)
                         'iban'          => 'DE87200500001234567890',// IBAN of the Debtor
                         'bic'           => 'BELADEBEXXX',       // BIC of the Debtor
@@ -49,8 +49,8 @@ header('Content-Disposition: attachment; filename="credit_transfer.xml"');
 print $creditTransferFile->generateXml();
 
 
-// generate a SepaDirectDebit object. Here you can not use credit transfer! (pain.008.002.02)
-$directDebitFile = new SepaXmlFile('Initiator Name', 'MessageID-1235', 'DD');
+// generate a SepaDirectDebit object (pain.008.002.02). Here you can not use credit transfer!
+$directDebitFile = new Sephpa('Initiator Name', 'MessageID-1235', 'DD');
 
 // at least one in every SepaXmlFile (of type DD). No limit.
 $directDebitCollection = $directDebitFile->addDirectDebitCollection(array(
@@ -99,7 +99,7 @@ $dd = fopen('direct_debit.xml', 'w');
 fwrite($dd, $directDebitFile->generateXml());
 fclose($dd);
 // or download the file without saving it on the server
-header('Content-Disposition: attachment; filename="credit_transfer.xml"');
+header('Content-Disposition: attachment; filename="direct_debit.xml"');
 print $directDebitFile->generateXml();
 
 

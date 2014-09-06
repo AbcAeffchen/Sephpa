@@ -218,5 +218,3 @@ class SepaDirectDebit extends SepaPaymentCollection
     }
 
 }
-
-?>

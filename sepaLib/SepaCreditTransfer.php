@@ -35,7 +35,7 @@ class SepaCreditTransfer extends SepaPaymentCollection
     
     /**
      * Calculates the sum of all payments in this collection
-     * @param mixed[] transferInfo needed keys: 'pmtInfId', 'dbtr', 'iban', 'bic'; optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt', 'ultmtDebtr'
+     * @param mixed[] $transferInfo needed keys: 'pmtInfId', 'dbtr', 'iban', 'bic'; optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt', 'ultmtDebtr'
      */
     public function __construct(array $transferInfo)
     {
