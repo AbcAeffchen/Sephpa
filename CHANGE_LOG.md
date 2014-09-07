@@ -1,7 +1,7 @@
 Sephpa - Change Log
 ===============
 
-##1.1.0 - DATE HERE##
+##1.1.0 - Sep 7, '14##
 - Renamed the project to Sephpa
 - Renamed SepaXmlFile.php to Sephpa.php
 - runs on PHP 5.3, 5.4, 5.5 and 5.6
