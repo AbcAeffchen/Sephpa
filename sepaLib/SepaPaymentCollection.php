@@ -3,7 +3,7 @@
  * SEPA XML FILE GENERATOR
  *  
  * @license MIT License
- * @copyright © 2013 Alexander Schickedanz 
+ * @copyright © 2014 Alexander Schickedanz
  * @link      http://abcaeffchen.net
  *
  * @author  Alexander Schickedanz <alex@abcaeffchen.net>
@@ -41,15 +41,5 @@ abstract class SepaPaymentCollection
      * @return void
      */
     abstract public function generateCollectionXml(SimpleXMLElement $pmtInf);
-    /**
-     * Shortens a string $str down to a length of $len
-     * @param $len int
-     * @param $str string
-     * @return string
-     */
-    public function shorten($len, $str)
-    {
-        return (strlen($str) < $len) ? $str : substr($str, 0, $len);
-    }
 
 }

@@ -7,19 +7,19 @@
 require_once 'Sephpa.php';
 
 // generate a SepaCreditTransfer object (pain.001.002.03). Here you can not use direct debit!
-$creditTransferFile = new Sephpa('Initiator Name', 'MessageID-1234', 'CT');
+$creditTransferFile = new Sephpa('Initiator Name', 'MessageID-1234', SEPA_PAIN_001_002_03);
 
 // at least one in every SepaXmlFile (of type CT). No limit.
 $creditTransferCollection = $creditTransferFile->addCreditTransferCollection(array(
                     // needed information about the payer
                         'pmtInfId'      => 'PaymentID-1234',    // ID of the payment collection
                         'dbtr'          => 'Name of Debtor2',   // (max 70 characters)
-                        'iban'          => 'DE87200500001234567890',// IBAN of the Debtor
+                        'iban'          => 'DE21500500001234567897',// IBAN of the Debtor
                         'bic'           => 'BELADEBEXXX',       // BIC of the Debtor
                     // optional
                         'ccy'           => 'EUR',               // Currency. Default is 'EUR'
                         'btchBookg'     => 'true',              // BatchBooking, only 'true' or 'false'
-                        //'ctgyPurp'      => ,                  // Do not use this if you not know how. For further information read the SEPA documentation
+                        //'ctgyPurp'      => ,                  // Do not use this if you do not know how. For further information read the SEPA documentation
                         'reqdExctnDt'   => '2013-11-25',        // Date: YYYY-MM-DD
                         'ultmtDebtr'    => 'Ultimate Debtor Name'   // just an information, this do not affect the payment (max 70 characters)
                     ));
@@ -29,12 +29,12 @@ $creditTransferCollection->addPayment(array(
                     // needed information about the one who gets payed
                         'pmtId'     => 'TransferID-1234-1',     // ID of the payment (EndToEndId)
                         'instdAmt'  => 1.14,                    // amount, 
-                        'iban'      => 'DE87200500001234567890',// IBAN of the Creditor
-                        'bic'       => 'BELADEBEXXX',           // BIC of the Creditor
+                        'iban'      => 'DE21500500009876543210',// IBAN of the Creditor
+                        'bic'       => 'SPUEDE2UXXX',           // BIC of the Creditor
                         'cdtr'      => 'Name of Creditor',      // (max 70 characters)
                     // optional
                         'ultmtCdrt' => 'Ultimate Creditor Name',// just an information, this do not affect the payment (max 70 characters)
-                        //'purp'      => ,                      // Do not use this if you not know how. For further information read the SEPA documentation
+                        //'purp'      => ,                      // Do not use this if you do not know how. For further information read the SEPA documentation
                         'rmtInf'    => 'Remittance Information' // unstructured information about the remittance (max 140 characters)
                     ));
 
@@ -50,7 +50,7 @@ print $creditTransferFile->generateXml();
 
 
 // generate a SepaDirectDebit object (pain.008.002.02). Here you can not use credit transfer!
-$directDebitFile = new Sephpa('Initiator Name', 'MessageID-1235', 'DD');
+$directDebitFile = new Sephpa('Initiator Name', 'MessageID-1235', SEPA_PAIN_008_002_02);
 
 // at least one in every SepaXmlFile (of type DD). No limit.
 $directDebitCollection = $directDebitFile->addDirectDebitCollection(array(
@@ -81,7 +81,7 @@ $directDebitCollection->addPayment(array(
                         'dbtr'          => 'Name of Debtor',        // (max 70 characters)
                         'iban'          => 'DE87200500001234567890',// IBAN of the Debtor
                     // optional
-                        'amdmntInd'     => 'true',                  // Did the mandate change
+                        'amdmntInd'     => 'false',                 // Did the mandate change
                         'elctrncSgntr'  => 'test',                  // do not use this if there is a paper-based mandate
                         'ultmtDbtr'     => 'Ultimate Debtor Name',  // just an information, this do not affect the payment (max 70 characters)
                         //'purp'        => ,                        // Do not use this if you not know how. For further information read the SEPA documentation
@@ -95,9 +95,9 @@ $directDebitCollection->addPayment(array(
 ));
 
 // save the file on the server
-$dd = fopen('direct_debit.xml', 'w');
-fwrite($dd, $directDebitFile->generateXml());
-fclose($dd);
+//$dd = fopen('direct_debit.xml', 'w');
+//fwrite($dd, $directDebitFile->generateXml());
+//fclose($dd);
 // or download the file without saving it on the server
 header('Content-Disposition: attachment; filename="direct_debit.xml"');
 print $directDebitFile->generateXml();

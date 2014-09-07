@@ -3,14 +3,32 @@
  * Sephpa
  *  
  * @license MIT License
- * @copyright © 2013 Alexander Schickedanz 
+ * @copyright © 2014 Alexander Schickedanz
  * @link      http://abcaeffchen.net
  *
  * @author  Alexander Schickedanz <alex@abcaeffchen.net>
  */
 
-require_once 'sepaLib/SepaCreditTransfer.php';
-require_once 'sepaLib/SepaDirectDebit.php';
+require_once 'sepaLib/SepaCreditTransfer00100203.php';
+require_once 'sepaLib/SepaCreditTransfer00100303.php';
+require_once 'sepaLib/SepaDirectDebit00800202.php';
+require_once 'sepaLib/SepaDirectDebit00800302.php';
+require_once 'sepaLib/SepaUtilities.php';
+
+/**
+ * Class SephpaInputException thrown if an invalid input is detected
+ */
+class SephpaInputException extends Exception {}
+
+// credit transfers < separator
+const SEPA_PAIN_001_002_03 = 100203;
+const SEPA_PAIN_001_003_03 = 100303;
+// Separator is greater then credit transfer and lower than direct debit
+const SEPA_RATOR           = 800000;
+// direct debits > separator
+const SEPA_PAIN_008_002_02 = 800202;
+const SEPA_PAIN_008_003_02 = 800302;
+
 
 /**
  Base class for both credit transfer and direct debit
@@ -22,7 +40,7 @@ class Sephpa
      */
     private $xml;
     /**
-     * @var string $type Saves the type of the object 'CT' (transfer) or 'DD' (debit)
+     * @var int $type Saves the type of the object SEPA_PAIN_*
      */
     private $type;
     /**
@@ -38,110 +56,168 @@ class Sephpa
      */
     private $msgId;
     /**
+     * @var string $localInstrument used to check if the LocalInstrument of direct debits are all the same
+     */
+    private $localInstrument = null;
+    /**
      * @var SepaPaymentCollection[] $paymentCollections saves all payment objects
      */
     private $paymentCollections = array();
     /**
-     * @var string INITIAL_STRING_CT Initial sting for credit transfer (Überweisung)
+     * @var string INITIAL_STRING_CT Initial sting for credit transfer pain.001.002.03
      */    
-    const INITIAL_STRING_CT = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.002.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.002.03 pain.001.002.03.xsd"></Document>';
+    const INITIAL_STRING_PAIN_001_002_03 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.002.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.002.03 pain.001.002.03.xsd"></Document>';
     /**
-     * @var string INITIAL_STRING_DD Initial sting for direct debit (Lastschrift)
+     * @var string INITIAL_STRING_CT Initial sting for credit transfer pain.001.003.03
      */
-    const INITIAL_STRING_DD = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.002.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.002.02 pain.008.002.02.xsd"></Document>';
-    
-    
+    const INITIAL_STRING_PAIN_001_003_03 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03 pain.001.003.03.xsd"></Document>';
+    /**
+     * @var string INITIAL_STRING_DD Initial sting for direct debit pain.008.002.02
+     */
+    const INITIAL_STRING_PAIN_008_002_02 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.002.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.002.02 pain.008.002.02.xsd"></Document>';
+    /**
+     * @var string INITIAL_STRING_DD Initial sting for direct debit pain.008.003.02
+     */
+    const INITIAL_STRING_PAIN_008_003_02 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02 pain.008.003.02.xsd"></Document>';
+
     /**
      * Creates a SepaXmlFile object and sets the head data
+     *
      * @param string $initgPty The name of the initiating party (max. 70 characters)
-     * @param string $msgId The unique id of the file
-     * @param string $type Sets the type of the sepa file 'CT' or 'DD' (default = 'CT')
+     * @param string $msgId    The unique id of the file
+     * @param string $type     Sets the type of the sepa file 'CT' or 'DD' (default = 'CT')
+     * @throws SephpaInputException
      */
     public function __construct($initgPty, $msgId, $type = 'CT')
     {
-        if( strcasecmp ( $type , 'CT' ) == 0 ){
-            $this->xml = simplexml_load_string(self::INITIAL_STRING_CT);
-            $this->xmlType = 'CstmrCdtTrfInitn';            
-            $this->type = 'CT';
-        }else{
-            $this->xml = simplexml_load_string(self::INITIAL_STRING_DD);
-            $this->xmlType = 'CstmrDrctDbtInitn';
-            $this->type = 'DD';
+        switch($type)
+        {
+            case SEPA_PAIN_001_002_03:
+                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_001_002_03);
+                $this->xmlType = 'CstmrCdtTrfInitn';
+                $this->type = SEPA_PAIN_001_002_03;
+                break;
+            case SEPA_PAIN_001_003_03:
+                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_001_003_03);
+                $this->xmlType = 'CstmrCdtTrfInitn';
+                $this->type = SEPA_PAIN_001_002_03;
+                break;
+            case SEPA_PAIN_008_002_02:
+                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_002_02);
+                $this->xmlType = 'CstmrDrctDbtInitn';
+                $this->type = SEPA_PAIN_008_002_02;
+                break;
+            case SEPA_PAIN_008_003_02:
+                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_003_02);
+                $this->xmlType = 'CstmrDrctDbtInitn';
+                $this->type = SEPA_PAIN_008_003_02;
+                break;
+            default:
+                throw new SephpaInputException('You choose an invalid type. Please use the SEPA_PAIN_* constants.');
         }
-        $this->initgPty = $this->shorten(70, $initgPty);
+
+
+        $this->initgPty = SepaUtilities::sanitizeLength( $initgPty, 70 );
         $this->msgId = $msgId;
     }
-    
+
     /**
-     * Adds a new collection of transfers and sets main data
-     * @param mixed[] $transferInfo Required keys: 'pmtInfId', 'dbtr', 'iban', 'bic'; optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt', 'ultmtDbtr'
-     * @return false|SepaCreditTransfer
+     * Adds a new collection of credit transfers and sets main data
+     *
+     * @param mixed[] $transferInfo Required keys: 'pmtInfId', 'dbtr', 'iban', ('bic' only pain.001.002.03);
+     *                              optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt', 'ultmtDbtr'
+     * @throws SephpaInputException
+     * @return SepaCreditTransfer00100203
      */
     public function addCreditTransferCollection(array $transferInfo)
     {
-        if(strcasecmp($this->type, 'CT') != 0)
-            return false;
-        
-        $needed = array(
-            'pmtInfId', 'dbtr', 'iban', 'bic'
-        );
-        
-        foreach ($needed as $key) {
-            if (!isset($transferInfo[$key]))
-                return false;
+        if($this->type > SEPA_RATOR)
+            throw new SephpaInputException('You cannot add credit transfers collections to a direct debit file');
+
+
+        switch($this->type)
+        {
+            case SEPA_PAIN_001_003_03:
+                if(SepaUtilities::containsNotAllKeys($transferInfo, array('pmtInfId', 'dbtr', 'iban')))
+                    throw new SephpaInputException('One of the required inputs \'pmtInfId\', \'dbtr\', \'iban\' is missing.');
+
+                $paymentCollection = new SepaCreditTransfer00100303($transferInfo);
+                break;
+            default:        // only case here is SEPA_PAIN_001_002_03
+                if(SepaUtilities::containsNotAllKeys($transferInfo, array('pmtInfId', 'dbtr', 'iban', 'bic')))
+                    throw new SephpaInputException('One of the required inputs \'pmtInfId\', \'dbtr\', \'iban\', \'bic\' is missing.');
+
+                $paymentCollection = new SepaCreditTransfer00100203($transferInfo);
         }
-        
-        $paymentCollection = new SepaCreditTransfer(array_map(array( 'Sephpa','removeUmlauts'), $transferInfo));
-        $this->paymentCollections[] = $paymentCollection;
-        
-        return $paymentCollection;
-    }
-    
-    /**
-     * Adds a new collection of transfers and sets main data
-     * @param mixed[] $debitInfo Required keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'reqdColltnDt', 'cdtr', 'iban', 'bic', 'ci'; optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt'
-     * @return false|SepaDirectDebit
-     */
-    public function addDirectDebitCollection(array $debitInfo)
-    {
-        if(strcasecmp($this->type, 'DD') != 0)
-            return false;
-        
-        $needed = array(
-            'pmtInfId', 'lclInstrm', 'seqTp', 'cdtr', 'iban', 'bic', 'ci'
-        );
-        foreach ($needed as $key) {
-            if (!isset($debitInfo[$key]))
-                return false;
-        }
-        
-        if(strcasecmp($debitInfo['lclInstrm'], 'CORE') != 0 && strcasecmp($debitInfo['lclInstrm'], 'B2B') != 0)
-            return false;
-        
-        $allowed = array(
-            'FRST', 'RCUR', 'OOFF', 'FNAL'
-        );
-        if(!in_array(strtoupper($debitInfo['seqTp']), $allowed))
-            return false;
-        
-        $paymentCollection = new SepaDirectDebit(array_map(array( 'Sephpa','removeUmlauts'), $debitInfo));
         $this->paymentCollections[] = $paymentCollection;
         
         return $paymentCollection;
     }
 
-    
+    /**
+     * Adds a new collection of direct debits and sets main data
+     *
+     * @param mixed[] $debitInfo Required keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'reqdColltnDt', 'cdtr', 'iban', 'bic', 'ci';
+     *                           optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt'
+     * @throws SephpaInputException
+     * @return SepaDirectDebit00800202
+     */
+    public function addDirectDebitCollection(array $debitInfo)
+    {
+        if($this->type < SEPA_RATOR)
+            throw new SephpaInputException('You cannot add a direct debit collection to a credit transfer file.');
+
+        if(SepaUtilities::containsNotAllKeys($debitInfo, array('pmtInfId', 'lclInstrm', 'seqTp', 'cdtr', 'iban', 'bic', 'ci')))
+            throw new SephpaInputException('One of the required inputs \'pmtInfId\', \'lclInstrm\', \'seqTp\', \'cdtr\', \'iban\', \'bic\', \'ci\' is missing.');
+
+        // to upper case for some inputs
+        $debitInfo['lclInstrm'] = strtoupper($debitInfo['lclInstrm']);
+        $debitInfo['seqTp'] = strtoupper($debitInfo['seqTp']);
+        $debitInfo['ci'] = strtoupper($debitInfo['ci']);
+        $debitInfo['iban'] = strtoupper($debitInfo['iban']);
+        $debitInfo['bic'] = strtoupper($debitInfo['bic']);
+        if(isset($debitInfo['btchBookg']))
+            $debitInfo['btchBookg'] = strtolower($debitInfo['btchBookg']);
+
+        if(!isset($this->localInstrument))
+            $this->localInstrument = $debitInfo['lclInstrm'];
+
+        if($debitInfo['lclInstrm'] !== $this->localInstrument)
+            throw new SephpaInputException('You cannot add direct debits with different local instrument to the same collection.');
+
+
+        if(!in_array($debitInfo['seqTp'], array('FRST', 'RCUR', 'OOFF', 'FNAL')))
+            throw new SephpaInputException('The sequence type (seqTp) has to be \'FRST\' (first direct debit), \'RCUR\' (recurring), \'OOFF\' (single) or \'FNAL\' (final)');
+
+        switch($this->type)
+        {
+            case SEPA_PAIN_008_003_02:
+                if(!in_array($debitInfo['lclInstrm'], array('CORE','COR1','B2B')))
+                    throw new SephpaInputException('The local Instrument (lclInstrm) as to be either \'CORE\', \'COR1\' or \'B2B\'');
+
+                $paymentCollection = new SepaDirectDebit00800302($debitInfo);
+                break;
+            default:        // only case here is SEPA_PAIN_008_002_02
+                if(!in_array($debitInfo['lclInstrm'], array('CORE','B2B')))
+                    throw new SephpaInputException('The local Instrument (lclInstrm) as to be either \'CORE\' or \'B2B\'');
+
+                $paymentCollection = new SepaDirectDebit00800202($debitInfo);
+        }
+
+        $this->paymentCollections[] = $paymentCollection;
+        
+        return $paymentCollection;
+    }
+
     /**
      * Generates the XML file from the given data
      * @return string Just the xml code of the file
      */
     public function generateXml()
     {
-        
         $datetime = new DateTime();
         $creDtTm = $datetime->format('Y-m-d\TH:i:s');
-        
-        
+
         $fileHead = $this->xml->addChild($this->xmlType);
         
         $grpHdr = $fileHead->addChild('GrpHdr');
@@ -149,7 +225,7 @@ class Sephpa
         $grpHdr->addChild('CreDtTm', $creDtTm);
         $grpHdr->addChild('NbOfTxs', $this->getNumberOfTransactions());
         $grpHdr->addChild('CtrlSum', sprintf("%01.2f", $this->getCtrlSum()));
-        $grpHdr->addChild('InitgPty')->addChild('Nm', $this->shorten(70, $this->initgPty));
+        $grpHdr->addChild('InitgPty')->addChild('Nm', SepaUtilities::sanitizeLength($this->initgPty,70));
         
         foreach($this->paymentCollections as $paymentCollection){
             $pmtInf = $fileHead->addChild('PmtInf');
@@ -160,18 +236,6 @@ class Sephpa
         
     }
 
-       
-    /**
-     * Shortens a string $str down to a length of $len
-     * @param int $len
-     * @param string $str
-     * @return string
-     */
-    private function shorten($len, $str)
-    {
-        return (strlen($str) < $len) ? $str : substr($str, 0, $len);
-    }
-    
     /**
      * Calculates the sum of all payments
      * @return float
@@ -200,19 +264,4 @@ class Sephpa
         return $nbOfTxs;
     }
 
-    /**
-     * Removes all german Umlauts from $str and replace them with a common substitution.
-     * (ß -> ss, Ä -> Ae)
-     *
-     * @param string $str
-     * @return string
-     */
-    private function removeUmlauts($str)
-    {
-        $umlauts = array('Ä', 'ä', 'Ü', 'ü', 'Ö', 'ö', 'ß');
-        $umlautReplacements = array('Ae', 'ae', 'Ue', 'ue', 'Oe', 'oe', 'ss');
-        
-        return str_replace($umlauts, $umlautReplacements, $str);
-    }
-    
 }

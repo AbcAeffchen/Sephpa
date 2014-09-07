@@ -3,7 +3,7 @@
  * SEPA XML FILE GENERATOR
  *  
  * @license MIT License
- * @copyright © 2013 Alexander Schickedanz 
+ * @copyright © 2014 Alexander Schickedanz
  * @link      http://abcaeffchen.net
  *
  * @author  Alexander Schickedanz <alex@abcaeffchen.net>
@@ -14,12 +14,8 @@ require_once 'SepaPaymentCollection.php';
 /**
  * Manages direct debits
  */
-class SepaDirectDebit extends SepaPaymentCollection
+class SepaDirectDebit00800202 extends SepaPaymentCollection
 {
-    /**
-     * @var string $pmtInfId The unique id of the collection
-     */
-    private $pmtInfId;
     /**
      * @var mixed[] $payments Saves all payments
      */
@@ -34,56 +30,46 @@ class SepaDirectDebit extends SepaPaymentCollection
     const CCY = 'EUR';
 
     /**
-     * Calculates the sum of all payments in this collection
-     * @param mixed[] $debitInfo Needed keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'cdtr', 'iban', 'bic', 'ci'; optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt'
+     *
+     * @param mixed[] $debitInfo Needed keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'cdtr', 'iban', 'bic', 'ci';
+     *                           optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt'
      */
     public function __construct(array $debitInfo)
     {
         // already checked for needed keys in SepaXmlFile
         $this->debitInfo = $debitInfo;
     }
-    
+
     /**
      * calculates the sum of all payments in this collection
-     * @param mixed[] $paymentInfo needed keys: 'pmtId', 'instdAmt', 'mndtId', 'dtOfSgntr', 'bic', 'dbtr', 'iban'; optional keys: 'amdmntInd', 'orgnlMndtId', 'orgnlCdtrSchmeId_nm', 'orgnlCdtrSchmeId_id', 'orgnlDbtrAcct_iban', 'orgnlDbtrAgt', 'elctrncSgntr', 'ultmtDbtr', 'purp', 'rmtInf'
-     * @return boolean
+     *
+     * @param mixed[] $paymentInfo needed keys: 'pmtId', 'instdAmt', 'mndtId', 'dtOfSgntr', 'bic',
+     *                             'dbtr', 'iban';
+     *                             optional keys: 'amdmntInd', 'orgnlMndtId', 'orgnlCdtrSchmeId_nm',
+     *                             'orgnlCdtrSchmeId_id', 'orgnlDbtrAcct_iban', 'orgnlDbtrAgt',
+     *                             'elctrncSgntr', 'ultmtDbtr', 'purp', 'rmtInf'
+     * @throws SephpaInputException
+     * @return void
      */
     public function addPayment(array $paymentInfo)
     {
-        $needed = array(
-            'pmtId', 'instdAmt', 'mndtId', 'dtOfSgntr', 'bic', 'dbtr', 'iban'  // TODO: Check this
-        );
+        if(SepaUtilities::containsNotAllKeys($paymentInfo, array('pmtId', 'instdAmt', 'mndtId', 'dtOfSgntr', 'bic', 'dbtr', 'iban')))
+            throw new SephpaInputException('One of the required inputs \'pmtId\', \'instdAmt\', \'mndtId\', \'dtOfSgntr\', \'bic\', \'dbtr\', \'iban\' is missing.');
+
+        if(isset($paymentInfo['amdmntInd']) && $paymentInfo['amdmntInd'] === 'true'){
         
-        foreach ($needed as $key) {
-            if (!isset($paymentInfo[$key]))
-            return false;
-        }
-        
-        if(isset($paymentInfo['amdmntInd']) && strcmp($paymentInfo['amdmntInd'], 'true') == 0){
-        
-            $alsoNeedsAtLeastOne = array(
-                'orgnlMndtId', 'orgnlCdtrSchmeId_nm', 'orgnlCdtrSchmeId_id', 'orgnlDbtrAcct_iban', 'orgnlDbtrAgt'
-            );
-            
-            $counter = 0;
-            
-            foreach ($alsoNeedsAtLeastOne as $key) {
-                if (isset($paymentInfo[$key]))
-                    $counter++;
-            }
-            
-            if($counter == 0)
-                return false;
+            if(SepaUtilities::containsNotAnyKey($paymentInfo, array('orgnlMndtId', 'orgnlCdtrSchmeId_nm', 'orgnlCdtrSchmeId_id', 'orgnlDbtrAcct_iban', 'orgnlDbtrAgt')))
+                throw new SephpaInputException('You set \'amdmntInd\' to \'true\', so you have to set also at least one of the following inputs: \'orgnlMndtId\', \'orgnlCdtrSchmeId_nm\', \'orgnlCdtrSchmeId_id\', \'orgnlDbtrAcct_iban\', \'orgnlDbtrAgt\'.');
+
+
+            if(isset($paymentInfo['orgnlDbtrAgt']) && $paymentInfo['orgnlDbtrAgt'] === 'SMNDA' && $this->debitInfo['seqTp'] !== 'FRST')
+                throw new SephpaInputException('You set \'amdmntInd\' to \'true\' and \'orgnlDbtrAgt\' to \'SMNDA\', \'seqTp\' has to be \'FRST\'.');
 
         }else{
             $paymentInfo['amdmntInd'] = 'false';
         }
         
-        
-        $this->payments[] = array_map(array('self','removeUmlauts'), $paymentInfo);
-        
-        return true;
-        
+        $this->payments[] = $paymentInfo;
     }
     
     /**
@@ -145,7 +131,7 @@ class SepaDirectDebit extends SepaPaymentCollection
         $pmtInf->addChild('CdtrAgt')->addChild('FinInstnId')->addChild('BIC', $this->debitInfo['bic']);
         
         if(isset($this->debitInfo['ultmtCdtr']))
-            $pmtInf->addChild('UltmtCdtr')->addChild('Nm', $this->shorten(70, $this->debitInfo['ultmtCdtr']));
+            $pmtInf->addChild('UltmtCdtr')->addChild('Nm', SepaUtilities::sanitizeLength( $this->debitInfo['ultmtCdtr'],70 ));
         
         $pmtInf->addChild('ChrgBr', 'SLEV');
         
@@ -161,7 +147,7 @@ class SepaDirectDebit extends SepaPaymentCollection
     }
     
     /**
-     * generates the xml for a single payment
+     * Generates the xml for a single payment
      * @param SimpleXMLElement $drctDbtTxInf
      * @param mixed[] $payment One of the payments in $this->payments
      * @param string $ccy currency
@@ -183,7 +169,7 @@ class SepaDirectDebit extends SepaPaymentCollection
             if(isset($payment['orgnlCdtrSchmeId_Nm']) || isset($payment['orgnlCdtrSchmeId_Nm'])){
                 $orgnlCdtrSchmeId = $amdmntInd->addChild('OrgnlCdtrSchmeId');
                 if(isset($payment['orgnlCdtrSchmeId_Nm']))
-                    $orgnlCdtrSchmeId->addChild('Nm', $this->shorten(70, $payment['orgnlCdtrSchmeId_Nm']));
+                    $orgnlCdtrSchmeId->addChild('Nm', SepaUtilities::sanitizeLength( $payment['orgnlCdtrSchmeId_Nm'], 70 ));
                 if(isset($payment['orgnlCdtrSchmeId_Id'])){
                     $othr = $orgnlCdtrSchmeId->addChild('Id')->addChild('PrvtId')->addChild('Othr');
                     $othr->addChild('Id', $payment['orgnlCdtrSchmeId_Id']);
@@ -199,22 +185,14 @@ class SepaDirectDebit extends SepaPaymentCollection
             $mndtRltdInf->addChild('ElctrncSgntr', $payment['elctrncSgntr']);
         
         $drctDbtTxInf->addChild('DbtrAgt')->addChild('FinInstnId')->addChild('BIC', $payment['bic']);
-        $drctDbtTxInf->addChild('Dbtr')->addChild('Nm', $this->shorten(70, $payment['dbtr']));
+        $drctDbtTxInf->addChild('Dbtr')->addChild('Nm', SepaUtilities::sanitizeLength( $payment['dbtr'], 70 ));
         $drctDbtTxInf->addChild('DbtrAcct')->addChild('Id')->addChild('IBAN', $payment['iban']);
         if(isset($payment['ultmtDbtr']))
             $drctDbtTxInf->addChild('UltmtDbtr')->addChild('Nm', $payment['ultmtDbtr']);
         if(isset($payment['purp']))
             $drctDbtTxInf->addChild('Purp')->addChild('Cd', $payment['purp']);
         if(isset($payment['rmtInf']))
-            $drctDbtTxInf->addChild('RmtInf')->addChild('Ustrd', $this->shorten(140, $payment['rmtInf']));
-    }
-
-    private function removeUmlauts($str)
-    {
-        $umlauts = array('Ä', 'ä', 'Ü', 'ü', 'Ö', 'ö', 'ß');
-        $umlautReplacements = array('Ae', 'ae', 'Ue', 'ue', 'Oe', 'oe', 'ss');
-        
-        return str_replace($umlauts, $umlautReplacements, $str);
+            $drctDbtTxInf->addChild('RmtInf')->addChild('Ustrd', SepaUtilities::sanitizeLength( $payment['rmtInf'], 140 ));
     }
 
 }
