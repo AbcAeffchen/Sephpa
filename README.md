@@ -2,7 +2,7 @@ Sephpa - A PHP class to export SEPA files
 ===============
 
 ###General###
-**Sephpa** [sefa] is a PHP class that creates SEPA (xml) files. The created xml files fulfill the specifications of Electronic Banking Internet Communication Standard (EBICS)
+**Sephpa** [sefa] is a PHP class that creates SEPA (xml,xsd) files. The created xml files fulfill the specifications of Electronic Banking Internet Communication Standard (EBICS)
 
 ###Supported file versions###
 - SEPA Credit Transfer
