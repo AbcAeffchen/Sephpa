@@ -1,6 +1,9 @@
 Sephpa - Change Log
 ===============
 
+##1.1.1 - Sep 18, '14##
+- Fixed some bugs in SepaUtilities
+
 ##1.1.0 - Sep 7, '14##
 - Renamed the project to Sephpa
 - Renamed SepaXmlFile.php to Sephpa.php
