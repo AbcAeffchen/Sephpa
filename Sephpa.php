@@ -85,10 +85,10 @@ class Sephpa
      *
      * @param string $initgPty The name of the initiating party (max. 70 characters)
      * @param string $msgId    The unique id of the file
-     * @param string $type     Sets the type of the sepa file 'CT' or 'DD' (default = 'CT')
+     * @param int    $type     Sets the type and version of the sepa file. Use the SEPA_PAIN_* constants
      * @throws SephpaInputException
      */
-    public function __construct($initgPty, $msgId, $type = 'CT')
+    public function __construct($initgPty, $msgId, $type)
     {
         switch($type)
         {
