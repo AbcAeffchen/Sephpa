@@ -73,7 +73,7 @@ class SepaUtilities
      * @param string $inputFormat default is the german format DD.MM.YYYY
      * @return string date as YYYY-MM-DD
      */
-    public static function formatDate( $date , $inputFormat = 'd.m.Y')
+    public static function formatDate($date, $inputFormat = 'd.m.Y')
     {
         return DateTime::createFromFormat($inputFormat, $date)->format('Y-m-d');
     }
@@ -81,23 +81,23 @@ class SepaUtilities
     /**
      * Checks if the input holds for the field.
      * @param string $field Valid fields are: 'pmtinfid', 'dbtr', 'iban', 'bic', 'ccy', 'btchbookg',
-     *                      'ultmtdebtr', 'pmtId', 'instdamt', 'cdtr', 'ultmtcdrt', 'rmtinf', 'ci'
+     *                      'ultmtdebtr', 'pmtid', 'instdamt', 'cdtr', 'ultmtcdrt', 'rmtinf', 'ci'
      * @param mixed $input
      * @return bool|string
      */
-    public static function check( $field, $input )
+    public static function check($field, $input)
     {
         $field = strtolower($field);
         switch($field)
         {
             case 'ci': return self::checkRestrictedPersonIdentifierSEPA($input);
-            case 'pmtId':   // next line
+            case 'pmtid':   // next line
             case 'pmtinfid': return self::checkRestrictedIdentificationSEPA1($input);
-            case 'cdtr':
+            case 'cdtr':                                    // cannot be empty (and the following things also)
+            case 'dbtr': if(empty($input)) return false;    // cannot be empty (and the following things also)
             case 'ultmtcdrt':
-            case 'ultmtdebtr':  // next line
-            case 'dbtr': return self::checkLength($input, 70) && self::checkCharset($input);
-            case 'rmtinf': return self::checkLength($input, 140) && self::checkCharset($input);
+            case 'ultmtdebtr': return (self::checkLength($input, 70) && self::checkCharset($input)) ? $input : false;
+            case 'rmtinf': return (self::checkLength($input, 140) && self::checkCharset($input)) ? $input : false;
             case 'iban': return self::checkIBAN($input);
             case 'bic': return self::checkBIC($input);
             case 'ccy': return self::checkActiveOrHistoricCurrencyCode($input);
@@ -109,20 +109,22 @@ class SepaUtilities
 
     /**
      * Tries to sanitize the the input so it fits in the field.
-     * @param string $field Valid fields are: 'cdtr', 'dbtr', 'rmtInf', 'ultmtCdrt', 'ultmtDebtr'
+     * @param string $field Valid fields are: 'cdtr', 'dbtr', 'rmtinf', 'ultmtcdrt', 'ultmtdebtr'
      * @param mixed $input
      * @return mixed|false The sanitized input or false if the input is not sanitizeable.
      */
-    public static function sanitize( $field, $input )
+    public static function sanitize($field, $input)
     {
         $field = strtolower($field);
         switch($field)
         {
+            case 'ultmtcdrt':
+            case 'ultmtdebtr': return self::sanitizeLength(self::replaceSpecialChars($input), 70);
             case 'cdtr':
-            case 'ultmtCdrt':
-            case 'ultmtDebtr':  // next line
-            case 'dbtr': return self::sanitizeLength(self::replaceSpecialChars($input), 70);
-            case 'rmtInf': return self::sanitizeLength(self::replaceSpecialChars($input), 140);
+            case 'dbtr':
+                $res = self::sanitizeLength(self::replaceSpecialChars($input), 70);
+                return (empty($res) ? false : $res);
+            case 'rmtinf': return self::sanitizeLength(self::replaceSpecialChars($input), 140);
             default: return false;
         }
     }
@@ -177,7 +179,7 @@ class SepaUtilities
 
     /**
      * Checks if $bbi is a valid batch booking indicator, i.e. bbi equals 'true' or 'false'
-     * @param $bbi
+     * @param string $bbi
      * @return string|false The batch booking indicator (in lower case only) or false if not valid
      */
     private static function checkBatchBookingIndicator( $bbi )
@@ -244,7 +246,7 @@ class SepaUtilities
      * @param int $maxLen
      * @return string sanitized string
      */
-    public static function sanitizeLength( $input, $maxLen )
+    public static function sanitizeLength($input, $maxLen)
     {
         if(isset($input[$maxLen]))     // take string as array of chars
             return substr($input,0,$maxLen);
@@ -262,7 +264,7 @@ class SepaUtilities
      */
     public static function replaceSpecialChars($str)
     {
-        // Remove all '&' (they are not allowed anywhere)
+        // remove all '&' (they are not allowed)
         $str = str_replace('&', '', $str);
         // turning all special chars into html entities. Then they look like '&' + char + modification + ';'
         $str = htmlentities($str, ENT_COMPAT, 'utf-8');
@@ -301,9 +303,9 @@ class SepaUtilities
         return trim($str);
     }
 
-    public static function checkCharset( $str)
+    public static function checkCharset($str)
     {
-        return (boolean) preg_match('#^[a-zA-Z0-9/\-?:().,\'+\s]*$#',$str, $test);
+        return (boolean) preg_match('#^[a-zA-Z0-9/\-?:().,\'+\s]*$#', $str, $test);
     }
 
     /**
