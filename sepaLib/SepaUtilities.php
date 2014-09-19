@@ -81,7 +81,7 @@ class SepaUtilities
     /**
      * Checks if the input holds for the field.
      * @param string $field Valid fields are: 'pmtinfid', 'dbtr', 'iban', 'bic', 'ccy', 'btchbookg',
-     *                      'ultmtdebtr', 'pmtid', 'instdamt', 'cdtr', 'ultmtcdrt', 'rmtinf', 'ci'
+     *                      'ultmtdebtr', 'pmtid', 'instdamt', 'cdtr', 'ultmtcdrt', 'rmtinf', 'ci', initgpty
      * @param mixed $input
      * @return mixed|false The checked input or false, if it is not valid
      */
@@ -93,6 +93,7 @@ class SepaUtilities
             case 'ci': return self::checkRestrictedPersonIdentifierSEPA($input);
             case 'pmtid':   // next line
             case 'pmtinfid': return self::checkRestrictedIdentificationSEPA1($input);
+            case 'initgpty':
             case 'cdtr':                                    // cannot be empty (and the following things also)
             case 'dbtr': if(empty($input)) return false;    // cannot be empty (and the following things also)
             case 'ultmtcdrt':
@@ -109,7 +110,7 @@ class SepaUtilities
 
     /**
      * Tries to sanitize the the input so it fits in the field.
-     * @param string $field Valid fields are: 'cdtr', 'dbtr', 'rmtinf', 'ultmtcdrt', 'ultmtdebtr'
+     * @param string $field Valid fields are: 'cdtr', 'dbtr', 'rmtinf', 'ultmtcdrt', 'ultmtdebtr', initgpty
      * @param mixed $input
      * @return mixed|false The sanitized input or false if the input is not sanitizeable or invalid
      *                     also after sanitizing.
@@ -121,6 +122,7 @@ class SepaUtilities
         {
             case 'ultmtcdrt':
             case 'ultmtdebtr': return self::sanitizeLength(self::replaceSpecialChars($input), 70);
+            case 'initgpty':
             case 'cdtr':
             case 'dbtr':
                 $res = self::sanitizeLength(self::replaceSpecialChars($input), 70);
