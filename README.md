@@ -45,7 +45,7 @@ formatting changes, e.g. correcting letter case. Possible field values are:
   - 'ci': Creditor Identifier
 - `sanitizeLength($input, $maxLen)`: Shortens the string if it is to long.
 - `replaceSpecialChars($str)`: replaces all characters that are not allowed in sepa files by a
-allowed one or removes them. Take a look at this [.xls file](See http://www.europeanpaymentscouncil.eu/index.cfm/knowledge-bank/epc-documents/sepa-requirements-for-an-extended-character-set-unicode-subset-best-practices/) for more information
+allowed one or removes them. Take a look at this [.xls file](http://www.europeanpaymentscouncil.eu/index.cfm/knowledge-bank/epc-documents/sepa-requirements-for-an-extended-character-set-unicode-subset-best-practices/) for more information
 *Notice:* Cyrillic is not supported yet, but greek letters are.
 - `sanitize($field, $input)`: tries to sanitize the input so it fits in the field. Possible fields are
   - 'cdtr'
