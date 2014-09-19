@@ -132,9 +132,9 @@ class SepaUtilities
 
     /**
      * Checks the input and If it is not valid it tries to sanitize it.
-     * @param string $field
+     * @param string $field all fields check and/or sanitize supports
      * @param mixed $input
-     * @return bool|false|mixed|string
+     * @return mixed|false
      */
     public static function checkAndSanitize($field, $input)
     {
