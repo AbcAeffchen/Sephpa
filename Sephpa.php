@@ -15,6 +15,9 @@ require_once 'sepaLib/SepaDirectDebit00800202.php';
 require_once 'sepaLib/SepaDirectDebit00800302.php';
 require_once 'sepaLib/SepaUtilities.php';
 
+// Set default Timezone
+date_default_timezone_set(@date_default_timezone_get());
+
 /**
  * Class SephpaInputException thrown if an invalid input is detected
  */
