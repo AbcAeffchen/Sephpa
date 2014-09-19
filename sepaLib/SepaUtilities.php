@@ -83,7 +83,7 @@ class SepaUtilities
      * @param string $field Valid fields are: 'pmtinfid', 'dbtr', 'iban', 'bic', 'ccy', 'btchbookg',
      *                      'ultmtdebtr', 'pmtid', 'instdamt', 'cdtr', 'ultmtcdrt', 'rmtinf', 'ci'
      * @param mixed $input
-     * @return bool|string
+     * @return mixed|false The checked input or false, if it is not valid
      */
     public static function check($field, $input)
     {
@@ -111,7 +111,8 @@ class SepaUtilities
      * Tries to sanitize the the input so it fits in the field.
      * @param string $field Valid fields are: 'cdtr', 'dbtr', 'rmtinf', 'ultmtcdrt', 'ultmtdebtr'
      * @param mixed $input
-     * @return mixed|false The sanitized input or false if the input is not sanitizeable.
+     * @return mixed|false The sanitized input or false if the input is not sanitizeable or invalid
+     *                     also after sanitizing.
      */
     public static function sanitize($field, $input)
     {
@@ -127,6 +128,21 @@ class SepaUtilities
             case 'rmtinf': return self::sanitizeLength(self::replaceSpecialChars($input), 140);
             default: return false;
         }
+    }
+
+    /**
+     * Checks the input and If it is not valid it tries to sanitize it.
+     * @param string $field
+     * @param mixed $input
+     * @return bool|false|mixed|string
+     */
+    public static function checkAndSanitize($field, $input)
+    {
+        $checkedInput = self::check($field, $input);
+        if($checkedInput !== false)
+            return $checkedInput;
+
+        return self::sanitize($field,$input);
     }
 
     /**
