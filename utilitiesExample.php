@@ -70,6 +70,14 @@ if(isset($_POST['sanitize']))
     <?php if(isset($results['rmtinf'])){ echo ($results['rmtinf'] === false ? 'invalid' : 'valid -> ' . $results['rmtinf']); } ?><br>
     <input type="text" name="ci" placeholder="Creditor Identifier" value="<?php if(isset($_POST['ci'])) echo $_POST['ci']; ?>">
     <?php if(isset($results['ci'])){ echo ($results['ci'] === false ? 'invalid' : 'valid -> ' . $results['ci']); } ?><br>
+    <br>
+    <br>
+    <input type="text" name="iban2" pattern="<?php echo SepaUtilities::$ibanHtml5Pattern; ?>" placeholder="IBAN"><br>
+    <input type="text" name="bic2" pattern="<?php echo SepaUtilities::$ibanHtml5Pattern; ?>" placeholder="BIC"><br>
+    <input type="text" name="shortText" pattern="<?php echo SepaUtilities::$ibanHtml5Pattern; ?>" placeholder="Short text (up to 70 chars)"><br>
+    <input type="text" name="longText" pattern="<?php echo SepaUtilities::$ibanHtml5Pattern; ?>" placeholder="Long text (up to 140 chars)"><br>
+    <br><br>
+
     <input type="submit" name="check" value="Check">
     <input type="submit" name="sanitize" value="Sanitize">
 </form>

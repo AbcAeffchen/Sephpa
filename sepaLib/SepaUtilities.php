@@ -3,6 +3,12 @@
 
 class SepaUtilities
 {
+
+    public static $ibanHtml5Pattern = '[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}';
+    public static $bicHtml5Pattern = '[A-Z]{6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{3}){0,1}';
+    public static $shortTextHtml5Pattern = '[a-zA-Z0-9/\-?:().,\'+\s]{0,70}';
+    public static $longTextHtml5Pattern = '[a-zA-Z0-9/\-?:().,\'+\s]{0,140}';
+
     /**
      * Checks if an iban is valid. Note that also if the iban is valid it does not have to exist
      * @param string $iban
