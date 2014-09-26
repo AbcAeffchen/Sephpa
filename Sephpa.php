@@ -9,11 +9,11 @@
  * @author  Alexander Schickedanz <alex@abcaeffchen.net>
  */
 
-require_once 'sepaLib/SepaCreditTransfer00100203.php';
-require_once 'sepaLib/SepaCreditTransfer00100303.php';
-require_once 'sepaLib/SepaDirectDebit00800202.php';
-require_once 'sepaLib/SepaDirectDebit00800302.php';
-require_once 'sepaLib/SepaUtilities.php';
+function sepaAutoloader($class) {
+    require __DIR__ . '/sepaLib/' . $class . '.php';
+}
+
+spl_autoload_register('sepaAutoloader');
 
 // Set default Timezone
 date_default_timezone_set(@date_default_timezone_get());
