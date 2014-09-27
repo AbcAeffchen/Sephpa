@@ -59,6 +59,9 @@ By default the german date format (DD.MM.YYYY) is used.
 
 Have also a look at utilitiesExample.php
 
+The SepaUtilities provides also patterns that can be used in the HTML5 input-attribute "pattern"
+to hint the user
+
 ###Creating a new SEPA file###
 
 Note: This is not meant to teach you SEPA. If you want to learn more about SEPA or SEPA files,

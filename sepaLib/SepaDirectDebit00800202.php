@@ -9,8 +9,6 @@
  * @author  Alexander Schickedanz <alex@abcaeffchen.net>
  */
 
-require_once 'SepaPaymentCollection.php';
- 
 /**
  * Manages direct debits
  */

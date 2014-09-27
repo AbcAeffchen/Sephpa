@@ -1,6 +1,17 @@
 Sephpa - Change Log
 ===============
 
+##1.1.2 - Sep 27, '14##
+- added an autoloader to load required files dynamic.
+- added patterns to SepaUtilities that can be used in HTML5 pattern attribute
+- added checkAndSanitize function to SepaUtilities
+- added 'initgpty', 'mndtid', 'orgnlmndtid', 'orgnlcdtrschmeid_nm', 'orgnlcdtrschmeid_id',
+'orgnldbtracct_iban' to the fields that can be checked
+- added 'orgnlcdtrschmeid_nm' to the fields that can be sanitized
+- fixed: a default timezone was added, so DateTime will work without timezone specified in the
+server settings
+- updated readme + example.php
+
 ##1.1.1 - Sep 18, '14##
 - Fixed some bugs in SepaUtilities
 

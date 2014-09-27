@@ -4,10 +4,62 @@
 class SepaUtilities
 {
 
-    public static $ibanHtml5Pattern = '[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}';
-    public static $bicHtml5Pattern = '[A-Z]{6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{3}){0,1}';
-    public static $shortTextHtml5Pattern = '[a-zA-Z0-9/\-?:().,\'+\s]{0,70}';
-    public static $longTextHtml5Pattern = '[a-zA-Z0-9/\-?:().,\'+\s]{0,140}';
+    const PATTERN_IBAN = '[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}';
+    const PATTERN_BIC  = '[A-Z]{6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{3}){0,1}';
+    /**
+     * equates to RestrictedPersonIdentifierSEPA
+     */
+    const PATTERN_CREDITOR_IDENTIFIER  = '[a-zA-Z]{2,2}[0-9]{2,2}([A-Za-z0-9]|[\+|\?|/|\-|:|\(|\)|\.|,|\']){3,3}([A-Za-z0-9]|[\+|\?|/|\-|:|\(|\)|\.|,|\']){1,28}';
+    const PATTERN_SHORT_TEXT  = '[a-zA-Z0-9/\-?:().,\'+\s]{0,70}';
+    const PATTERN_LONG_TEXT  = '[a-zA-Z0-9/\-?:().,\'+\s]{0,140}';
+    /**
+     * Used for Message-, Payment- and Transfer-IDs
+     * equates to checkRestrictedIdentificationSEPA1
+     */
+    const PATTERN_FILE_IDS = '([A-Za-z0-9]|[\+|\?|/|\-|:|\(|\)|\.|,|\'|\s]){1,35}';
+    /**
+     * equates to checkRestrictedIdentificationSEPA2
+     */
+    const PATTERN_MANDATE_ID = '([A-Za-z0-9]|[\+|\?|/|\-|:|\(|\)|\.|,|\']){1,35}';
+
+    /**
+     * Checks if an creditor identifier (ci) is valid. Note that also if the ci is valid it does
+     * not have to exist
+     *
+     * @param string $ci
+     * @return string|false The valid iban or false if it is not valid
+     */
+    public static function checkCreditorIdentifier( $ci )
+    {
+        $alph =         array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+                         'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+                         'U', 'V', 'W', 'X', 'Y', 'Z');
+        $alphValues =  array( 10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
+                         20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
+                         30,  31,  32,  33,  34,  35);
+
+        $ci = str_replace( ' ', '' , $ci );     // remove whitespaces
+        $ci = strtoupper($ci);
+
+        if(!self::checkRestrictedPersonIdentifierSEPA($ci))
+            return false;
+
+        $ciCopy = $ci;
+
+        // remove creditor business code
+        $nationalIdentifier = substr($ci, 7);
+        $check = substr($ci, 0,4);
+        $concat = $nationalIdentifier . $check;
+
+        $concat = preg_replace('#[^a-zA-Z0-9]#','',$concat);      // remove all non-alpha-numeric characters
+
+        $concat = $check = str_replace($alph, $alphValues, $concat);
+
+        if(self::iso7064Mod97m10ChecksumCheck($concat))
+            return $ciCopy;
+        else
+            return false;
+    }
 
     /**
      * Checks if an iban is valid. Note that also if the iban is valid it does not have to exist
@@ -23,15 +75,10 @@ class SepaUtilities
                          20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
                          30,  31,  32,  33,  34,  35);
 
-        $mod97 = array(1, 10, 3, 30, 9, 90, 27, 76, 81, 34, 49, 5, 50, 15, 53, 45, 62, 38,
-                  89, 17, 73, 51, 25, 56, 75, 71, 31, 19, 93, 57, 85, 74, 61, 28, 86,
-                  84, 64, 58, 95, 77, 91, 37, 79, 14, 43, 42, 32, 29, 96, 87, 94, 67,
-                  88, 7, 70, 21, 16, 63, 48, 92, 47, 82, 44, 52, 35, 59, 8, 80, 24);
-
         $iban = str_replace( ' ', '' , $iban );     // remove whitespaces
         $iban = strtoupper($iban);
 
-        if(!preg_match('/^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$/',$iban))
+        if(!preg_match('/^' . self::PATTERN_IBAN . '$/',$iban))
             return false;
 
         $ibanCopy = $iban;
@@ -42,19 +89,27 @@ class SepaUtilities
 
         $concat = $bban . $check;
 
-        $checksum = 0;
-        $len = strlen($concat);
-        for($i = 1; $i  <= $len; $i++)
-        {
-            if(filter_var($concat[$len-$i], FILTER_VALIDATE_INT) === false)
-                return false;
-            $checksum = (($checksum + $mod97[$i-1]*$concat[$len-$i]) % 97);
-        }
-
-        if($checksum == 1)
+        if(self::iso7064Mod97m10ChecksumCheck($concat))
             return $ibanCopy;
         else
             return false;
+    }
+
+    private static function iso7064Mod97m10ChecksumCheck($input)
+    {
+        $mod97 = array(1, 10, 3, 30, 9, 90, 27, 76, 81, 34, 49, 5, 50, 15, 53, 45, 62, 38,
+                       89, 17, 73, 51, 25, 56, 75, 71, 31, 19, 93, 57, 85, 74, 61, 28, 86,
+                       84, 64, 58, 95, 77, 91, 37, 79, 14, 43, 42, 32, 29, 96, 87, 94, 67,
+                       88, 7, 70, 21, 16, 63, 48, 92, 47, 82, 44, 52, 35, 59, 8, 80, 24);
+
+        $checksum = 0;
+        $len = strlen($input);
+        for($i = 1; $i  <= $len; $i++)
+        {
+            $checksum = (($checksum + $mod97[$i-1]*$input[$len-$i]) % 97);
+        }
+
+        return ($checksum == 1);
     }
 
     /**
@@ -67,7 +122,7 @@ class SepaUtilities
         $bic = str_replace( ' ', '' , $bic );       // remove whitespaces
         $bic = strtoupper($bic);                    // use only capital letters
 
-        if(preg_match('/^[A-Z]{6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{3}){0,1}$/', $bic))
+        if(preg_match('/^' . self::PATTERN_BIC . '$/', $bic))
             return $bic;
         else
             return false;
@@ -86,9 +141,12 @@ class SepaUtilities
 
     /**
      * Checks if the input holds for the field.
-     * @param string $field Valid fields are: 'pmtinfid', 'dbtr', 'iban', 'bic', 'ccy', 'btchbookg',
-     *                      'ultmtdebtr', 'pmtid', 'instdamt', 'cdtr', 'ultmtcdrt', 'rmtinf', 'ci', initgpty
-     * @param mixed $input
+     *
+     * @param string $field Valid fields are: 'pmtinfid', 'dbtr', 'iban', 'bic', 'ccy',
+     *                      'btchbookg', 'mndtid', 'orgnlmndtid', 'orgnlcdtrschmeid_nm',
+     *                      'orgnlcdtrschmeid_id', 'orgnldbtracct_iban', 'ultmtdebtr', 'pmtid',
+     *                      'instdamt', 'cdtr', 'ultmtcdrt', 'rmtinf', 'ci', 'initgpty'
+     * @param mixed  $input
      * @return mixed|false The checked input or false, if it is not valid
      */
     public static function check($field, $input)
@@ -96,15 +154,20 @@ class SepaUtilities
         $field = strtolower($field);
         switch($field)
         {
-            case 'ci': return self::checkRestrictedPersonIdentifierSEPA($input);
+            case 'orgnlcdtrschmeid_id':
+            case 'ci': return self::checkCreditorIdentifier($input);
             case 'pmtid':   // next line
             case 'pmtinfid': return self::checkRestrictedIdentificationSEPA1($input);
+            case 'orgnlmndtid':
+            case 'mndtid': return self::checkRestrictedIdentificationSEPA2($input);
             case 'initgpty':
             case 'cdtr':                                    // cannot be empty (and the following things also)
             case 'dbtr': if(empty($input)) return false;    // cannot be empty (and the following things also)
+            case 'orgnlcdtrschmeid_nm':
             case 'ultmtcdrt':
             case 'ultmtdebtr': return (self::checkLength($input, 70) && self::checkCharset($input)) ? $input : false;
             case 'rmtinf': return (self::checkLength($input, 140) && self::checkCharset($input)) ? $input : false;
+            case 'orgnldbtracct_iban':
             case 'iban': return self::checkIBAN($input);
             case 'bic': return self::checkBIC($input);
             case 'ccy': return self::checkActiveOrHistoricCurrencyCode($input);
@@ -116,7 +179,7 @@ class SepaUtilities
 
     /**
      * Tries to sanitize the the input so it fits in the field.
-     * @param string $field Valid fields are: 'cdtr', 'dbtr', 'rmtinf', 'ultmtcdrt', 'ultmtdebtr', initgpty
+     * @param string $field Valid fields are: 'cdtr', 'dbtr', 'rmtinf', 'ultmtcdrt', 'ultmtdebtr', 'initgpty', 'orgnlcdtrschmeid_nm'
      * @param mixed $input
      * @return mixed|false The sanitized input or false if the input is not sanitizeable or invalid
      *                     also after sanitizing.
@@ -128,6 +191,7 @@ class SepaUtilities
         {
             case 'ultmtcdrt':
             case 'ultmtdebtr': return self::sanitizeLength(self::replaceSpecialChars($input), 70);
+            case 'orgnlcdtrschmeid_nm':
             case 'initgpty':
             case 'cdtr':
             case 'dbtr':
@@ -221,7 +285,7 @@ class SepaUtilities
      */
     private static function checkRestrictedIdentificationSEPA1($input)
     {
-        if(preg_match('#^([A-Za-z0-9]|[\+|\?|/|\-|:|\(|\)|\.|,|\'| ]){1,35}$#',$input))
+        if(preg_match('#^' . self::PATTERN_FILE_IDS . '$#',$input))
             return $input;
         else
             return false;
@@ -233,7 +297,7 @@ class SepaUtilities
      */
     private static function checkRestrictedIdentificationSEPA2($input)
     {
-        if(preg_match('#^([A-Za-z0-9]|[\+|\?|/|\-|:|\(|\)|\.|,|\']){1,35}$#',$input))
+        if(preg_match('#^' . self::PATTERN_MANDATE_ID . '$#',$input))
             return $input;
         else
             return false;
@@ -245,8 +309,7 @@ class SepaUtilities
      */
     private static function checkRestrictedPersonIdentifierSEPA($input)
     {
-        if(preg_match('#^[a-zA-Z]{2,2}[0-9]{2,2}([A-Za-z0-9]|[\+|\?|/|\-|:|\(|\)|\.|,|\']){3,3}' .
-                      '([A-Za-z0-9]|[\+|\?|/|\-|:|\(|\)|\.|,|\']){1,28}$#',$input))
+        if(preg_match('#^' . self::PATTERN_CREDITOR_IDENTIFIER . '$#',$input))
             return $input;
         else
             return false;

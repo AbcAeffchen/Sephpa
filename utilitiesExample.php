@@ -72,10 +72,12 @@ if(isset($_POST['sanitize']))
     <?php if(isset($results['ci'])){ echo ($results['ci'] === false ? 'invalid' : 'valid -> ' . $results['ci']); } ?><br>
     <br>
     <br>
-    <input type="text" name="iban2" pattern="<?php echo SepaUtilities::$ibanHtml5Pattern; ?>" placeholder="IBAN"><br>
-    <input type="text" name="bic2" pattern="<?php echo SepaUtilities::$ibanHtml5Pattern; ?>" placeholder="BIC"><br>
-    <input type="text" name="shortText" pattern="<?php echo SepaUtilities::$ibanHtml5Pattern; ?>" placeholder="Short text (up to 70 chars)"><br>
-    <input type="text" name="longText" pattern="<?php echo SepaUtilities::$ibanHtml5Pattern; ?>" placeholder="Long text (up to 140 chars)"><br>
+    <input type="text" name="iban2" pattern="<?php echo SepaUtilities::PATTERN_IBAN; ?>" placeholder="IBAN"><br>
+    <input type="text" name="bic2" pattern="<?php echo SepaUtilities::PATTERN_BIC; ?>" placeholder="BIC"><br>
+    <input type="text" name="bic2" pattern="<?php echo SepaUtilities::PATTERN_CREDITOR_IDENTIFIER; ?>" placeholder="Creditor Identifier"><br>
+    <input type="text" name="bic2" pattern="<?php echo SepaUtilities::PATTERN_MANDATE_ID; ?>" placeholder="Mandate ID"><br>
+    <input type="text" name="shortText" pattern="<?php echo SepaUtilities::PATTERN_SHORT_TEXT; ?>" placeholder="Short text (up to 70 chars)"><br>
+    <input type="text" name="longText" pattern="<?php echo SepaUtilities::PATTERN_LONG_TEXT; ?>" placeholder="Long text (up to 140 chars)"><br>
     <br><br>
 
     <input type="submit" name="check" value="Check">
