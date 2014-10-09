@@ -22,6 +22,8 @@ class SepaUtilities
      */
     const PATTERN_MANDATE_ID = '([A-Za-z0-9]|[\+|\?|/|\-|:|\(|\)|\.|,|\']){1,35}';
 
+    const FLAG_ALT_REPLACEMENT_GERMAN = 1;
+
     /**
      * Checks if an creditor identifier (ci) is valid. Note that also if the ci is valid it does
      * not have to exist
@@ -152,7 +154,7 @@ class SepaUtilities
     public static function check($field, $input)
     {
         $field = strtolower($field);
-        switch($field)
+        switch($field)      // fall-through's are on purpose
         {
             case 'orgnlcdtrschmeid_id':
             case 'ci': return self::checkCreditorIdentifier($input);
@@ -179,25 +181,27 @@ class SepaUtilities
 
     /**
      * Tries to sanitize the the input so it fits in the field.
+     *
      * @param string $field Valid fields are: 'cdtr', 'dbtr', 'rmtinf', 'ultmtcdrt', 'ultmtdebtr', 'initgpty', 'orgnlcdtrschmeid_nm'
-     * @param mixed $input
+     * @param mixed  $input
+     * @param int    $flags Flags used in replaceSpecialChars()
      * @return mixed|false The sanitized input or false if the input is not sanitizeable or invalid
-     *                     also after sanitizing.
+     *                      also after sanitizing.
      */
-    public static function sanitize($field, $input)
+    public static function sanitize($field, $input, $flags = 0)
     {
         $field = strtolower($field);
         switch($field)
         {
             case 'ultmtcdrt':
-            case 'ultmtdebtr': return self::sanitizeLength(self::replaceSpecialChars($input), 70);
+            case 'ultmtdebtr': return self::sanitizeLength(self::replaceSpecialChars($input, $flags), 70);
             case 'orgnlcdtrschmeid_nm':
             case 'initgpty':
             case 'cdtr':
             case 'dbtr':
-                $res = self::sanitizeLength(self::replaceSpecialChars($input), 70);
+                $res = self::sanitizeLength(self::replaceSpecialChars($input, $flags), 70);
                 return (empty($res) ? false : $res);
-            case 'rmtinf': return self::sanitizeLength(self::replaceSpecialChars($input), 140);
+            case 'rmtinf': return self::sanitizeLength(self::replaceSpecialChars($input, $flags), 140);
             default: return false;
         }
     }
@@ -346,11 +350,20 @@ class SepaUtilities
      * All special characters that can not be replaced with a latin char (such like quotes) will
      * be removed as long as they can not converted. See http://www.europeanpaymentscouncil.eu/index.cfm/knowledge-bank/epc-documents/sepa-requirements-for-an-extended-character-set-unicode-subset-best-practices/
      * for more information about converting characters.
+     *
      * @param string $str
+     * @param int    $flags Use the SepaUtilities::FLAG_ALT_REPLACEMENT_* constants. This will
+     *                      ignore the best practice replacement and use a more common one.
+     *                      You can use more than one flag by using the | (bitwise or) operator.
      * @return string
      */
-    public static function replaceSpecialChars($str)
+    public static function replaceSpecialChars($str, $flags = 0)
     {
+        if($flags & self::FLAG_ALT_REPLACEMENT_GERMAN)
+            $str = str_replace(array('Ä','ä','Ö','ö','Ü','ü','ß'),
+                              array('Ae','ae','Oe','oe','Ue','ue','ss'),
+                              $str);
+
         // remove all '&' (they are not allowed)
         $str = str_replace('&', '', $str);
         // turning all special chars into html entities. Then they look like '&' + char + modification + ';'
@@ -407,7 +420,7 @@ class SepaUtilities
      */
     private static function checkAmountFormat( $amount )
     {
-        // $amount is a string -> check for '1,234.56
+        // $amount is a string -> check for '1,234.56'
         $amount = filter_var($amount, FILTER_VALIDATE_FLOAT, FILTER_FLAG_ALLOW_THOUSAND);
 
         if($amount === false)

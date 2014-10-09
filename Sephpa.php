@@ -23,21 +23,20 @@ date_default_timezone_set(@date_default_timezone_get());
  */
 class SephpaInputException extends Exception {}
 
-// credit transfers < separator
-const SEPA_PAIN_001_002_03 = 100203;
-const SEPA_PAIN_001_003_03 = 100303;
-// Separator is greater then credit transfer and lower than direct debit
-const SEPA_RATOR           = 800000;
-// direct debits > separator
-const SEPA_PAIN_008_002_02 = 800202;
-const SEPA_PAIN_008_003_02 = 800302;
-
-
 /**
  Base class for both credit transfer and direct debit
 */
 class Sephpa
 {
+    // credit transfers < separator
+    const SEPA_PAIN_001_002_03 = 100203;
+    const SEPA_PAIN_001_003_03 = 100303;
+    // Separator is greater then credit transfer and lower than direct debit
+    const SEPA_RATOR           = 800000;
+    // direct debits > separator
+    const SEPA_PAIN_008_002_02 = 800202;
+    const SEPA_PAIN_008_003_02 = 800302;
+
     /**
      * @var SimpleXMLElement $xml xml object
      */
@@ -95,25 +94,25 @@ class Sephpa
     {
         switch($type)
         {
-            case SEPA_PAIN_001_002_03:
+            case self::SEPA_PAIN_001_002_03:
                 $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_001_002_03);
                 $this->xmlType = 'CstmrCdtTrfInitn';
-                $this->type = SEPA_PAIN_001_002_03;
+                $this->type = self::SEPA_PAIN_001_002_03;
                 break;
-            case SEPA_PAIN_001_003_03:
+            case self::SEPA_PAIN_001_003_03:
                 $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_001_003_03);
                 $this->xmlType = 'CstmrCdtTrfInitn';
-                $this->type = SEPA_PAIN_001_002_03;
+                $this->type = self::SEPA_PAIN_001_002_03;
                 break;
-            case SEPA_PAIN_008_002_02:
+            case self::SEPA_PAIN_008_002_02:
                 $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_002_02);
                 $this->xmlType = 'CstmrDrctDbtInitn';
-                $this->type = SEPA_PAIN_008_002_02;
+                $this->type = self::SEPA_PAIN_008_002_02;
                 break;
-            case SEPA_PAIN_008_003_02:
+            case self::SEPA_PAIN_008_003_02:
                 $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_003_02);
                 $this->xmlType = 'CstmrDrctDbtInitn';
-                $this->type = SEPA_PAIN_008_003_02;
+                $this->type = self::SEPA_PAIN_008_003_02;
                 break;
             default:
                 throw new SephpaInputException('You choose an invalid type. Please use the SEPA_PAIN_* constants.');
@@ -134,13 +133,13 @@ class Sephpa
      */
     public function addCreditTransferCollection(array $transferInfo)
     {
-        if($this->type > SEPA_RATOR)
+        if($this->type > self::SEPA_RATOR)
             throw new SephpaInputException('You cannot add credit transfers collections to a direct debit file');
 
 
         switch($this->type)
         {
-            case SEPA_PAIN_001_003_03:
+            case self::SEPA_PAIN_001_003_03:
                 if(SepaUtilities::containsNotAllKeys($transferInfo, array('pmtInfId', 'dbtr', 'iban')))
                     throw new SephpaInputException('One of the required inputs \'pmtInfId\', \'dbtr\', \'iban\' is missing.');
 
@@ -167,7 +166,7 @@ class Sephpa
      */
     public function addDirectDebitCollection(array $debitInfo)
     {
-        if($this->type < SEPA_RATOR)
+        if($this->type < self::SEPA_RATOR)
             throw new SephpaInputException('You cannot add a direct debit collection to a credit transfer file.');
 
         if(SepaUtilities::containsNotAllKeys($debitInfo, array('pmtInfId', 'lclInstrm', 'seqTp', 'cdtr', 'iban', 'bic', 'ci')))
@@ -194,7 +193,7 @@ class Sephpa
 
         switch($this->type)
         {
-            case SEPA_PAIN_008_003_02:
+            case self::SEPA_PAIN_008_003_02:
                 if(!in_array($debitInfo['lclInstrm'], array('CORE','COR1','B2B')))
                     throw new SephpaInputException('The local Instrument (lclInstrm) as to be either \'CORE\', \'COR1\' or \'B2B\'');
 
