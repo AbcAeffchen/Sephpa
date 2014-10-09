@@ -6,11 +6,11 @@ Sephpa - A PHP class to export SEPA files
 
 ###Supported file versions###
 - SEPA Credit Transfer
-  - pain.001.002.03
-  - pain.001.003.03
+    - pain.001.002.03
+    - pain.001.003.03
 - SEPA Direct Debit
-  - pain.008.002.02
-  - pain.008.003.02
+    - pain.008.002.02
+    - pain.008.003.02
 
 ###Requirements###
 Sephpa was tested on PHP version 5.3 (maybe it runs also on an older version, but this was not tested)
