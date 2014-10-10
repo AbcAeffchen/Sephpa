@@ -1,8 +1,13 @@
 <?php
 
-
+/**
+ * Class SepaUtilities
+ * Useful functions to validate an sanitize sepa input data
+ */
 class SepaUtilities
 {
+    const HTML_PATTERN_IBAN = '([a-zA-Z]\s*){2}([0-9]\s?){2}\s*([a-zA-Z0-9]\s*){1,30}';
+    const HTML_PATTERN_BIC = '([a-zA-Z]\s*){6}[a-zA-Z2-9]\s*[a-nA-Np-zP-Z0-9]\s*(([A-Z0-9]\s*){3}){0,1}';
 
     const PATTERN_IBAN = '[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}';
     const PATTERN_BIC  = '[A-Z]{6}[A-Z2-9][A-NP-Z0-9]([A-Z0-9]{3}){0,1}';
@@ -34,14 +39,14 @@ class SepaUtilities
     public static function checkCreditorIdentifier( $ci )
     {
         $alph =         array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-                         'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-                         'U', 'V', 'W', 'X', 'Y', 'Z');
+                              'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+                              'U', 'V', 'W', 'X', 'Y', 'Z');
         $alphValues =  array( 10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
-                         20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
-                         30,  31,  32,  33,  34,  35);
+                              20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
+                              30,  31,  32,  33,  34,  35);
 
-        $ci = str_replace( ' ', '' , $ci );     // remove whitespaces
-        $ci = strtoupper($ci);
+        $ci = preg_replace('/\s+/', '', $ci);   // remove whitespaces
+        $ci = strtoupper($ci);                  // todo does this breaks the ci?
 
         if(!self::checkRestrictedPersonIdentifierSEPA($ci))
             return false;
@@ -71,13 +76,13 @@ class SepaUtilities
     public static function checkIBAN( $iban )
     {
         $alph =         array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-                         'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-                         'U', 'V', 'W', 'X', 'Y', 'Z');
+                              'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+                              'U', 'V', 'W', 'X', 'Y', 'Z');
         $alphValues =  array( 10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
-                         20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
-                         30,  31,  32,  33,  34,  35);
+                              20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
+                              30,  31,  32,  33,  34,  35);
 
-        $iban = str_replace( ' ', '' , $iban );     // remove whitespaces
+        $iban = preg_replace('/\s+/', '' , $iban );     // remove whitespaces
         $iban = strtoupper($iban);
 
         if(!preg_match('/^' . self::PATTERN_IBAN . '$/',$iban))
@@ -121,7 +126,7 @@ class SepaUtilities
      */
     public static function checkBIC($bic)
     {
-        $bic = str_replace( ' ', '' , $bic );       // remove whitespaces
+        $bic = preg_replace('/\s+/', '' , $bic );   // remove whitespaces
         $bic = strtoupper($bic);                    // use only capital letters
 
         if(preg_match('/^' . self::PATTERN_BIC . '$/', $bic))
@@ -361,8 +366,8 @@ class SepaUtilities
     {
         if($flags & self::FLAG_ALT_REPLACEMENT_GERMAN)
             $str = str_replace(array('Ä','ä','Ö','ö','Ü','ü','ß'),
-                              array('Ae','ae','Oe','oe','Ue','ue','ss'),
-                              $str);
+                               array('Ae','ae','Oe','oe','Ue','ue','ss'),
+                               $str);
 
         // remove all '&' (they are not allowed)
         $str = str_replace('&', '', $str);
@@ -370,7 +375,7 @@ class SepaUtilities
         $str = htmlentities($str, ENT_COMPAT, 'utf-8');
         // remove '&' + modification + ';' -> left only the char
         $str = preg_replace('/&([a-z]{1,2})(acute|uml|circ|grave|ring|cedil|slash|tilde|caron|elig);/i', '$1', $str );
-        
+
         // replace greek chars
         $greek = array( '&Alpha;', '&Beta;', '&Gamma;', '&Delta;', '&Epsilon;', '&Zeta;',
                         '&Eta;', '&Theta;', '&Iota;', '&Kappa;', '&Lambda;', '&Mu;', '&Nu;',
@@ -403,9 +408,9 @@ class SepaUtilities
         return trim($str);
     }
 
-    public static function checkCharset($str)
+    private static function checkCharset($str)
     {
-        return (boolean) preg_match('#^[a-zA-Z0-9/\-?:().,\'+\s]*$#', $str, $test);
+        return (boolean) preg_match('#^[a-zA-Z0-9/\-?:().,\'+\s]*$#', $str);
     }
 
     /**
@@ -431,6 +436,5 @@ class SepaUtilities
 
         return $amount;
     }
-
 
 }
