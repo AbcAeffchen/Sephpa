@@ -35,22 +35,6 @@ abstract class Sephpa
     const SEPA_PAIN_008_002_02 = SepaUtilities::SEPA_PAIN_008_002_02;
     const SEPA_PAIN_008_003_02 = SepaUtilities::SEPA_PAIN_008_003_02;
     /**
-     * @type string INITIAL_STRING_CT Initial sting for credit transfer payment-collections.001.002.03
-     */
-    const INITIAL_STRING_PAIN_001_002_03 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:payment-collections.001.002.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:payment-collections.001.002.03 payment-collections.001.002.03.xsd"></Document>';
-    /**
-     * @type string INITIAL_STRING_CT Initial sting for credit transfer payment-collections.001.003.03
-     */
-    const INITIAL_STRING_PAIN_001_003_03 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:payment-collections.001.003.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:payment-collections.001.003.03 payment-collections.001.003.03.xsd"></Document>';
-    /**
-     * @type string INITIAL_STRING_DD Initial sting for direct debit payment-collections.008.002.02
-     */
-    const INITIAL_STRING_PAIN_008_002_02 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:payment-collections.008.002.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:payment-collections.008.002.02 payment-collections.008.002.02.xsd"></Document>';
-    /**
-     * @type string INITIAL_STRING_DD Initial sting for direct debit payment-collections.008.003.02
-     */
-    const INITIAL_STRING_PAIN_008_003_02 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:payment-collections.008.003.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:payment-collections.008.003.02 payment-collections.008.003.02.xsd"></Document>';
-    /**
      * @type \SimpleXMLElement $xml xml object
      */
     protected $xml;
