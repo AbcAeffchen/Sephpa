@@ -1,10 +1,13 @@
 Sephpa - A PHP class to export SEPA files
 ===============
 
-###General###
-**Sephpa** [sefa] is a PHP class that creates SEPA (xml,xsd) files. The created xml files fulfill the specifications of Electronic Banking Internet Communication Standard (EBICS)
 
-###Supported file versions###
+
+##General##
+**Sephpa** [sefa] is a PHP class that creates SEPA (xml,xsd) files. The created xml files fulfill
+the specifications of Electronic Banking Internet Communication Standard (EBICS)
+
+##Supported file versions##
 - SEPA Credit Transfer
     - pain.001.002.03
     - pain.001.003.03
@@ -12,55 +15,20 @@ Sephpa - A PHP class to export SEPA files
     - pain.008.002.02
     - pain.008.003.02
 
-###Requirements###
-Sephpa was tested on PHP version 5.3 (maybe it runs also on an older version, but this was not tested)
+##Requirements##
+Sephpa was tested on PHP version 5.3 and requires SepaUtilities 1.0.1+ and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
 
-###Using the Utilities###
-The SepaUtilities class depends not on Sephpa, so it can also used in any other project.
+###Get it###
+You can download it here (make sure you also download [SepaUtilities](https://github.com/AbcAeffchen/SepaUtilities) and make it available) or
+you can use composer. Just add
 
-Since you want to know if the input is valid at input time and not at the moment you create the
-file, Sephpa does not check the input itself. So the best would be, you check the inputs at input time
-and later just make a file out of the data.
+    {
+        "require": {
+            "abcaeffchen/sephpa": "~1.2"
+        }
+    }
 
-SepaUtilities contains the following checks:
-- `checkIBAN($iban)`: Checks if the IBAN is valid by checking the format and by calculating the checksum.
-It also removes whitespaces and changes all letters to upper case.
-- `checkBIC($bic)`: Checks if the BIC is valid by checking the format. It also removes whitespaces
-and changes all letters to upper case.
-- `checkCharset($str)`: Checks if the string contains only allowed characters.
-- `check($field, $input)`: Checks if the input fits in the field. This function also does little
-formatting changes, e.g. correcting letter case. Possible field values are:
-  - 'pmtinfid': Payment-Information-ID
-  - 'dbtr': Debtor Name
-  - 'iban'
-  - 'bic'
-  - 'ccy': Currency
-  - 'btchbookg': Batch Booking (boolean as string)
-  - 'ultmtdebtr': Ultimate Debtor
-  - 'pmtid': Payment ID
-  - 'instdamt': Instructed Amount
-  - 'cdtr': Creditor Name
-  - 'ultmtcdrt': Ultimate Creditor
-  - 'rmtinf': Remittance Information
-  - 'ci': Creditor Identifier
-- `sanitizeLength($input, $maxLen)`: Shortens the string if it is to long.
-- `replaceSpecialChars($str)`: replaces all characters that are not allowed in sepa files by a
-allowed one or removes them. Take a look at this [.xls file](http://www.europeanpaymentscouncil.eu/index.cfm/knowledge-bank/epc-documents/sepa-requirements-for-an-extended-character-set-unicode-subset-best-practices/) for more information
-*Notice:* Cyrillic is not supported yet, but greek letters are.
-- `sanitize($field, $input)`: tries to sanitize the input so it fits in the field. Possible fields are
-  - 'cdtr'
-  - 'dbtr'
-  - 'rmtInf'
-  - 'ultmtCdrt'
-  - 'ultmtDebtr'
-- `formatDate($date, $inputFormat)`: Returns $date in a Sepa-valid format. You can specify the
-input format by using [the table on this site](http://de1.php.net/manual/en/function.date.php).
-By default the german date format (DD.MM.YYYY) is used.
-
-Have also a look at utilitiesExample.php
-
-The SepaUtilities provides also patterns that can be used in the HTML5 input-attribute "pattern"
-to hint the user
+to your `composer.json`.
 
 ###Creating a new SEPA file###
 
@@ -103,16 +71,8 @@ collections as you like, but they have to be all of the same type.
         'ultmtDebtr'    => 'Ultimate Debtor Name'   // just an information, this do not affect the payment (max 70 characters)
     ));
 
-You can use methods from SepaUtilities class to check if iban and bic are valid and also if other
-text like the debtor name fits into the SEPA charset. You should use the methods of this class to
-check and sanitize the inputs. If the inputs are invalid, the file will be created without any
-problems, but your bank will reject the file. The easiest way to use SepaUtilities is by using
-the check method.
-
-    $isValid = SepaUtilities::check('iban',$input);
-
-You can just insert the field the input is for and the input it self. This method will not work
-with dates and data that can only take some different values as e.g. 'btchBookg'.
+You can use methods from [SepaUtilities](https://github.com/AbcAeffchen/SepaUtilities) to 
+validate and sanitize the inputs.
 
 To each collection you can add as many payments as you want
 
@@ -145,4 +105,6 @@ Notice that you can change the `.xml` file to a `.xsd` file by changing the name
 This works for direct debits the same way. Please have a look at the example.
 
 ###Licence###
-Published under MIT-Licence
+Licensed under the MIT Licence.
+
+###

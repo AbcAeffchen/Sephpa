@@ -1,6 +1,16 @@
 Sephpa - Change Log
 ===============
 
+##1.2.0 - Oct 18, '14##
+- Sephpa is now available via composer
+- Sephpa is now splitted up into `SephpaCreditTransfer` and `SephpaDirectDebit`
+- [SepaUtilities](https://github.com/AbcAeffchen/SepaUtilities) is now a project on its own
+- added namespaces
+- changed the directory names
+- added `$check` parameter to Sephpa constructor. It defaults to true, so Sephpa will check and
+sanitize all inputs its self.
+- added `downloadSepaFile()` and `storeSepaFile()`
+
 ##1.1.3 - Oct 9, '14##
 - moved the `SEPA_PAIN_*` constants into the Sephpa class. Call them now as `Sephpa::SEPA_PAIN_`.
 - added support for alternative language specific character replacement. Use the 
