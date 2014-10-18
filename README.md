@@ -1,7 +1,9 @@
 Sephpa - A PHP class to export SEPA files
 ===============
 
-
+[![Latest Stable Version](https://poser.pugx.org/abcaeffchen/sephpa/v/stable.svg)](https://packagist.org/packages/abcaeffchen/sephpa) 
+[![Total Downloads](https://poser.pugx.org/abcaeffchen/sephpa/downloads.svg)](https://packagist.org/packages/abcaeffchen/sephpa) 
+[![License](https://poser.pugx.org/abcaeffchen/sephpa/license.svg)](https://packagist.org/packages/abcaeffchen/sephpa)
 
 ##General##
 **Sephpa** [sefa] is a PHP class that creates SEPA (xml,xsd) files. The created xml files fulfill
