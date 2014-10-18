@@ -5,6 +5,7 @@
  */
 
 use AbcAeffchen\Sephpa\SephpaCreditTransfer;
+use AbcAeffchen\SepaUtilities\SepaUtilities;
 use AbcAeffchen\Sephpa\SephpaDirectDebit;
 
 require_once '../src/Sephpa.php';
@@ -50,9 +51,9 @@ $directDebitFile = new SephpaDirectDebit('Initiator Name', 'MessageID-1235', Sep
 // at least one in every SEPA file. No limit.
 $directDebitCollection = $directDebitFile->addCollection(array(
                     // needed information about the payer
-                        'pmtInfId'      => 'PaymentID-1235',        // ID of the paymentcollection
-                        'lclInstrm'     => 'CORE',                  // only 'CORE' or 'B2B'
-                        'seqTp'         => 'RCUR',                  // only 'FRST', 'RCUR', 'OOFF' or 'FNAL'
+                        'pmtInfId'      => 'PaymentID-1235',        // ID of the payment collection
+                        'lclInstrm'     => SepaUtilities::LOCAL_INSTRUMENT_CORE_DIRECT_DEBIT,
+                        'seqTp'         => SepaUtilities::SEQUENCE_TYPE_RECURRING,
                         'cdtr'          => 'Name of Creditor',      // (max 70 characters)
                         'iban'          => 'DE87200500001234567890',// IBAN of the Creditor
                         'bic'           => 'BELADEBEXXX',           // BIC of the Creditor
@@ -77,7 +78,7 @@ $directDebitCollection->addPayment(array(
                         'iban'          => 'DE87200500001234567890',// IBAN of the Debtor
                     // optional
                         'amdmntInd'     => 'false',                 // Did the mandate change
-                        'elctrncSgntr'  => 'test',                  // do not use this if there is a paper-based mandate
+                        //'elctrncSgntr'  => 'test',                  // do not use this if there is a paper-based mandate
                         'ultmtDbtr'     => 'Ultimate Debtor Name',  // just an information, this do not affect the payment (max 70 characters)
                         //'purp'        => ,                        // Do not use this if you not know how. For further information read the SEPA documentation
                         'rmtInf'        => 'Remittance Information',// unstructured information about the remittance (max 140 characters)

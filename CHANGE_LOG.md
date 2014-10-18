@@ -1,6 +1,10 @@
 Sephpa - Change Log
 ===============
 
+##1.2.1 - Oct 18, '14##
+- updated SepaUtilities: Sephpa 1.2.0 throws an exception if you entering a purpose (`purp`) 
+or a category purpose (`ctgypurp`) while `checkAndSanitize` is set to true.
+
 ##1.2.0 - Oct 18, '14##
 - Sephpa is now available via composer
 - Sephpa is now splitted up into `SephpaCreditTransfer` and `SephpaDirectDebit`

@@ -178,7 +178,7 @@ abstract class Sephpa
      * @param string $filename The path and filename
      * @throws SephpaInputException
      */
-    public function storeSepaFile($filename = 'patments.xsd')
+    public function storeSepaFile($filename = 'payments.xsd')
     {
         $file = fopen($filename, 'w');
         fwrite($file, $this->generateXml());
