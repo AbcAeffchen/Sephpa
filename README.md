@@ -19,7 +19,7 @@ the specifications of Electronic Banking Internet Communication Standard (EBICS)
     - pain.008.003.02
 
 ##Requirements##
-Sephpa was tested on PHP version 5.3 and requires [SepaUtilities 1.0.2+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
+Sephpa was tested on PHP version 5.3 and requires [SepaUtilities 1.0.4+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
 
 ##Installation##
 
@@ -29,7 +29,7 @@ Just add
 ```json
 {
     "require": {
-        "abcaeffchen/sephpa": "~1.2.1"
+        "abcaeffchen/sephpa": "~1.2.2"
     }
 }
 ```
