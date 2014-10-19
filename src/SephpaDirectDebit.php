@@ -19,8 +19,6 @@ require_once 'Sephpa.php';
  */
 class SephpaDirectDebit extends Sephpa
 {
-    const SEPA_PAIN_008_002_02 = SepaUtilities::SEPA_PAIN_008_002_02;
-    const SEPA_PAIN_008_003_02 = SepaUtilities::SEPA_PAIN_008_003_02;
     /**
      * @type string INITIAL_STRING_DD Initial sting for direct debit pain.008.002.02
      */
@@ -35,25 +33,26 @@ class SephpaDirectDebit extends Sephpa
      *
      * @param string $initgPty The name of the initiating party (max. 70 characters)
      * @param string $msgId    The unique id of the file
-     * @param int    $type     Sets the type and version of the sepa file. Use the SEPA_PAIN_* constants
+     * @param int    $version  Sets the type and version of the sepa file. Use the SEPA_PAIN_*
+     *                         constants
      * @param bool   $checkAndSanitize
      * @throws SephpaInputException
      */
-    public function __construct($initgPty, $msgId, $type, $checkAndSanitize = true)
+    public function __construct($initgPty, $msgId, $version, $checkAndSanitize = true)
     {
-        parent::__construct($initgPty, $msgId, $type, $checkAndSanitize);
+        parent::__construct($initgPty, $msgId, $version, $checkAndSanitize);
 
         $this->xmlType = 'CstmrDrctDbtInitn';
 
-        switch($type)
+        switch($version)
         {
             case self::SEPA_PAIN_008_002_02:
                 $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_002_02);
-                $this->type = self::SEPA_PAIN_008_002_02;
+                $this->version = self::SEPA_PAIN_008_002_02;
                 break;
             case self::SEPA_PAIN_008_003_02:
                 $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_003_02);
-                $this->type = self::SEPA_PAIN_008_003_02;
+                $this->version = self::SEPA_PAIN_008_003_02;
                 break;
             default:
                 throw new SephpaInputException('You choose an invalid SEPA file version. Please use the SEPA_PAIN_008_* constants.');
@@ -70,7 +69,7 @@ class SephpaDirectDebit extends Sephpa
      */
     public function addCollection(array $debitInfo)
     {
-        switch($this->type)
+        switch($this->version)
         {
             case self::SEPA_PAIN_008_002_02:
                 $paymentCollection = new SepaDirectDebit00800202($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);

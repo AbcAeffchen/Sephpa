@@ -1,6 +1,10 @@
 Sephpa - Change Log
 ===============
 
+##1.2.2 - Oct 19, '14##
+- bugfix: refactoring caused a naming problem in sepa files
+- added unit tests which compare the outputs to bank-validated files
+
 ##1.2.1 - Oct 18, '14##
 - updated SepaUtilities: Sephpa 1.2.0 throws an exception if you entering a purpose (`purp`) 
 or a category purpose (`ctgypurp`) while `checkAndSanitize` is set to true.

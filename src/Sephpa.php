@@ -12,7 +12,7 @@
 namespace AbcAeffchen\Sephpa;
 use AbcAeffchen\SepaUtilities\SepaUtilities;
 
-require '../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 
 // Set default Timezone
@@ -39,9 +39,9 @@ abstract class Sephpa
      */
     protected $xml;
     /**
-     * @type int $type Saves the type of the object SEPA_PAIN_*
+     * @type int $version Saves the type of the object SEPA_PAIN_*
      */
-    protected $type;
+    protected $version;
     /**
      * @type string $xmlType Either 'CstmrCdtTrfInitn' or 'CstmrDrctDbtInitn'
      */
@@ -111,13 +111,18 @@ abstract class Sephpa
     /**
      * Generates the XML file from the given data
      *
+     * @param string $creDtTm You should not use this
      * @throws SephpaInputException
      * @return string Just the xml code of the file
      */
-    public function generateXml()
+    public function generateXml($creDtTm = '')
     {
-        $datetime = new \DateTime();
-        $creDtTm = $datetime->format('Y-m-d\TH:i:s');
+        if(empty($creDtTm) || SepaUtilities::checkCreateDateTime($creDtTm) === false)
+        {
+            $now = new \DateTime();
+            $creDtTm  = $now->format('Y-m-d\TH:i:s');
+        }
+
         $totalNumberOfTransaction = $this->getNumberOfTransactions();
 
         if($totalNumberOfTransaction === 0)
@@ -148,24 +153,28 @@ abstract class Sephpa
     /**
      * Generates the SEPA file and starts a download using the header 'Content-Disposition: attachment;'
      * The file will not stored on the server.
+     *
      * @param string $filename
+     * @param string $creDtTm You should not use this
      * @throws SephpaInputException
      */
-    public function downloadSepaFile($filename = 'payments.xsd')
+    public function downloadSepaFile($filename = 'payments.xsd',$creDtTm = '')
     {
         header('Content-Disposition: attachment; filename="' . $filename . '"');
-        print $this->generateXml();
+        print $this->generateXml($creDtTm);
     }
 
     /**
      * Generates the SEPA file and stores it on the server.
+     *
      * @param string $filename The path and filename
+     * @param string $creDtTm  You should not use this
      * @throws SephpaInputException
      */
-    public function storeSepaFile($filename = 'payments.xsd')
+    public function storeSepaFile($filename = 'payments.xsd', $creDtTm = '')
     {
         $file = fopen($filename, 'w');
-        fwrite($file, $this->generateXml());
+        fwrite($file, $this->generateXml($creDtTm));
         fclose($file);
     }
 

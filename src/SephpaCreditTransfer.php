@@ -19,8 +19,6 @@ require_once 'Sephpa.php';
  */
 class SephpaCreditTransfer extends Sephpa
 {
-    const SEPA_PAIN_001_002_03 = SepaUtilities::SEPA_PAIN_001_002_03;
-    const SEPA_PAIN_001_003_03 = SepaUtilities::SEPA_PAIN_001_003_03;
     /**
      * @type string INITIAL_STRING_CT Initial sting for credit transfer pain.001.002.03
      */
@@ -29,30 +27,32 @@ class SephpaCreditTransfer extends Sephpa
      * @type string INITIAL_STRING_CT Initial sting for credit transfer pain.001.003.03
      */
     const INITIAL_STRING_PAIN_001_003_03 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03 pain.001.003.03.xsd"></Document>';
+
     /**
      * Creates a SepaXmlFile object and sets the head data
      *
      * @param string $initgPty The name of the initiating party
      * @param string $msgId    The unique id of the file
-     * @param int    $type     Sets the type and version of the sepa file. Use the SEPA_PAIN_* constants
+     * @param int    $version  Sets the type and version of the sepa file. Use the SEPA_PAIN_*
+     *                         constants
      * @param bool   $checkAndSanitize
      * @throws SephpaInputException
      */
-    public function __construct($initgPty, $msgId, $type, $checkAndSanitize = true)
+    public function __construct($initgPty, $msgId, $version, $checkAndSanitize = true)
     {
-        parent::__construct($initgPty, $msgId, $type, $checkAndSanitize);
+        parent::__construct($initgPty, $msgId, $version, $checkAndSanitize);
 
         $this->xmlType = 'CstmrCdtTrfInitn';
 
-        switch($type)
+        switch($version)
         {
             case self::SEPA_PAIN_001_002_03:
                 $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_001_002_03);
-                $this->type = self::SEPA_PAIN_001_002_03;
+                $this->version = self::SEPA_PAIN_001_002_03;
                 break;
             case self::SEPA_PAIN_001_003_03:
                 $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_001_003_03);
-                $this->type = self::SEPA_PAIN_001_002_03;
+                $this->version = self::SEPA_PAIN_001_003_03;
                 break;
             default:
                 throw new SephpaInputException('You choose an invalid SEPA file version. Please use the SEPA_PAIN_001_* constants.');
@@ -69,7 +69,7 @@ class SephpaCreditTransfer extends Sephpa
      */
     public function addCollection(array $transferInfo)
     {
-        switch($this->type)
+        switch($this->version)
         {
             case self::SEPA_PAIN_001_002_03:
                 $paymentCollection = new SepaCreditTransfer00100203($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);

@@ -11,7 +11,8 @@ use AbcAeffchen\Sephpa\SephpaDirectDebit;
 require_once '../src/Sephpa.php';
 
 // generate a SepaCreditTransfer object (pain.001.002.03).
-$creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234', SephpaCreditTransfer::SEPA_PAIN_001_002_03);
+$creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
+                                               SephpaCreditTransfer::SEPA_PAIN_001_003_03);
 
 // at least one in every SEPA file
 $creditTransferCollection = $creditTransferFile->addCollection(array(
@@ -46,7 +47,8 @@ $creditTransferFile->storeSepaFile();
 
 
 // generate a SepaDirectDebit object (pain.008.002.02).
-$directDebitFile = new SephpaDirectDebit('Initiator Name', 'MessageID-1235', SephpaDirectDebit::SEPA_PAIN_008_002_02);
+$directDebitFile = new SephpaDirectDebit('Initiator Name', 'MessageID-1235',
+                                         SephpaDirectDebit::SEPA_PAIN_008_003_02);
 
 // at least one in every SEPA file. No limit.
 $directDebitCollection = $directDebitFile->addCollection(array(
@@ -78,7 +80,7 @@ $directDebitCollection->addPayment(array(
                         'iban'          => 'DE87200500001234567890',// IBAN of the Debtor
                     // optional
                         'amdmntInd'     => 'false',                 // Did the mandate change
-                        //'elctrncSgntr'  => 'test',                  // do not use this if there is a paper-based mandate
+                        //'elctrncSgntr'  => 'tests',                  // do not use this if there is a paper-based mandate
                         'ultmtDbtr'     => 'Ultimate Debtor Name',  // just an information, this do not affect the payment (max 70 characters)
                         //'purp'        => ,                        // Do not use this if you not know how. For further information read the SEPA documentation
                         'rmtInf'        => 'Remittance Information',// unstructured information about the remittance (max 140 characters)
@@ -90,5 +92,5 @@ $directDebitCollection->addPayment(array(
                         'orgnlDbtrAgt'          => 'SMNDA'          // only 'SMNDA' allowed if used
 ));
 
-$directDebitFile->downloadSepaFile();
+$directDebitFile->storeSepaFile();
 
