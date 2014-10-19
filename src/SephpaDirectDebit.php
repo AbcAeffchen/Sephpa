@@ -10,7 +10,6 @@
  */
 
 namespace AbcAeffchen\Sephpa;
-use AbcAeffchen\SepaUtilities\SepaUtilities;
 
 require_once 'Sephpa.php';
 
