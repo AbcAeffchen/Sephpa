@@ -2,6 +2,7 @@ Sephpa - A PHP class to export SEPA files
 ===============
 
 [![Build Status](https://travis-ci.org/AbcAeffchen/Sephpa.svg?branch=master)](https://travis-ci.org/AbcAeffchen/Sephpa)
+[![Dependency Status](https://www.versioneye.com/php/abcaeffchen:sephpa/badge.svg)](https://www.versioneye.com/php/abcaeffchen:sephpa/1.2.2)
 [![Latest Stable Version](https://poser.pugx.org/abcaeffchen/sephpa/v/stable.svg)](https://packagist.org/packages/abcaeffchen/sephpa) 
 [![Total Downloads](https://poser.pugx.org/abcaeffchen/sephpa/downloads.svg)](https://packagist.org/packages/abcaeffchen/sephpa) 
 [![License](https://poser.pugx.org/abcaeffchen/sephpa/license.svg)](https://packagist.org/packages/abcaeffchen/sephpa)
