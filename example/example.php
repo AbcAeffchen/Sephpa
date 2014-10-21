@@ -12,7 +12,7 @@ require_once '../src/Sephpa.php';
 
 // generate a SepaCreditTransfer object (pain.001.002.03).
 $creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
-                                               SephpaCreditTransfer::SEPA_PAIN_001_003_03);
+                                               SephpaCreditTransfer::SEPA_PAIN_001_002_03);
 
 // at least one in every SEPA file
 $creditTransferCollection = $creditTransferFile->addCollection(array(
@@ -43,7 +43,9 @@ $creditTransferCollection->addPayment(array(
                         'rmtInf'    => 'Remittance Information' // unstructured information about the remittance (max 140 characters)
                     ));
 
-$creditTransferFile->storeSepaFile();
+$creditTransferFile->storeSepaFile('ct_test.xsd','2014-10-21T05:32:35');
+//$creditTransferFile->storeSepaFile('ct_test.xsd');
+$creditTransferFile->storeSepaContainerFile('ct_container_test.xsd','2014-10-21T05:32:35');
 
 
 // generate a SepaDirectDebit object (pain.008.002.02).
@@ -92,5 +94,5 @@ $directDebitCollection->addPayment(array(
                         'orgnlDbtrAgt'          => 'SMNDA'          // only 'SMNDA' allowed if used
 ));
 
-$directDebitFile->storeSepaFile();
+$directDebitFile->storeSepaFile('dd_test.xsd');
 

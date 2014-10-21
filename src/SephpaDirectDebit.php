@@ -21,12 +21,15 @@ class SephpaDirectDebit extends Sephpa
     /**
      * @type string INITIAL_STRING_DD Initial sting for direct debit pain.008.002.02
      */
-    const INITIAL_STRING_PAIN_008_002_02 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.002.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.002.02 pain.008.002.02.xsd"></Document>';
+    const XMLNS_PAIN_008_002_02 = 'urn:iso:std:iso:20022:tech:xsd:pain.008.002.02';
     /**
      * @type string INITIAL_STRING_DD Initial sting for direct debit pain.008.003.02
      */
-    const INITIAL_STRING_PAIN_008_003_02 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02 pain.008.003.02.xsd"></Document>';
-
+    const XMLNS_PAIN_008_003_02 = 'urn:iso:std:iso:20022:tech:xsd:pain.008.003.02';
+    /**
+     * @type string $xmlContainerType
+     */
+    protected $xmlContainerType = 'MsgPain008';
     /**
      * Creates a SepaXmlFile object and sets the head data
      *
@@ -46,16 +49,18 @@ class SephpaDirectDebit extends Sephpa
         switch($version)
         {
             case self::SEPA_PAIN_008_002_02:
-                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_002_02);
-                $this->version = self::SEPA_PAIN_008_002_02;
+                $this->xmlns = self::XMLNS_PAIN_008_002_02;
                 break;
             case self::SEPA_PAIN_008_003_02:
-                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_003_02);
-                $this->version = self::SEPA_PAIN_008_003_02;
+                $this->xmlns = self::XMLNS_PAIN_008_003_02;
                 break;
             default:
                 throw new SephpaInputException('You choose an invalid SEPA file version. Please use the SEPA_PAIN_008_* constants.');
         }
+
+        $this->version = $version;
+        $this->xml = new \SimpleXMLElement(self::XML_DOCUMENT_TAG);
+        $this->xml->addAttribute('xmlns', $this->xmlns);
     }
 
     /**
