@@ -2,7 +2,7 @@
     "name": "abcaeffchen/sephpa",
     "type": "library",
     "description": "Generates Sepa files for credit transfers (pain.001.002.03, pain.001.003.03) and direct debit (pain.008.002.02, pain.008.003.02)",
-    "keywords": ["sepa","xml","xsd","banking"],
+    "keywords": ["sepa","xml","xsd","banking","files","finance","credit transfer","direct debit"],
     "homepage": "https://github.com/AbcAeffchen/Sephpa",
     "license": "MIT",
     "authors": [

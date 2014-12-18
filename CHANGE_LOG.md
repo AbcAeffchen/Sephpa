@@ -1,6 +1,11 @@
 Sephpa - Change Log
 ===============
 
+##1.2.3 - Dec 18, '14##
+- bugfix: removed the `require` in Sephpa.php. The directory linked there does not exist.
+- changed default file extension for SEPA files from xsd to xml. As everyone should name the files
+in a useful way, the default value will be removed in the future.
+
 ##1.2.2 - Oct 19, '14##
 - bugfix: refactoring caused a naming problem in sepa files
 - added unit tests which compare the outputs to bank-validated files

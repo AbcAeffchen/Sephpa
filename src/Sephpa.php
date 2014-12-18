@@ -12,9 +12,6 @@
 namespace AbcAeffchen\Sephpa;
 use AbcAeffchen\SepaUtilities\SepaUtilities;
 
-require __DIR__ . '/../vendor/autoload.php';
-
-
 // Set default Timezone
 date_default_timezone_set(@date_default_timezone_get());
 
@@ -158,7 +155,7 @@ abstract class Sephpa
      * @param string $creDtTm You should not use this
      * @throws SephpaInputException
      */
-    public function downloadSepaFile($filename = 'payments.xsd',$creDtTm = '')
+    public function downloadSepaFile($filename = 'payments.xml',$creDtTm = '')
     {
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         print $this->generateXml($creDtTm);
@@ -171,7 +168,7 @@ abstract class Sephpa
      * @param string $creDtTm  You should not use this
      * @throws SephpaInputException
      */
-    public function storeSepaFile($filename = 'payments.xsd', $creDtTm = '')
+    public function storeSepaFile($filename = 'payments.xml', $creDtTm = '')
     {
         $file = fopen($filename, 'w');
         fwrite($file, $this->generateXml($creDtTm));
