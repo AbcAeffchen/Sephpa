@@ -1,6 +1,9 @@
 Sephpa - Change Log
 ===============
 
+##1.2.4 - Not released yet##
+- fixed a bug that results in invalid sepa file, if BIC is not provided for credit transfer (pain.001.003.03)
+
 ##1.2.3 - Dec 18, '14##
 - bugfix: removed the `require` in Sephpa.php. The directory linked there does not exist.
 - changed default file extension for SEPA files from xsd to xml. As everyone should name the files
