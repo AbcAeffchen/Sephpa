@@ -1,7 +1,7 @@
 Sephpa - Change Log
 ===============
 
-##1.2.4 - Not released yet##
+##1.2.4 - Jan 27, '15##
 - fixed a bug that results in invalid sepa file, if BIC is not provided for credit transfer (pain.001.003.03)
 
 ##1.2.3 - Dec 18, '14##
