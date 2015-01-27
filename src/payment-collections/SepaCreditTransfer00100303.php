@@ -205,9 +205,6 @@ class SepaCreditTransfer00100303 implements SepaPaymentCollection
         if( !empty( $payment['bic'] ) )
             $cdtTrfTxInf->addChild('CdtrAgt')->addChild('FinInstnId')
                         ->addChild('BIC', $payment['bic']);
-        else
-            $cdtTrfTxInf->addChild('CdtrAgt')->addChild('FinInstnId')->addChild('Othr')
-                        ->addChild('Id', 'NOTPROVIDED');
 
         $cdtTrfTxInf->addChild('Cdtr')->addChild('Nm', $payment['cdtr']);
         $cdtTrfTxInf->addChild('CdtrAcct')->addChild('Id')->addChild('IBAN', $payment['iban']);
