@@ -20,7 +20,7 @@ the specifications of Electronic Banking Internet Communication Standard (EBICS)
     - pain.008.003.02
 
 ##Requirements##
-Sephpa was tested on PHP version 5.3 and requires [SepaUtilities 1.0.4+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
+Sephpa was tested on PHP version 5.3 and requires [SepaUtilities 1.1.0+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
 
 ##Installation##
 
@@ -30,7 +30,7 @@ Just add
 ```json
 {
     "require": {
-        "abcaeffchen/sephpa": "~1.2.2"
+        "abcaeffchen/sephpa": "~1.3.0"
     }
 }
 ```
@@ -194,9 +194,9 @@ $creditTransferCollection->downloadSepaFile();
 Notice that you can hand over a filename you like, but you should only use the file extension  
 `.xsd` or `.xml`.
 
-##Thanks##
+##Credits##
 Thanks to [Herrmann Herz](https://github.com/Heart1010) who supported me debugging and with great 
 ideas to improve Sephpa and SepaUtilities.
 
-###Licence###
-Licensed under the MIT Licence.
+##License##
+Licensed under the LGPL v3.0 License.
