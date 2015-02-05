@@ -2,8 +2,8 @@
 /**
  * Sephpa
  *
- * @license MIT License
- * @copyright © 2014 Alexander Schickedanz
+ * @license   LGPL - For details have a look at the LICENSE file
+ * @copyright ©2015 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
