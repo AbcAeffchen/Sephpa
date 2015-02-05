@@ -1,6 +1,10 @@
 Sephpa - Change Log
 ===============
 
+##1.3.0 - Feb 5, '15##
+- updated SepaUtilities to 1.1.0
+- changed licence to GNU LGPL v3.0
+
 ##1.2.4 - Jan 27, '15##
 - fixed a bug that results in invalid sepa file, if BIC is not provided for credit transfer (pain.001.003.03)
 
