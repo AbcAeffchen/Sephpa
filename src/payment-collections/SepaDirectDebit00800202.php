@@ -2,7 +2,7 @@
 /**
  * Sephpa
  *
- * @license   LGPL - For details have a look at the LICENSE file
+ * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
  * @copyright ©2015 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
