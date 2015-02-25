@@ -108,7 +108,7 @@ $creditTransferCollection = $creditTransferFile->addCollection(array(
     'ccy'           => 'EUR',                   // Currency. Default is 'EUR'
     'btchBookg'     => 'true',                  // BatchBooking, only 'true' or 'false'
     //'ctgyPurp'      => ,                      // Category Purpose. Do not use this if you do not know how. For further information read the SEPA documentation
-    'reqdExctnDt'   => '2013-11-25',            // Date: YYYY-MM-DD
+    'reqdExctnDt'   => '2013-11-25',            // Requested Execution Date: YYYY-MM-DD
     'ultmtDebtr'    => 'Ultimate Debtor Name'   // just an information, this do not affect the payment (max 70 characters)
 ));
 ```
@@ -152,7 +152,7 @@ $directDebitCollection = $directDebitFile->addCollection(array(
     'btchBookg'     => 'true',                  // BatchBooking, only 'true' or 'false'
     //'ctgyPurp'      => ,                      // Do not use this if you not know how. For further information read the SEPA documentation
     'ultmtCdtr'     => 'Ultimate Creditor Name',// just an information, this do not affect the payment (max 70 characters)
-    'reqdColltnDt'  => '2013-11-25'             // Date: YYYY-MM-DD
+    'reqdColltnDt'  => '2013-11-25'             // Requested Collection Date: YYYY-MM-DD
 ));
                     
 $directDebitCollection->addPayment(array(

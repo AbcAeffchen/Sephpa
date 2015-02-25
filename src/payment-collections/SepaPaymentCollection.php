@@ -25,7 +25,11 @@ interface SepaPaymentCollection
      */
     public function __construct(array $info, $check = true, $flags = 0);
     /**
-     * Calculates the sum of all payments in this collection
+     * Adds a new payment to the collection.
+     * @see SepaCreditTransfer00100203::addPayment()
+     * @see SepaCreditTransfer00100303::addPayment()
+     * @see SepaDirectDebit00800202::addPayment()
+     * @see SepaDirectDebit00800302::addPayment()
      * @param mixed[] $paymentInfo
      * @return boolean
      */

@@ -108,7 +108,7 @@ abstract class Sephpa
     /**
      * Generates the XML file from the given data
      *
-     * @param string $creDtTm You should not use this
+     * @param string $creDtTm Creation Date Time. You should not use this
      * @throws SephpaInputException
      * @return string Just the xml code of the file
      */
