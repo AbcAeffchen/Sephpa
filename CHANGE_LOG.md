@@ -1,6 +1,9 @@
 Sephpa - Change Log
 ===============
 
+##1.3.1 - Not released yet##
+- corrected some doc comments
+
 ##1.3.0 - Feb 5, '15##
 - updated SepaUtilities to 1.1.0
 - changed licence to GNU LGPL v3.0
