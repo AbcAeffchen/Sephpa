@@ -183,17 +183,17 @@ $directDebitCollection->addPayment(array(
 After you have added some payments to your payment collection you can save the finished file by
 
 ```php
-$creditTransferCollection->storeSepaFile();
+$creditTransferFile->storeSepaFile();
 ```
 
 or get it directly without saving it on the server by
 
 ```php
-$creditTransferCollection->downloadSepaFile();
+$creditTransferFile->downloadSepaFile();
 ```
 
 Notice that you can hand over a filename you like, but you should only use the file extension  
-`.xsd` or `.xml`.
+`.xml` (or `.xsd`).
 
 ##Credits##
 Thanks to [Herrmann Herz](https://github.com/Heart1010) who supported me debugging and with great 
