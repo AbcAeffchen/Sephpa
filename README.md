@@ -40,18 +40,20 @@ to your `composer.json` and include the Composer autoloader to your script.
 
 ###Direct download###
 You can download it here. Make sure you also download [SepaUtilities](https://github.com/AbcAeffchen/SepaUtilities) 
-and make it available. If you put src directory to your project root, you can use the following
-snippet to make Sephpa and SepaUtilities available to your project.
+and make it available. You can use the following snippet to make Sephpa available to your project. 
+Depending on where you put the Sephpa files and where you add the autoloader, you have to adjust
+the path to the src directory of Sephpa.
 
 ```php
 function sephpaAutoloader($class) {
+    $class = preg_replace('#AbcAeffchen\\\Sephpa\\\([^\.]+).php#','$1',$class);
     switch($class)
     {
         case 'Sephpa':
         case 'SephpaCreditTransfer':
         case 'SephpaDirectDebit':
-        case 'SepaUtilities':
             require __DIR__ . '/src/' . $class . '.php';
+            break;
         default:
             require __DIR__ . '/src/payment-collections/' . $class . '.php';
     }
@@ -61,7 +63,6 @@ spl_autoload_register('sephpaAutoloader');
 ```
 
 Feel free to improve or adapt this to your requirement.
-You also have to remove the composer autoloader from `Sephpa.php`.
 
 ##Creating a new SEPA file##
 **Note:** This is not meant to teach you SEPA. If you want to learn more about SEPA or SEPA files,
@@ -69,8 +70,7 @@ you should ask your bank for help. You use this library at your own risk and I a
 if anything goes wrong. You are supposed to check the files **before** handing them to your bank.
 
 ###Credit Transfer###
-Just include the file `Sephpa.php`. All other files will be included automatically. After that
-you can create a new Sephpa object.
+You can create a new Sephpa object by using:
 
 ```php
     $creditTransferFile = new SephpaCreditTransfer('Initiator Name',
