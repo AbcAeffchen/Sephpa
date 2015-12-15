@@ -21,7 +21,9 @@ the specifications of Electronic Banking Internet Communication Standard (EBICS)
     - pain.008.003.02
 
 ##Requirements##
-Sephpa was tested on PHP version 5.3 and requires [SepaUtilities 1.1.0+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
+Sephpa was created for PHP 5.5, 5.6 and 7.0 and requires [SepaUtilities 1.1.0+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
+Sephpa should also work with PHP 5.3 and 5.4, but since this versions are very old and don't get
+any security updates, it is strongly recommended not to use PHP older than 5.5.
 
 ##Installation##
 
