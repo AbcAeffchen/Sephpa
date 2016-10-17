@@ -26,6 +26,7 @@ class SephpaInputException extends \Exception {}
 abstract class Sephpa
 {
     // credit transfers versions
+    const SEPA_PAIN_001_001_03 = SepaUtilities::SEPA_PAIN_001_001_03;
     const SEPA_PAIN_001_002_03 = SepaUtilities::SEPA_PAIN_001_002_03;
     const SEPA_PAIN_001_003_03 = SepaUtilities::SEPA_PAIN_001_003_03;
     // direct debits versions

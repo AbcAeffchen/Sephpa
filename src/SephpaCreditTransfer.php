@@ -21,6 +21,10 @@ class SephpaCreditTransfer extends Sephpa
     /**
      * @type string INITIAL_STRING_CT Initial sting for credit transfer pain.001.002.03
      */
+    const INITIAL_STRING_PAIN_001_001_03 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03 pain.001.001.03.xsd"></Document>';
+    /**
+     * @type string INITIAL_STRING_CT Initial sting for credit transfer pain.001.002.03
+     */
     const INITIAL_STRING_PAIN_001_002_03 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.002.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.002.03 pain.001.002.03.xsd"></Document>';
     /**
      * @type string INITIAL_STRING_CT Initial sting for credit transfer pain.001.003.03
@@ -45,6 +49,10 @@ class SephpaCreditTransfer extends Sephpa
 
         switch($version)
         {
+            case self::SEPA_PAIN_001_001_03:
+                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_001_001_03);
+                $this->version = self::SEPA_PAIN_001_001_03;
+                break;
             case self::SEPA_PAIN_001_002_03:
                 $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_001_002_03);
                 $this->version = self::SEPA_PAIN_001_002_03;
@@ -70,6 +78,9 @@ class SephpaCreditTransfer extends Sephpa
     {
         switch($this->version)
         {
+            case self::SEPA_PAIN_001_001_03:
+                $paymentCollection = new SepaCreditTransfer00100103($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
+                break;
             case self::SEPA_PAIN_001_002_03:
                 $paymentCollection = new SepaCreditTransfer00100203($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;

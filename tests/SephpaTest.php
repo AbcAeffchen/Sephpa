@@ -134,6 +134,88 @@ class SephpaTest extends PHPUnit\Framework\TestCase
         static::assertTrue($domDoc->schemaValidate(__DIR__ . '/schemata/pain.001.003.03.xsd'));
     }
 
+    public function testCreditTransfer00100103WithoutBIC()
+    {
+        $creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
+                                                       SephpaCreditTransfer::SEPA_PAIN_001_001_03);
+
+        // at least one in every SEPA file
+        $creditTransferCollection = $creditTransferFile->addCollection(array(
+        // needed information about the payer
+            'pmtInfId'      => 'PaymentID-1234',    // ID of the payment collection
+            'dbtr'          => 'Name of Debtor2',   // (max 70 characters)
+            'iban'          => 'DE21500500001234567897',// IBAN of the Debtor
+        // optional
+            //'bic'           => 'BELADEBEXXX',       // BIC of the Debtor
+            'ccy'           => 'EUR',               // Currency. Default is 'EUR'
+            'btchBookg'     => 'true',              // BatchBooking, only 'true' or 'false'
+            //'ctgyPurp'      => ,                  // Do not use this if you do not know how. For further information read the SEPA documentation
+            'reqdExctnDt'   => '2013-11-25',        // Date: YYYY-MM-DD
+            'ultmtDebtr'    => 'Ultimate Debtor Name'   // just an information, this do not affect the payment (max 70 characters)
+        ));
+
+        // at least one in every CreditTransferCollection
+        $creditTransferCollection->addPayment(array(
+        // needed information about the one who gets payed
+            'pmtId'     => 'TransferID-1234-1',     // ID of the payment (EndToEndId)
+            'instdAmt'  => 1.14,                    // amount,
+            'iban'      => 'DE21500500009876543210',// IBAN of the Creditor
+            'cdtr'      => 'Name of Creditor',      // (max 70 characters)
+        // optional
+            //'bic'       => 'SPUEDE2UXXX',           // BIC of the Creditor
+            'ultmtCdrt' => 'Ultimate Creditor Name',// just an information, this do not affect the payment (max 70 characters)
+            //'purp'      => ,                      // Do not use this if you do not know how. For further information read the SEPA documentation
+            'rmtInf'    => 'Remittance Information' // unstructured information about the remittance (max 140 characters)
+        ));
+
+        $domDoc = new DOMDocument();
+        $domDoc->loadXML($creditTransferFile->generateXml('2014-10-19T00:38:44'));
+
+        static::assertTrue($domDoc->schemaValidate(__DIR__ . '/schemata/pain.001.001.03.xsd'));
+        static::assertTrue($domDoc->schemaValidate(__DIR__ . '/schemata/pain.001.001.03_GBIC.xsd'));
+    }
+
+    public function testCreditTransfer00100103WithBIC()
+    {
+        $creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
+                                                       SephpaCreditTransfer::SEPA_PAIN_001_001_03);
+
+        // at least one in every SEPA file
+        $creditTransferCollection = $creditTransferFile->addCollection(array(
+        // needed information about the payer
+            'pmtInfId'      => 'PaymentID-1234',    // ID of the payment collection
+            'dbtr'          => 'Name of Debtor2',   // (max 70 characters)
+            'iban'          => 'DE21500500001234567897',// IBAN of the Debtor
+        // optional
+            'bic'           => 'BELADEBEXXX',       // BIC of the Debtor
+            'ccy'           => 'EUR',               // Currency. Default is 'EUR'
+            'btchBookg'     => 'true',              // BatchBooking, only 'true' or 'false'
+            //'ctgyPurp'      => ,                  // Do not use this if you do not know how. For further information read the SEPA documentation
+            'reqdExctnDt'   => '2013-11-25',        // Date: YYYY-MM-DD
+            'ultmtDebtr'    => 'Ultimate Debtor Name'   // just an information, this do not affect the payment (max 70 characters)
+        ));
+
+        // at least one in every CreditTransferCollection
+        $creditTransferCollection->addPayment(array(
+        // needed information about the one who gets payed
+            'pmtId'     => 'TransferID-1234-1',     // ID of the payment (EndToEndId)
+            'instdAmt'  => 1.14,                    // amount,
+            'iban'      => 'DE21500500009876543210',// IBAN of the Creditor
+            'cdtr'      => 'Name of Creditor',      // (max 70 characters)
+        // optional
+            'bic'       => 'SPUEDE2UXXX',           // BIC of the Creditor
+            'ultmtCdrt' => 'Ultimate Creditor Name',// just an information, this do not affect the payment (max 70 characters)
+            //'purp'      => ,                      // Do not use this if you do not know how. For further information read the SEPA documentation
+            'rmtInf'    => 'Remittance Information' // unstructured information about the remittance (max 140 characters)
+        ));
+
+        $domDoc = new DOMDocument();
+        $domDoc->loadXML($creditTransferFile->generateXml('2014-10-19T00:38:44'));
+
+        static::assertTrue($domDoc->schemaValidate(__DIR__ . '/schemata/pain.001.001.03.xsd'));
+        static::assertTrue($domDoc->schemaValidate(__DIR__ . '/schemata/pain.001.001.03_GBIC.xsd'));
+    }
+
     public function testDirectDebit00800202()
     {
         // generate a SepaDirectDebit object (pain.008.002.02).
