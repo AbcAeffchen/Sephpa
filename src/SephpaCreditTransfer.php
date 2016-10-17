@@ -11,7 +11,7 @@
 
 namespace AbcAeffchen\Sephpa;
 
-require_once 'Sephpa.php';
+require_once __DIR__ . '/Sephpa.php';
 
 /**
  * Base class for both credit transfer and direct debit
