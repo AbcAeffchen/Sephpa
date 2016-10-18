@@ -11,13 +11,17 @@
 
 namespace AbcAeffchen\Sephpa;
 
-require_once 'Sephpa.php';
+require_once __DIR__ . '/Sephpa.php';
 
 /**
  * Base class for both credit transfer and direct debit
  */
 class SephpaDirectDebit extends Sephpa
 {
+    /**
+     * @type string INITIAL_STRING_DD Initial sting for direct debit pain.008.001.02
+     */
+    const INITIAL_STRING_PAIN_008_001_02 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02 pain.008.001.02.xsd"></Document>';
     /**
      * @type string INITIAL_STRING_DD Initial sting for direct debit pain.008.002.02
      */
@@ -45,6 +49,10 @@ class SephpaDirectDebit extends Sephpa
 
         switch($version)
         {
+            case self::SEPA_PAIN_008_001_02:
+                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_001_02);
+                $this->version = self::SEPA_PAIN_008_001_02;
+                break;
             case self::SEPA_PAIN_008_002_02:
                 $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_002_02);
                 $this->version = self::SEPA_PAIN_008_002_02;
@@ -70,6 +78,9 @@ class SephpaDirectDebit extends Sephpa
     {
         switch($this->version)
         {
+            case self::SEPA_PAIN_008_001_02:
+                $paymentCollection = new SepaDirectDebit00800102($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
+                break;
             case self::SEPA_PAIN_008_002_02:
                 $paymentCollection = new SepaDirectDebit00800202($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
