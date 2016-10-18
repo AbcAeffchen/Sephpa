@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "62db50f24dba3b0d968c5ab6162b8c24",
+    "content-hash": "60217508a586ce1ffe389d1a24c02a41",
     "packages": [
         {
             "name": "abcaeffchen/sepa-utilities",
-            "version": "1.2.1",
+            "version": "1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AbcAeffchen/SepaUtilities.git",
-                "reference": "cc791d6e191751333b1073a7e8a2f8c5e1d72357"
+                "reference": "e32f46cdcb2741db075ed6279b9d8b527e4c9f7b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AbcAeffchen/SepaUtilities/zipball/cc791d6e191751333b1073a7e8a2f8c5e1d72357",
-                "reference": "cc791d6e191751333b1073a7e8a2f8c5e1d72357",
+                "url": "https://api.github.com/repos/AbcAeffchen/SepaUtilities/zipball/e32f46cdcb2741db075ed6279b9d8b527e4c9f7b",
+                "reference": "e32f46cdcb2741db075ed6279b9d8b527e4c9f7b",
                 "shasum": ""
             },
             "require": {
@@ -53,7 +53,7 @@
                 "sepa",
                 "validate"
             ],
-            "time": "2016-10-17 23:32:16"
+            "time": "2016-10-18 01:01:44"
         }
     ],
     "packages-dev": [
