@@ -3,10 +3,10 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2015 Alexander Schickedanz
+ * @copyright ©2016 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 namespace AbcAeffchen\Sephpa;
@@ -21,7 +21,7 @@ date_default_timezone_set(@date_default_timezone_get());
 class SephpaInputException extends \Exception {}
 
 /**
- *Base class for both credit transfer and direct debit
+ * Base class for both credit transfer and direct debit
  */
 abstract class Sephpa
 {
@@ -31,6 +31,7 @@ abstract class Sephpa
     const SEPA_PAIN_001_003_03 = SepaUtilities::SEPA_PAIN_001_003_03;
     // direct debits versions
     const SEPA_PAIN_008_001_02 = SepaUtilities::SEPA_PAIN_008_001_02;
+    const SEPA_PAIN_008_001_02_AUSTRIAN_003 = SepaUtilities::SEPA_PAIN_008_001_02_AUSTRIAN_003;
     const SEPA_PAIN_008_002_02 = SepaUtilities::SEPA_PAIN_008_002_02;
     const SEPA_PAIN_008_003_02 = SepaUtilities::SEPA_PAIN_008_003_02;
     /**
@@ -133,7 +134,7 @@ abstract class Sephpa
         $grpHdr->addChild('MsgId', $this->msgId);
         $grpHdr->addChild('CreDtTm', $creDtTm);
         $grpHdr->addChild('NbOfTxs', $totalNumberOfTransaction);
-        $grpHdr->addChild('CtrlSum', sprintf("%01.2f", $this->getCtrlSum()));
+        $grpHdr->addChild('CtrlSum', sprintf('%01.2f', $this->getCtrlSum()));
         $grpHdr->addChild('InitgPty')->addChild('Nm', $this->initgPty);
         
         foreach($this->paymentCollections as $paymentCollection)
@@ -172,7 +173,7 @@ abstract class Sephpa
      */
     public function storeSepaFile($filename = 'payments.xml', $creDtTm = '')
     {
-        $file = fopen($filename, 'w');
+        $file = fopen($filename, 'b');
         fwrite($file, $this->generateXml($creDtTm));
         fclose($file);
     }
