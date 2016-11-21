@@ -3,10 +3,10 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2015 Alexander Schickedanz
+ * @copyright ©2016 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 namespace AbcAeffchen\Sephpa;
@@ -57,11 +57,12 @@ class SepaCreditTransfer00100203 implements SepaPaymentCollection
         $this->checkAndSanitize = $checkAndSanitize;
         $this->sanitizeFlags = $flags;
 
+        // All required information is provided?
+        if(!SepaUtilities::checkRequiredCollectionKeys($transferInfo, self::VERSION))
+            throw new SephpaInputException('The values of \'pmtInfId\', \'dbtr\', \'iban\', \'bic\' must not be empty.');
+
         if($this->checkAndSanitize)
         {
-            // All required information is provided?
-            if(!SepaUtilities::checkRequiredCollectionKeys($transferInfo, self::VERSION))
-                throw new SephpaInputException('The values of \'pmtInfId\', \'dbtr\', \'iban\', \'bic\' must not be empty.');
 
             // All fields contain valid information?
             $checkResult = SepaUtilities::checkAndSanitizeAll($transferInfo, $this->sanitizeFlags);
@@ -139,12 +140,12 @@ class SepaCreditTransfer00100203 implements SepaPaymentCollection
      */
     public function generateCollectionXml(\SimpleXMLElement $pmtInf)
     {
-        $ccy = ( empty( $this->transferInfo['ccy'] ) )
+        $ccy = empty( $this->transferInfo['ccy'] )
             ? self::CCY
             : $this->transferInfo['ccy'];
 
         $datetime    = new \DateTime();
-        $reqdExctnDt = ( isset( $this->transferInfo['reqdExctnDt'] ) )
+        $reqdExctnDt = isset( $this->transferInfo['reqdExctnDt'] )
             ? $this->transferInfo['reqdExctnDt'] : $datetime->format('Y-m-d');
 
         $pmtInf->addChild('PmtInfId', $this->transferInfo['pmtInfId']);
@@ -152,7 +153,7 @@ class SepaCreditTransfer00100203 implements SepaPaymentCollection
         if( !empty( $this->transferInfo['btchBookg'] ) )
             $pmtInf->addChild('BtchBookg', $this->transferInfo['btchBookg']);
         $pmtInf->addChild('NbOfTxs', $this->getNumberOfTransactions());
-        $pmtInf->addChild('CtrlSum', sprintf("%01.2f", $this->getCtrlSum()));
+        $pmtInf->addChild('CtrlSum', sprintf('%01.2f', $this->getCtrlSum()));
 
         $pmtTpInf = $pmtInf->addChild('PmtTpInf');
         $pmtTpInf->addChild('InstrPrty', 'NORM');

@@ -3,10 +3,10 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2015 Alexander Schickedanz
+ * @copyright ©2016 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 namespace AbcAeffchen\Sephpa;
@@ -63,11 +63,11 @@ class SepaCreditTransfer00100303 implements SepaPaymentCollection
         $this->checkAndSanitize = $checkAndSanitize;
         $this->sanitizeFlags = $flags;
 
+        if(!SepaUtilities::checkRequiredCollectionKeys($transferInfo, self::VERSION) )
+            throw new SephpaInputException('The values of \'pmtInfId\', \'dbtr\', \'iban\' must not be empty.');
+
         if($this->checkAndSanitize)
         {
-            if(!SepaUtilities::checkRequiredCollectionKeys($transferInfo, self::VERSION) )
-                throw new SephpaInputException('The values of \'pmtInfId\', \'dbtr\', \'iban\' must not be empty.');
-
             // All fields contain valid information?
             $checkResult = SepaUtilities::checkAndSanitizeAll($transferInfo, $this->sanitizeFlags, array('allowEmptyBic' => true));
 

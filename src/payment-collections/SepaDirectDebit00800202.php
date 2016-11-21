@@ -3,10 +3,10 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2015 Alexander Schickedanz
+ * @copyright ©2016 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 namespace AbcAeffchen\Sephpa;
@@ -68,7 +68,7 @@ class SepaDirectDebit00800202 implements SepaPaymentCollection
                 throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
 
             // IBAN and BIC can belong to each other?
-            if(!SepaUtilities::crossCheckIbanBic($debitInfo['iban'],$debitInfo['bic']))
+            if(!SepaUtilities::crossCheckIbanBic($debitInfo['iban'], $debitInfo['bic']))
                 throw new SephpaInputException('IBAN and BIC do not belong to each other.');
         }
 
@@ -88,11 +88,11 @@ class SepaDirectDebit00800202 implements SepaPaymentCollection
      */
     public function addPayment(array $paymentInfo)
     {
+        if(!SepaUtilities::checkRequiredPaymentKeys($paymentInfo, self::VERSION) )
+            throw new SephpaInputException('One of the required inputs \'pmtId\', \'instdAmt\', \'mndtId\', \'dtOfSgntr\', \'bic\', \'dbtr\', \'iban\' is missing.');
+
         if($this->checkAndSanitize)
         {
-            if(!SepaUtilities::checkRequiredPaymentKeys($paymentInfo, self::VERSION) )
-                throw new SephpaInputException('One of the required inputs \'pmtId\', \'instdAmt\', \'mndtId\', \'dtOfSgntr\', \'bic\', \'dbtr\', \'iban\' is missing.');
-
             $checkResult = SepaUtilities::checkAndSanitizeAll($paymentInfo, $this->sanitizeFlags,array('version' => self::VERSION));
 
             if($checkResult !== true)
@@ -110,13 +110,9 @@ class SepaDirectDebit00800202 implements SepaPaymentCollection
                     throw new SephpaInputException('You set \'amdmntInd\' to \'true\', so you have to set also at least one of the following inputs: \'orgnlMndtId\', \'orgnlCdtrSchmeId_nm\', \'orgnlCdtrSchmeId_id\', \'orgnlDbtrAcct_iban\', \'orgnlDbtrAgt\'.');
 
 
-                if( !empty( $paymentInfo['orgnlDbtrAgt'] ) && $paymentInfo['orgnlDbtrAgt'] === 'SMNDA' && $this->debitInfo['seqTp'] !== 'FRST' )
-                    throw new SephpaInputException('You set \'amdmntInd\' to \'true\' and \'orgnlDbtrAgt\' to \'SMNDA\', \'seqTp\' has to be \'FRST\'.');
+                if( !empty( $paymentInfo['orgnlDbtrAgt'] ) && $paymentInfo['orgnlDbtrAgt'] === 'SMNDA' && $this->debitInfo['seqTp'] !== SepaUtilities::SEQUENCE_TYPE_FIRST )
+                    throw new SephpaInputException('You set \'amdmntInd\' to \'true\' and \'orgnlDbtrAgt\' to \'SMNDA\', \'seqTp\' has to be \'' . SepaUtilities::SEQUENCE_TYPE_FIRST . '\'.');
 
-            }
-            else
-            {
-                $paymentInfo['amdmntInd'] = 'false';
             }
 
             // IBAN and BIC can belong to each other?
@@ -157,10 +153,10 @@ class SepaDirectDebit00800202 implements SepaPaymentCollection
      */
     public function generateCollectionXml(\SimpleXMLElement $pmtInf)
     {
-        $ccy = ( empty( $this->debitInfo['ccy'] ) ) ? self::CCY : $this->debitInfo['ccy'];
+        $ccy = empty( $this->debitInfo['ccy'] ) ? self::CCY : $this->debitInfo['ccy'];
 
         $datetime     = new \DateTime();
-        $reqdColltnDt = ( isset( $this->debitInfo['reqdColltnDt'] ) )
+        $reqdColltnDt = isset( $this->debitInfo['reqdColltnDt'] )
             ? $this->debitInfo['reqdColltnDt'] : $datetime->format('Y-m-d');
 
         $pmtInf->addChild('PmtInfId', $this->debitInfo['pmtInfId']);
@@ -168,7 +164,7 @@ class SepaDirectDebit00800202 implements SepaPaymentCollection
         if( !empty( $this->debitInfo['btchBookg'] ) )
             $pmtInf->addChild('BtchBookg', $this->debitInfo['btchBookg']);
         $pmtInf->addChild('NbOfTxs', $this->getNumberOfTransactions());
-        $pmtInf->addChild('CtrlSum', sprintf("%01.2f", $this->getCtrlSum()));
+        $pmtInf->addChild('CtrlSum', sprintf('%01.2f', $this->getCtrlSum()));
 
         $pmtTpInf = $pmtInf->addChild('PmtTpInf');
         $pmtTpInf->addChild('SvcLvl')->addChild('Cd', 'SEPA');
@@ -215,7 +211,7 @@ class SepaDirectDebit00800202 implements SepaPaymentCollection
     private function generatePaymentXml(\SimpleXMLElement $drctDbtTxInf, $payment, $ccy)
     {
         $drctDbtTxInf->addChild('PmtId')->addChild('EndToEndId', $payment['pmtId']);
-        $drctDbtTxInf->addChild('InstdAmt', sprintf("%01.2f", $payment['instdAmt']))
+        $drctDbtTxInf->addChild('InstdAmt', sprintf('%01.2f', $payment['instdAmt']))
                      ->addAttribute('Ccy', $ccy);
 
         $mndtRltdInf = $drctDbtTxInf->addChild('DrctDbtTx')->addChild('MndtRltdInf');
@@ -229,7 +225,7 @@ class SepaDirectDebit00800202 implements SepaPaymentCollection
                 $amdmntInd = $mndtRltdInf->addChild('AmdmntInfDtls');
                 if( !empty( $payment['orgnlMndtId'] ) )
                     $amdmntInd->addChild('OrgnlMndtId', $payment['orgnlMndtId']);
-                if( !empty( $payment['orgnlCdtrSchmeId_Nm'] ) || isset( $payment['orgnlCdtrSchmeId_Nm'] ) )
+                if( !empty( $payment['orgnlCdtrSchmeId_Nm'] ) || !empty( $payment['orgnlCdtrSchmeId_Id'] ) )
                 {
                     $orgnlCdtrSchmeId = $amdmntInd->addChild('OrgnlCdtrSchmeId');
                     if( !empty( $payment['orgnlCdtrSchmeId_Nm'] ) )
