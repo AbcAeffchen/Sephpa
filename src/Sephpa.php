@@ -173,7 +173,7 @@ abstract class Sephpa
      */
     public function storeSepaFile($filename = 'payments.xml', $creDtTm = '')
     {
-        $file = fopen($filename, 'b');
+        $file = fopen($filename, 'wb');
         fwrite($file, $this->generateXml($creDtTm));
         fclose($file);
     }
