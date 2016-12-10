@@ -12,12 +12,18 @@
 namespace AbcAeffchen\Sephpa;
 
 require_once __DIR__ . '/Sephpa.php';
-
+use AbcAeffchen\SepaUtilities\SepaUtilities;
 /**
  * Base class for both credit transfer and direct debit
  */
 class SephpaDirectDebit extends Sephpa
 {
+    // direct debits versions
+    const SEPA_PAIN_008_001_02 = SepaUtilities::SEPA_PAIN_008_001_02;
+    const SEPA_PAIN_008_001_02_AUSTRIAN_003 = SepaUtilities::SEPA_PAIN_008_001_02_AUSTRIAN_003;
+    const SEPA_PAIN_008_002_02 = SepaUtilities::SEPA_PAIN_008_002_02;
+    const SEPA_PAIN_008_003_02 = SepaUtilities::SEPA_PAIN_008_003_02;
+
     /**
      * @type string INITIAL_STRING_DD Initial sting for direct debit pain.008.001.02
      */

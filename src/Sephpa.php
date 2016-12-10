@@ -25,15 +25,6 @@ class SephpaInputException extends \Exception {}
  */
 abstract class Sephpa
 {
-    // credit transfers versions
-    const SEPA_PAIN_001_001_03 = SepaUtilities::SEPA_PAIN_001_001_03;
-    const SEPA_PAIN_001_002_03 = SepaUtilities::SEPA_PAIN_001_002_03;
-    const SEPA_PAIN_001_003_03 = SepaUtilities::SEPA_PAIN_001_003_03;
-    // direct debits versions
-    const SEPA_PAIN_008_001_02 = SepaUtilities::SEPA_PAIN_008_001_02;
-    const SEPA_PAIN_008_001_02_AUSTRIAN_003 = SepaUtilities::SEPA_PAIN_008_001_02_AUSTRIAN_003;
-    const SEPA_PAIN_008_002_02 = SepaUtilities::SEPA_PAIN_008_002_02;
-    const SEPA_PAIN_008_003_02 = SepaUtilities::SEPA_PAIN_008_003_02;
     /**
      * @type string $xmlInitString stores the initialization string of the xml file
      */

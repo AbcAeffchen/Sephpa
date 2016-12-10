@@ -10,6 +10,7 @@
  */
 
 namespace AbcAeffchen\Sephpa;
+use AbcAeffchen\SepaUtilities\SepaUtilities;
 
 require_once __DIR__ . '/Sephpa.php';
 
@@ -18,6 +19,11 @@ require_once __DIR__ . '/Sephpa.php';
  */
 class SephpaCreditTransfer extends Sephpa
 {
+    // credit transfers versions
+    const SEPA_PAIN_001_001_03 = SepaUtilities::SEPA_PAIN_001_001_03;
+    const SEPA_PAIN_001_002_03 = SepaUtilities::SEPA_PAIN_001_002_03;
+    const SEPA_PAIN_001_003_03 = SepaUtilities::SEPA_PAIN_001_003_03;
+
     /**
      * @type string INITIAL_STRING_CT Initial sting for credit transfer pain.001.001.03
      */
