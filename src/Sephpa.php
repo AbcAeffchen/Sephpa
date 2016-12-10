@@ -119,7 +119,7 @@ abstract class Sephpa
      * @throws SephpaInputException
      * @return string Just the xml code of the file
      */
-    public function generateXml($creDtTm = '')
+    private function generateXml($creDtTm = '')
     {
         if(empty($creDtTm) || SepaUtilities::checkCreateDateTime($creDtTm) === false)
         {

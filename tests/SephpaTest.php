@@ -6,7 +6,7 @@
  * @copyright ©2016 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -14,10 +14,19 @@ require __DIR__ . '/../vendor/autoload.php';
 use AbcAeffchen\Sephpa\SephpaCreditTransfer;
 use AbcAeffchen\SepaUtilities\SepaUtilities;
 use AbcAeffchen\Sephpa\SephpaDirectDebit;
-use \AbcAeffchen\Sephpa\SephpaInputException;
+use AbcAeffchen\Sephpa\SephpaInputException;
 
 class SephpaTest extends PHPUnit\Framework\TestCase
 {
+    private function invokeGenerateXml(&$object, $dateTime)
+    {
+        $reflection = new \ReflectionClass(get_class($object));
+        $method = $reflection->getMethod('generateXml');
+        $method->setAccessible(true);
+
+        return $method->invokeArgs($object, [$dateTime]);
+    }
+
     /**
      * @param int $version  Use SephpaCreditTransfer::SEPA_PAIN_001_* constants
      * @param bool $addBIC
@@ -67,7 +76,7 @@ class SephpaTest extends PHPUnit\Framework\TestCase
         $creditTransferCollection->addPayment($paymentData);
 
         $domDoc = new DOMDocument();
-        $domDoc->loadXML($creditTransferFile->generateXml('2014-10-19T00:38:44'));
+        $domDoc->loadXML($this->invokeGenerateXml($creditTransferFile,'2014-10-19T00:38:44'));
 
         return $domDoc;
     }
@@ -134,7 +143,7 @@ class SephpaTest extends PHPUnit\Framework\TestCase
         $directDebitCollection->addPayment($paymentData);
 
         $domDoc = new DOMDocument();
-        $domDoc->loadXML($directDebitFile->generateXml('2014-10-19T00:38:44'));
+        $domDoc->loadXML($this->invokeGenerateXml($directDebitFile,'2014-10-19T00:38:44'));
 
         return $domDoc;
     }

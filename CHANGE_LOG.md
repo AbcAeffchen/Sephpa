@@ -23,6 +23,8 @@ It also supports to download multiple files as a single Zip file.
 - fixed: some minor bugs no one seems to have noticed yet.
 - changed: corrected some doc comments
 - changed: updated SepaUtilities to ~1.2.3
+- changed: made generateXml private. This should not break any code, since no one should be using
+this function directly. It was only public to directly access the generated xml for testing.
 - dev: improved testing of sepa files and added a ton of tests
 - dev: updated PHPUnit to v5.6.*
 
