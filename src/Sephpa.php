@@ -30,10 +30,6 @@ abstract class Sephpa
      */
     protected $xmlInitString;
     /**
-     * @type \SimpleXMLElement $xml xml object
-     */
-    protected $xml;
-    /**
      * @type int $version Saves the type of the object SEPA_PAIN_*
      */
     protected $version;
@@ -123,8 +119,8 @@ abstract class Sephpa
         if($totalNumberOfTransaction === 0)
             throw new SephpaInputException('No Payments provided.');
 
-        $this->xml = simplexml_load_string($this->xmlInitString);
-        $fileHead = $this->xml->addChild($this->paymentType);
+        $xml = simplexml_load_string($this->xmlInitString);
+        $fileHead = $xml->addChild($this->paymentType);
         
         $grpHdr = $fileHead->addChild('GrpHdr');
         $grpHdr->addChild('MsgId', $this->msgId);
@@ -142,8 +138,8 @@ abstract class Sephpa
             $pmtInf = $fileHead->addChild('PmtInf');
             $paymentCollection->generateCollectionXml($pmtInf);
         }
-        
-        return $this->xml->asXML();
+
+        return $xml->asXML();
     }
 
     /**
