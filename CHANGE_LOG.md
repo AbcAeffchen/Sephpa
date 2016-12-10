@@ -1,8 +1,30 @@
 Sephpa - Change Log
 ===============
 
-##1.3.1 - Not released yet##
-- corrected some doc comments
+##1.4.0 - Not released yet##
+- new: support for PHP 7.0, 7.1 and HHVM.
+- new: support for pain.001.001.03 and pain.008.001.02<br>
+Notice that this implementation fits the new german standard that is valid from November 2016. 
+It is said that this is compatible with the formats with the same name from 2009 that is used 
+in many other countries but germany. But since it has less restrictions than the file format 
+from 2009, you can choose witch one you need via the SepaUtilities constants `SEPA_PAIN_001_001_03`
+for the old version and `SEPA_PAIN_001_001_03_GBIC` for the new german version of SEPA credit 
+transfer files (respectively `SEPA_PAIN_001_001_03` and `SEPA_PAIN_001_001_03_GBIC` for direct 
+debit files).
+- new: support for pain.008.001.02.austrian.003
+- new: You can store/download Direct Debit payments as multiple homogeneous files. You have the
+option to store the files as one .zip file or multiple xml files. If you want to download them,
+they are automatically packed into a .zip file.
+- new: all store/download functions have now the option to store accompanying document(s). To
+use this you have to also install the package `SephpaAccompanyingDocuments`. See the Readme for
+an example.
+It also supports to download multiple files as a single Zip file.
+- fixed: invalid xml file if checkAndSanitize is turned off and `AmdmntInd` is not provided (issue #6)
+- fixed: some minor bugs no one seems to have noticed yet.
+- changed: corrected some doc comments
+- changed: updated SepaUtilities to ~1.2.3
+- dev: improved testing of sepa files and added a ton of tests
+- dev: updated PHPUnit to v5.6.*
 
 ##1.3.0 - Feb 5, '15##
 - updated SepaUtilities to 1.1.0
