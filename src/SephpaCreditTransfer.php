@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2015 Alexander Schickedanz
+ * @copyright ©2016 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -45,20 +45,20 @@ class SephpaCreditTransfer extends Sephpa
     {
         parent::__construct($initgPty, $msgId, $version, $checkAndSanitize);
 
-        $this->xmlType = 'CstmrCdtTrfInitn';
+        $this->paymentType = 'CstmrCdtTrfInitn';
 
         switch($version)
         {
             case self::SEPA_PAIN_001_001_03:
-                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_001_001_03);
+                $this->xmlInitString = self::INITIAL_STRING_PAIN_001_001_03;
                 $this->version = self::SEPA_PAIN_001_001_03;
                 break;
             case self::SEPA_PAIN_001_002_03:
-                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_001_002_03);
+                $this->xmlInitString = self::INITIAL_STRING_PAIN_001_002_03;
                 $this->version = self::SEPA_PAIN_001_002_03;
                 break;
             case self::SEPA_PAIN_001_003_03:
-                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_001_003_03);
+                $this->xmlInitString = self::INITIAL_STRING_PAIN_001_003_03;
                 $this->version = self::SEPA_PAIN_001_003_03;
                 break;
             default:

@@ -6,7 +6,7 @@
  * @copyright ©2016 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 namespace AbcAeffchen\Sephpa;
@@ -35,6 +35,10 @@ abstract class Sephpa
     const SEPA_PAIN_008_002_02 = SepaUtilities::SEPA_PAIN_008_002_02;
     const SEPA_PAIN_008_003_02 = SepaUtilities::SEPA_PAIN_008_003_02;
     /**
+     * @type string $xmlInitString stores the initialization string of the xml file
+     */
+    protected $xmlInitString;
+    /**
      * @type \SimpleXMLElement $xml xml object
      */
     protected $xml;
@@ -43,9 +47,9 @@ abstract class Sephpa
      */
     protected $version;
     /**
-     * @type string $xmlType Either 'CstmrCdtTrfInitn' or 'CstmrDrctDbtInitn'
+     * @type string $paymentType Either 'CstmrCdtTrfInitn' or 'CstmrDrctDbtInitn'
      */
-    protected $xmlType;
+    protected $paymentType;
     /**
      * @type string $initgPty Name of the party that initiates the transfer
      */
@@ -128,7 +132,8 @@ abstract class Sephpa
         if($totalNumberOfTransaction === 0)
             throw new SephpaInputException('No Payments provided.');
 
-        $fileHead = $this->xml->addChild($this->xmlType);
+        $this->xml = simplexml_load_string($this->xmlInitString);
+        $fileHead = $this->xml->addChild($this->paymentType);
         
         $grpHdr = $fileHead->addChild('GrpHdr');
         $grpHdr->addChild('MsgId', $this->msgId);

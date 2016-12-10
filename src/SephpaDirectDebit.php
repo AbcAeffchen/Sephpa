@@ -6,7 +6,7 @@
  * @copyright ©2016 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 namespace AbcAeffchen\Sephpa;
@@ -49,24 +49,24 @@ class SephpaDirectDebit extends Sephpa
     {
         parent::__construct($initgPty, $msgId, $version, $checkAndSanitize);
 
-        $this->xmlType = 'CstmrDrctDbtInitn';
+        $this->paymentType = 'CstmrDrctDbtInitn';
 
         switch($version)
         {
             case self::SEPA_PAIN_008_001_02:
-                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_001_02);
+                $this->xmlInitString = self::INITIAL_STRING_PAIN_008_001_02;
                 $this->version = self::SEPA_PAIN_008_001_02;
                 break;
             case self::SEPA_PAIN_008_001_02_AUSTRIAN_003:
-                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_001_02_AUSTRIAN_003);
+                $this->xmlInitString = self::INITIAL_STRING_PAIN_008_001_02_AUSTRIAN_003;
                 $this->version = self::SEPA_PAIN_008_001_02_AUSTRIAN_003;
                 break;
             case self::SEPA_PAIN_008_002_02:
-                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_002_02);
+                $this->xmlInitString = self::INITIAL_STRING_PAIN_008_002_02;
                 $this->version = self::SEPA_PAIN_008_002_02;
                 break;
             case self::SEPA_PAIN_008_003_02:
-                $this->xml = simplexml_load_string(self::INITIAL_STRING_PAIN_008_003_02);
+                $this->xmlInitString = self::INITIAL_STRING_PAIN_008_003_02;
                 $this->version = self::SEPA_PAIN_008_003_02;
                 break;
             default:
