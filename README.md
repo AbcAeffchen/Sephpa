@@ -2,28 +2,31 @@ Sephpa - A PHP class to export SEPA files
 ===============
 
 [![Build Status](https://travis-ci.org/AbcAeffchen/Sephpa.svg?branch=master)](https://travis-ci.org/AbcAeffchen/Sephpa)
-[![Dependency Status](https://www.versioneye.com/php/abcaeffchen:sephpa/badge.svg)](https://www.versioneye.com/php/abcaeffchen:sephpa/1.2.2)
+[![Dependency Status](https://www.versioneye.com/php/abcaeffchen:sephpa/badge.svg)](https://www.versioneye.com/php/abcaeffchen:sephpa)
 [![Latest Stable Version](https://poser.pugx.org/abcaeffchen/sephpa/v/stable.svg)](https://packagist.org/packages/abcaeffchen/sephpa) 
 [![Total Downloads](https://poser.pugx.org/abcaeffchen/sephpa/downloads.svg)](https://packagist.org/packages/abcaeffchen/sephpa) 
 [![License](https://poser.pugx.org/abcaeffchen/sephpa/license.svg)](https://packagist.org/packages/abcaeffchen/sephpa)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/AbcAeffchen/Sephpa?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 ##General##
-**Sephpa** [sefa] is a PHP class that creates SEPA (xml,xsd) files. The created xml files fulfill
+**Sephpa** [sefa] is a PHP class that creates SEPA XML files. The created XML files fulfill
 the specifications of Electronic Banking Internet Communication Standard (EBICS)
 
 ##Supported file versions##
 - SEPA Credit Transfer
+    - pain.001.001.03
     - pain.001.002.03
     - pain.001.003.03
 - SEPA Direct Debit
+    - pain.008.001.02
+    - pain.008.001.02.austrian.003
     - pain.008.002.02
     - pain.008.003.02
 
 ##Requirements##
-Sephpa was created for PHP 5.5, 5.6 and 7.0 and requires [SepaUtilities 1.1.0+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
-Sephpa should also work with PHP 5.3 and 5.4, but since this versions are very old and don't get
-any security updates, it is strongly recommended not to use PHP older than 5.5.
+Sephpa was created for PHP 5.6, 7.0, 7.1 and HHVM and requires [SepaUtilities 1.2.3+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
+Sephpa should also work with PHP <5.6, but since this versions are very old and don't get
+any security updates, it is strongly recommended not to use PHP older than 5.6.
 
 ##Installation##
 
@@ -33,7 +36,7 @@ Just add
 ```json
 {
     "require": {
-        "abcaeffchen/sephpa": "~1.3.0"
+        "abcaeffchen/sephpa": "~1.4.0"
     }
 }
 ```
@@ -75,9 +78,9 @@ if anything goes wrong. You are supposed to check the files **before** handing t
 You can create a new Sephpa object by using:
 
 ```php
-    $creditTransferFile = new SephpaCreditTransfer('Initiator Name',
-                                                   'MessageID-1234', 
-                                                   SephpaCreditTransfer::SEPA_PAIN_001_002_03);
+$creditTransferFile = new SephpaCreditTransfer('Initiator Name',
+                                               'MessageID-1234', 
+                                               SephpaCreditTransfer::SEPA_PAIN_001_002_03);
 ```
 
 You have to input the initiator name, the unique message id and the version of the file. The message
@@ -119,7 +122,7 @@ You can add as many payments as you want to each collection.
 
 ```php
 $creditTransferCollection->addPayment(array(
-// needed information about the creditor
+// required information about the creditor
     'pmtId'     => 'TransferID-1234-1',     // ID of the payment (EndToEndId)
     'instdAmt'  => 0.42,                    // amount,
     'iban'      => 'DE21500500009876543210',// IBAN of the Creditor
@@ -141,7 +144,7 @@ $directDebitFile = new SephpaDirectDebit('Initiator Name',
                                          SephpaDirectDebit::SEPA_PAIN_008_002_02);
 
 $directDebitCollection = $directDebitFile->addCollection(array(
-// needed information about the payer
+// required information about the creditor
     'pmtInfId'      => 'PaymentID-1235',        // ID of the payment collection
     'lclInstrm'     => SepaUtilities::LOCAL_INSTRUMENT_CORE_DIRECT_DEBIT,
     'seqTp'         => SepaUtilities::SEQUENCE_TYPE_RECURRING,
@@ -158,7 +161,7 @@ $directDebitCollection = $directDebitFile->addCollection(array(
 ));
                     
 $directDebitCollection->addPayment(array(
-// needed information about the 
+// required information about the debtor
     'pmtId'         => 'TransferID-1235-1',     // ID of the payment (EndToEndId)
     'instdAmt'      => 2.34,                    // amount
     'mndtId'        => 'Mandate-Id',            // Mandate ID
@@ -181,6 +184,10 @@ $directDebitCollection->addPayment(array(
 ));
 ```
 
+Note: With pain.008.001.02 the key `orgnlDbtrAgt` is no longer available. It got replaced with 
+`orgnlDbtrAgt_bic` and you can input the old BIC. But in general it looks like you just can omit
+both `orgnlDbtrAcct_iban` and `orgnlDbtrAgt_bic` and it should work.
+
 ###Get the Sepa file###
 After you have added some payments to your payment collection you can save the finished file by
 
@@ -195,7 +202,7 @@ $creditTransferFile->downloadSepaFile();
 ```
 
 Notice that you can hand over a filename you like, but you should only use the file extension  
-`.xml` (or `.xsd`).
+`.xml`.
 
 ##Credits##
 Thanks to [Herrmann Herz](https://github.com/Heart1010) who supported me debugging and with great 
