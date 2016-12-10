@@ -158,7 +158,7 @@ abstract class Sephpa
      * @param string $creDtTm You should not use this
      * @throws SephpaInputException
      */
-    public function downloadSepaFile($filename = 'payments.xml',$creDtTm = '')
+    public function downloadSepaFile($filename = 'payments.xml', $creDtTm = '')
     {
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         print $this->generateXml($creDtTm);

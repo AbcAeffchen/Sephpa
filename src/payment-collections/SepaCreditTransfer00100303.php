@@ -15,38 +15,12 @@ use AbcAeffchen\SepaUtilities\SepaUtilities;
 /**
  * Manages credit transfers
  */
-class SepaCreditTransfer00100303 implements SepaPaymentCollection
+class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
 {
-    /**
-     * @var string CCY Default currency
-     */
-    const CCY = 'EUR';
     /**
      * @type int VERSION The SEPA file version of this collection
      */
     const VERSION = SepaUtilities::SEPA_PAIN_001_003_03;
-    /**
-     * @type bool $sanitizeFlags
-     */
-    private $checkAndSanitize = true;
-    /**
-     * @type int $sanitizeFlags
-     */
-    private $sanitizeFlags = 0;
-    /**
-     * @var mixed[] $payments Saves all payments
-     */
-    private $payments = array();
-    /**
-     * @var mixed[] $transferInfo Saves the transfer information for the collection.
-     */
-    private $transferInfo;
-    /**
-     * @type string $dbtrIban The IBAN of the debtor
-     */
-    private $dbtrIban;
-
-    private $today;
 
     /**
      * @param mixed[] $transferInfo needed keys: 'pmtInfId', 'dbtr', 'iban';
@@ -112,30 +86,7 @@ class SepaCreditTransfer00100303 implements SepaPaymentCollection
 
         $this->payments[] = $paymentInfo;
     }
-    
-    /**
-     * Calculates the sum of all payments in this collection
-     * @return float
-     */
-    public function getCtrlSum()
-    {
-        $sum = 0;
-        foreach($this->payments as $payment){
-            $sum += $payment['instdAmt'];
-        }
 
-        return $sum;
-    }
-    
-    /**
-     * counts the payments in this collection
-     * @return int
-     */
-    public function getNumberOfTransactions()
-    {
-        return count($this->payments);
-    }
-    
     /**
      * Generates the xml for the collection using generatePaymentXml
      * @param \SimpleXMLElement $pmtInf The PmtInf-Child of the xml object

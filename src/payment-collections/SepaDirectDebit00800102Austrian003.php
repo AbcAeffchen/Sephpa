@@ -10,9 +10,15 @@
  */
 
 namespace AbcAeffchen\Sephpa;
+use AbcAeffchen\SepaUtilities\SepaUtilities;
 
 class SepaDirectDebit00800102Austrian003 extends SepaDirectDebit00800102
 {
+    /**
+     * @type int VERSION The SEPA file version of this collection
+     */
+    const VERSION = SepaUtilities::SEPA_PAIN_008_001_02_AUSTRIAN_003;
+
     const NO_BIC_PROVIDED = 'NOTAVAIL';
 
     public function __construct(array $debitInfo, $checkAndSanitize = true, $flags = 0)

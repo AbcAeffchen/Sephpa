@@ -15,38 +15,12 @@ use AbcAeffchen\SepaUtilities\SepaUtilities;
 /**
  * Manages direct debits
  */
-class SepaDirectDebit00800302 implements SepaPaymentCollection
+class SepaDirectDebit00800302 extends SepaDirectDebitCollection
 {
-    /**
-     * @var string CCY Default currency
-     */
-    const CCY = 'EUR';
     /**
      * @type int VERSION The SEPA file version of this collection
      */
     const VERSION = SepaUtilities::SEPA_PAIN_008_003_02;
-    /**
-     * @type bool $sanitizeFlags
-     */
-    private $checkAndSanitize = true;
-    /**
-     * @type int $sanitizeFlags
-     */
-    private $sanitizeFlags = 0;
-    /**
-     * @var mixed[] $payments Saves all payments
-     */
-    private $payments = array();
-    /**
-     * @var mixed[] $debitInfo Saves the transfer information for the collection.
-     */
-    private $debitInfo;
-    /**
-     * @type string $dbtrIban The IBAN of the creditor
-     */
-    private $cdtrIban;
-
-    private $today;
 
     /**
      * @param mixed[] $debitInfo        Needed keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'cdtr',
@@ -129,28 +103,6 @@ class SepaDirectDebit00800302 implements SepaPaymentCollection
         }
 
         $this->payments[] = $paymentInfo;
-    }
-    
-    /**
-     * Calculates the sum of all payments in this collection
-     * @return float
-     */
-    public function getCtrlSum()
-    {
-        $sum = 0;
-        foreach($this->payments as $payment){
-            $sum += $payment['instdAmt'];
-        }
-        return $sum;
-    }
-    
-    /**
-     * Counts the payments in this collection
-     * @return int
-     */
-    public function getNumberOfTransactions()
-    {
-        return count($this->payments);
     }
 
     /**
