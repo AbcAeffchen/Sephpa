@@ -100,24 +100,26 @@ abstract class Sephpa
     abstract public function addCollection(array $information);
 
     /**
-     * Generates the XML file from the given data
+     * Generates the XML file from the given data. All empty collections are skipped.
      *
-     * @param string $creDtTm Creation Date Time. You should not use this
+     * @param string $creDtTm Creation Date Time. You should not use this (just for testing)
      * @throws SephpaInputException
      * @return string Just the xml code of the file
      */
-    private function generateXml($creDtTm = '')
+    protected function generateXml($creDtTm = '')
     {
+        if(count($this->paymentCollections) === 0)
+            throw new SephpaInputException('No payment collections provided.');
+
+        $totalNumberOfTransaction = $this->getNumberOfTransactions();
+        if($totalNumberOfTransaction === 0)
+            throw new SephpaInputException('No payments provided.');
+
         if(empty($creDtTm) || SepaUtilities::checkCreateDateTime($creDtTm) === false)
         {
             $now = new \DateTime();
             $creDtTm  = $now->format('Y-m-d\TH:i:s');
         }
-
-        $totalNumberOfTransaction = $this->getNumberOfTransactions();
-
-        if($totalNumberOfTransaction === 0)
-            throw new SephpaInputException('No Payments provided.');
 
         $xml = simplexml_load_string($this->xmlInitString);
         $fileHead = $xml->addChild($this->paymentType);
@@ -143,30 +145,91 @@ abstract class Sephpa
     }
 
     /**
+     * Generates one XML file per collection. All empty collections are skipped. The message
+     * IDs get extended with a file counter
+     *
+     * @param string $creDtTm Creation Date Time. You should not use this (just for testing)
+     * @throws SephpaInputException
+     * @return string[][] An array containing pairs of message ID and the xml string.
+     */
+    protected function generateMultiFileXml($creDtTm = '')
+    {
+        if(count($this->paymentCollections) === 0)
+            throw new SephpaInputException('No payment collections provided.');
+
+        $totalNumberOfTransaction = $this->getNumberOfTransactions();
+        if($totalNumberOfTransaction === 0)
+            throw new SephpaInputException('No payments provided.');
+
+        if(empty($creDtTm) || SepaUtilities::checkCreateDateTime($creDtTm) === false)
+        {
+            $now = new \DateTime();
+            $creDtTm  = $now->format('Y-m-d\TH:i:s');
+        }
+
+        $fileCounter = 1;
+        $xmlFiles = array();
+
+        foreach($this->paymentCollections as $paymentCollection)
+        {
+            // ignore empty collections
+            $numberOfTransactions = $paymentCollection->getNumberOfTransactions();
+            if($numberOfTransactions === 0)
+                continue;
+
+            $xml = simplexml_load_string($this->xmlInitString);
+            $fileHead = $xml->addChild($this->paymentType);
+
+            $msgId = $this->msgId . sprintf('%02d', $fileCounter);
+
+            $grpHdr = $fileHead->addChild('GrpHdr');
+            $grpHdr->addChild('MsgId', $msgId);
+            $grpHdr->addChild('CreDtTm', $creDtTm);
+            $grpHdr->addChild('NbOfTxs', $numberOfTransactions);
+            $grpHdr->addChild('CtrlSum', sprintf('%01.2f', $paymentCollection->getCtrlSum()));
+            $grpHdr->addChild('InitgPty')->addChild('Nm', $this->initgPty);
+
+            $pmtInf = $fileHead->addChild('PmtInf');
+            $paymentCollection->generateCollectionXml($pmtInf);
+
+            $xmlFiles[] = array($msgId, $xml->asXML());
+            $fileCounter++;
+        }
+
+        return $xmlFiles;
+    }
+
+    // todo find correct names for unmixed and doc...
+    /**
      * Generates the SEPA file and starts a download using the header 'Content-Disposition: attachment;'
      * The file will not stored on the server.
      *
      * @param string $filename
-     * @param string $creDtTm You should not use this
+     * @param array  $options Available options:
+     *                        (bool) "correctlySortedFiles": Only available for direct debit files.
+     *                                               If set to true, there will one file per
+     *                                               collection be created. Defaults to true.
+     *                        (bool) "addFileRoutingSlips": Adds file routing slips for every created
+     *                                               SEPA file. Defaults to false.
      * @throws SephpaInputException
      */
-    public function downloadSepaFile($filename = 'payments.xml', $creDtTm = '')
+    public function downloadSepaFile($filename = 'payments.xml', $options = array())
     {
         header('Content-Disposition: attachment; filename="' . $filename . '"');
-        print $this->generateXml($creDtTm);
+        print $this->generateXml();
     }
 
     /**
      * Generates the SEPA file and stores it on the server.
      *
      * @param string $filename The path and filename
-     * @param string $creDtTm  You should not use this
+     * @param array  $options  todo
      * @throws SephpaInputException
      */
-    public function storeSepaFile($filename = 'payments.xml', $creDtTm = '')
+    public function storeSepaFile($filename = 'payments.xml', $options = array())
     {
         $file = fopen($filename, 'wb');
-        fwrite($file, $this->generateXml($creDtTm));
+        fwrite($file, $this->generateXml());
         fclose($file);
     }
 

@@ -18,14 +18,17 @@ they are automatically packed into a .zip file.
 - new: all store/download functions have now the option to store accompanying document(s). To
 use this you have to also install the package `SephpaAccompanyingDocuments`. See the Readme for
 an example.
-It also supports to download multiple files as a single Zip file.
+It also supports to download multiple files as a single zip file.
 - fixed: invalid xml file if checkAndSanitize is turned off and `AmdmntInd` is not provided (issue #6)
 - fixed: some minor bugs no one seems to have noticed yet.
 - changed: corrected some doc comments
 - changed: updated SepaUtilities to ~1.2.3
 - changed: made generateXml private. This should not break any code, since no one should be using
 this function directly. It was only public to directly access the generated xml for testing.
-- dev: improved testing of sepa files and added a ton of tests
+- changed: removed the creation date parameter from `storeSepaFile()` and `downloadSepaFile()`.
+This should not break any code since it was recommended not to use this. It was just for easier testing.
+- dependency: For multi file downloads you need [`libzip`](http://php.net/manual/en/book.zip.php).
+- dev: improved testing of sepa files and added a ton of tests.
 - dev: updated PHPUnit to v5.6.*
 
 ##1.3.0 - Feb 5, '15##

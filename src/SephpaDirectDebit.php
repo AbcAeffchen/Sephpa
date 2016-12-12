@@ -113,4 +113,70 @@ class SephpaDirectDebit extends Sephpa
         return $paymentCollection;
     }
 
+    /**
+     * Generates the SEPA file and starts a download using the header 'Content-Disposition: attachment;'
+     * The file will not stored on the server.
+     *
+     * @param string $filename
+     * @param array  $options Available options:
+     *                        (bool) "correctlySortedFiles": Only available for direct debit files.
+     *                                               If set to true, there will one file per
+     *                                               collection be created. Defaults to true.
+     *                        (bool) "...doc": Added ... documents for every created sepa file.
+     *                                          Defaults to false.
+     * @throws SephpaInputException
+     */
+    public function downloadSepaFile($filename = 'payments.xml', $options = array())
+    {
+        // direct debit file and multiple files have to be created
+        if(!isset($options['unmixedFiles']) || $options['unmixedFiles'])
+        {
+            $tmpFile = tempnam(sys_get_temp_dir(), 'sephpa');
+            $zip = new \ZipArchive();
+            if($zip->open($tmpFile, \ZipArchive::CREATE))
+            {
+                foreach($this->generateMultiFileXml() as $xmlFile)
+                {
+                    $zip->addFromString($xmlFile[0] . '.xml', $xmlFile[1]);
+                }
+
+                $zip->close();
+
+                // send headers for zip download
+                header('Pragma: public');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                header('Cache-Control: public');
+                header('Content-Description: File Transfer');
+                header('Content-type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="' . str_replace('.xml', '.zip', $filename) . '"');
+                header('Content-Transfer-Encoding: binary');
+                // make sure the file size isn't cached
+                clearstatcache();
+                header('Content-Length: ' . filesize($tmpFile));
+                ob_end_flush();
+                // output the file
+                @readfile($tmpFile);
+                unlink($tmpFile);
+            }
+        }
+        else
+        {
+            parent::downloadSepaFile($filename, $options);
+        }
+    }
+
+    /**
+     * Generates the SEPA file and stores it on the server.
+     *
+     * @param string $filename The path and filename
+     * @throws SephpaInputException
+     */
+    public function storeSepaFile($filename = 'payments.xml', $options = array())
+    {
+        $file = fopen($filename, 'wb');
+        fwrite($file, $this->generateXml());
+        fclose($file);
+    }
+
 }
