@@ -27,6 +27,15 @@ class SephpaTest extends PHPUnit\Framework\TestCase
         return $method->invokeArgs($object, [$dateTime]);
     }
 
+    private function invokeGenerateMultipleXml(&$object, $dateTime)
+    {
+        $reflection = new \ReflectionClass(get_class($object));
+        $method = $reflection->getMethod('generateMultiFileXml');
+        $method->setAccessible(true);
+
+        return $method->invokeArgs($object, [$dateTime]);
+    }
+
     /**
      * @param int $version  Use SephpaCreditTransfer::SEPA_PAIN_001_* constants
      * @param bool $addBIC
@@ -388,19 +397,46 @@ class SephpaTest extends PHPUnit\Framework\TestCase
                            $this->getDirectDebitFile($version, false, true, true)->saveXML());
     }
 
-    /**
-     * check if cloning SimpleXML objects works as expected
-     */
-    public function testSimpleXMLClone()
+    public function testMultiFileGeneration()
     {
-        $xml1 = simplexml_load_string('<Doc></Doc>');
-        $child1 = $xml1->addChild('child1');
+        $directDebitFile = new SephpaDirectDebit('Initiator Name', 'MessageID-1234',
+                                                 SephpaDirectDebit::SEPA_PAIN_008_001_02,
+                                                 false);
 
-        $xml2 = clone $xml1;
-        $xml2->addChild('child2');
+        $collectionData = array(
+            'pmtInfId'      => 'PaymentID-1235',        // ID of the payment collection
+            'lclInstrm'     => SepaUtilities::LOCAL_INSTRUMENT_CORE_DIRECT_DEBIT,
+            'seqTp'         => SepaUtilities::SEQUENCE_TYPE_FIRST,
+            'cdtr'          => 'Name of Creditor',      // (max 70 characters)
+            'iban'          => 'DE87200500001234567890',// IBAN of the Creditor
+            'ci'            => 'DE98ZZZ09999999999',    // Creditor-Identifier
+        );
 
-        $child1->addChild('subChild');
+        $paymentData = array(
+            'pmtId'               => 'TransferID-1235-1',       // ID of the payment (EndToEndId)
+            'instdAmt'            => 2.34,                      // amount
+            'mndtId'              => 'Mandate-Id',              // Mandate ID
+            'dtOfSgntr'           => '2010-04-12',              // Date of signature
+            'dbtr'                => 'Name of Debtor',          // (max 70 characters)
+            'iban'                => 'DE87200500001234567890',  // IBAN of the Debtor
+        );
 
-        static::assertNotSame($xml1->asXML(), $xml2->asXML());
+        $directDebitCollection1 = $directDebitFile->addCollection($collectionData);
+        $directDebitCollection1->addPayment($paymentData);
+        $directDebitCollection2 = $directDebitFile->addCollection($collectionData);
+        $directDebitCollection2->addPayment($paymentData);
+
+        $xsdFile = __DIR__ . '/schemata/pain.008.001.02.xsd';
+
+        $fileCounter = 0;
+        foreach($this->invokeGenerateMultipleXml($directDebitFile, '') as $xmlFile)
+        {
+            $fileCounter++;
+            $domDoc = new DOMDocument();
+            $domDoc->loadXML($xmlFile[1]);
+            static::assertTrue($domDoc->schemaValidate($xsdFile));
+        }
+
+        static::assertSame(2, $fileCounter);
     }
 }
