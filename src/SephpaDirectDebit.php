@@ -129,7 +129,7 @@ class SephpaDirectDebit extends Sephpa
     public function downloadSepaFile($filename = 'payments.xml', $options = array())
     {
         // direct debit file and multiple files have to be created
-        if(!isset($options['unmixedFiles']) || $options['unmixedFiles'])
+        if(!isset($options['correctlySortedFiles']) || $options['correctlySortedFiles'])
         {
             if(!class_exists('\\ZipArchive'))
                 throw new SephpaInputException('You need the libzip extension (class ZipArchive) to download multiple files.');
