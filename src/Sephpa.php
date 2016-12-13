@@ -180,7 +180,7 @@ abstract class Sephpa
             $xml = simplexml_load_string($this->xmlInitString);
             $fileHead = $xml->addChild($this->paymentType);
 
-            $msgId = $this->msgId . sprintf('%02d', $fileCounter);
+            $msgId = $this->msgId . '-' . sprintf('%02d', $fileCounter);
 
             $grpHdr = $fileHead->addChild('GrpHdr');
             $grpHdr->addChild('MsgId', $msgId);
@@ -199,7 +199,6 @@ abstract class Sephpa
         return $xmlFiles;
     }
 
-    // todo find correct names for unmixed and doc...
     /**
      * Generates the SEPA file and starts a download using the header 'Content-Disposition: attachment;'
      * The file will not stored on the server.
@@ -223,7 +222,13 @@ abstract class Sephpa
      * Generates the SEPA file and stores it on the server.
      *
      * @param string $filename The path and filename
-     * @param array  $options  todo
+     * @param array  $options Available options:
+     *                        (bool) "correctlySortedFiles": Only available for direct debit files.
+     *                                               If set to true, there will one file per
+     *                                               collection be created. Defaults to true.
+     *                        (bool) "storeAsZipFile": Stores all generated file in a zip file.
+     *                        (bool) "addFileRoutingSlips": Adds file routing slips for every created
+     *                                               SEPA file. Defaults to false.
      * @throws SephpaInputException
      */
     public function storeSepaFile($filename = 'payments.xml', $options = array())
