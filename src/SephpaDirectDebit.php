@@ -122,8 +122,8 @@ class SephpaDirectDebit extends Sephpa
      *                        (bool) "correctlySortedFiles": Only available for direct debit files.
      *                                               If set to true, there will one file per
      *                                               collection be created. Defaults to true.
-     *                        (bool) "...doc": Added ... documents for every created sepa file.
-     *                                          Defaults to false.
+     *                        (bool) "addFileRoutingSlips": Adds file routing slips for every created
+     *                                               SEPA file. Defaults to false.
      * @throws SephpaInputException
      */
     public function downloadSepaFile($filename = 'payments.xml', $options = array())
@@ -131,6 +131,9 @@ class SephpaDirectDebit extends Sephpa
         // direct debit file and multiple files have to be created
         if(!isset($options['unmixedFiles']) || $options['unmixedFiles'])
         {
+            if(!class_exists('\\ZipArchive'))
+                throw new SephpaInputException('You need the libzip extension (class ZipArchive) to download multiple files.');
+
             $tmpFile = tempnam(sys_get_temp_dir(), 'sephpa');
             $zip = new \ZipArchive();
             if($zip->open($tmpFile, \ZipArchive::CREATE))
@@ -149,7 +152,8 @@ class SephpaDirectDebit extends Sephpa
                 header('Cache-Control: public');
                 header('Content-Description: File Transfer');
                 header('Content-type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="' . str_replace('.xml', '.zip', $filename) . '"');
+                header('Content-Disposition: attachment; filename="'
+                   . str_replace('.xml', '', $filename . (strtolower(substr($filename, -4)) !== '.zip' ? '.zip' : '')) . '"');
                 header('Content-Transfer-Encoding: binary');
                 // make sure the file size isn't cached
                 clearstatcache();
@@ -170,6 +174,13 @@ class SephpaDirectDebit extends Sephpa
      * Generates the SEPA file and stores it on the server.
      *
      * @param string $filename The path and filename
+     * @param array  $options Available options:
+     *                        (bool) "correctlySortedFiles": Only available for direct debit files.
+     *                                               If set to true, there will one file per
+     *                                               collection be created. Defaults to true.
+     *                        (bool) "storeAsZipFile": Stores all generated file in a zip file.
+     *                        (bool) "addFileRoutingSlips": Adds file routing slips for every created
+     *                                               SEPA file. Defaults to false.
      * @throws SephpaInputException
      */
     public function storeSepaFile($filename = 'payments.xml', $options = array())
