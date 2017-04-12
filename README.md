@@ -2,17 +2,16 @@ Sephpa - A PHP class to export SEPA files
 ===============
 
 [![Build Status](https://travis-ci.org/AbcAeffchen/Sephpa.svg?branch=master)](https://travis-ci.org/AbcAeffchen/Sephpa)
-[![Dependency Status](https://www.versioneye.com/php/abcaeffchen:sephpa/badge.svg)](https://www.versioneye.com/php/abcaeffchen:sephpa)
 [![Latest Stable Version](https://poser.pugx.org/abcaeffchen/sephpa/v/stable.svg)](https://packagist.org/packages/abcaeffchen/sephpa) 
 [![Total Downloads](https://poser.pugx.org/abcaeffchen/sephpa/downloads.svg)](https://packagist.org/packages/abcaeffchen/sephpa) 
 [![License](https://poser.pugx.org/abcaeffchen/sephpa/license.svg)](https://packagist.org/packages/abcaeffchen/sephpa)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/AbcAeffchen/Sephpa?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-##General##
+## General
 **Sephpa** [sefa] is a PHP class that creates SEPA XML files. The created XML files fulfill
 the specifications of Electronic Banking Internet Communication Standard (EBICS)
 
-##Supported file versions##
+## Supported file versions
 - SEPA Credit Transfer
     - pain.001.001.03
     - pain.001.002.03
@@ -23,14 +22,14 @@ the specifications of Electronic Banking Internet Communication Standard (EBICS)
     - pain.008.002.02
     - pain.008.003.02
 
-##Requirements##
+## Requirements
 Sephpa was created for PHP 5.6, 7.0, 7.1 and HHVM and requires [SepaUtilities 1.2.3+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
 Sephpa should also work with PHP <5.6, but since this versions are very old and don't get
 any security updates, it is strongly recommended not to use PHP older than 5.6.
 
-##Installation##
+## Installation
 
-###Composer###
+### Composer
 Just add
 
 ```json
@@ -43,7 +42,7 @@ Just add
 
 to your `composer.json` and include the Composer autoloader to your script.
 
-###Direct download###
+### Direct download
 You can download it here. Make sure you also download [SepaUtilities](https://github.com/AbcAeffchen/SepaUtilities) 
 and make it available. You can use the following snippet to make Sephpa available to your project. 
 Depending on where you put the Sephpa files and where you add the autoloader, you have to adjust
@@ -69,12 +68,12 @@ spl_autoload_register('sephpaAutoloader');
 
 Feel free to improve or adapt this to your requirement.
 
-##Creating a new SEPA file##
+## Creating a new SEPA file
 **Note:** This is not meant to teach you SEPA. If you want to learn more about SEPA or SEPA files,
 you should ask your bank for help. You use this library at your own risk and I assume no liability
 if anything goes wrong. You are supposed to check the files **before** handing them to your bank.
 
-###Credit Transfer###
+### Credit Transfer
 You can create a new Sephpa object by using:
 
 ```php
@@ -135,7 +134,7 @@ $creditTransferCollection->addPayment(array(
 ));
 ```
 
-###Direct Debits###
+### Direct Debits
 Direct debits work the same way as credit transfers, but they have little different inputs.
 
 ```php
@@ -188,7 +187,7 @@ Note: With pain.008.001.02 the key `orgnlDbtrAgt` is no longer available. It got
 `orgnlDbtrAgt_bic` and you can input the old BIC. But in general it looks like you just can omit
 both `orgnlDbtrAcct_iban` and `orgnlDbtrAgt_bic` and it should work.
 
-###Get the Sepa file###
+### Get the Sepa file
 After you have added some payments to your payment collection you can save the finished file by
 
 ```php
@@ -204,9 +203,9 @@ $creditTransferFile->downloadSepaFile();
 Notice that you can hand over a filename you like, but you should only use the file extension  
 `.xml`.
 
-##Credits##
-Thanks to [Herrmann Herz](https://github.com/Heart1010) who supported me debugging and with great 
+## Credits
+Thanks to [Hermann Herz](https://github.com/Heart1010) who supported me debugging and with great 
 ideas to improve Sephpa and SepaUtilities.
 
-##License##
+## License
 Licensed under the LGPL v3.0 License.

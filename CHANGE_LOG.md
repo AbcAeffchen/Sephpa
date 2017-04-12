@@ -1,7 +1,7 @@
 Sephpa - Change Log
 ===============
 
-##1.4.0 - Not released yet##
+## 1.4.0 - Not released yet
 - new: support for PHP 7.0, 7.1 and HHVM.
 - new: support for pain.001.001.03 and pain.008.001.02<br>
 Notice that this implementation fits the new german standard that is valid from November 2016. 
@@ -15,9 +15,9 @@ debit files).
 - new: You can store/download Direct Debit payments as multiple homogeneous files. You have the
 option to store the files as one .zip file or multiple xml files. If you want to download them,
 they are automatically packed into a .zip file.
-- new: all store/download functions have now the option to store accompanying document(s). To
-use this you have to also install the package `SephpaAccompanyingDocuments`. See the Readme for
-an example.
+- new: all store/download functions have now the option to store documentation files as PDF. To
+use this you have to also install the package `SepaDocumenter`. See the readme for
+an example.  
 It also supports to download multiple files as a single zip file.
 - fixed: invalid xml file if checkAndSanitize is turned off and `AmdmntInd` is not provided (issue #6)
 - fixed: some minor bugs no one seems to have noticed yet.
@@ -31,27 +31,27 @@ This should not break any code since it was recommended not to use this. It was 
 - dev: improved testing of sepa files and added a ton of tests.
 - dev: updated PHPUnit to v5.6.*
 
-##1.3.0 - Feb 5, '15##
+## 1.3.0 - Feb 5, '15
 - updated SepaUtilities to 1.1.0
 - changed licence to GNU LGPL v3.0
 
-##1.2.4 - Jan 27, '15##
+## 1.2.4 - Jan 27, '15
 - fixed a bug that results in invalid sepa file, if BIC is not provided for credit transfer (pain.001.003.03)
 
-##1.2.3 - Dec 18, '14##
+## 1.2.3 - Dec 18, '14
 - bugfix: removed the `require` in Sephpa.php. The directory linked there does not exist.
 - changed default file extension for SEPA files from xsd to xml. As everyone should name the files
 in a useful way, the default value will be removed in the future.
 
-##1.2.2 - Oct 19, '14##
+## 1.2.2 - Oct 19, '14
 - bugfix: refactoring caused a naming problem in sepa files
 - added unit tests which compare the outputs to bank-validated files
 
-##1.2.1 - Oct 18, '14##
+## 1.2.1 - Oct 18, '14
 - updated SepaUtilities: Sephpa 1.2.0 throws an exception if you entering a purpose (`purp`) 
 or a category purpose (`ctgypurp`) while `checkAndSanitize` is set to true.
 
-##1.2.0 - Oct 18, '14##
+## 1.2.0 - Oct 18, '14
 - Sephpa is now available via composer
 - Sephpa is now splitted up into `SephpaCreditTransfer` and `SephpaDirectDebit`
 - [SepaUtilities](https://github.com/AbcAeffchen/SepaUtilities) is now a project on its own
@@ -61,14 +61,14 @@ or a category purpose (`ctgypurp`) while `checkAndSanitize` is set to true.
 sanitize all inputs its self.
 - added `downloadSepaFile()` and `storeSepaFile()`
 
-##1.1.3 - Oct 9, '14##
+## 1.1.3 - Oct 9, '14
 - moved the `SEPA_PAIN_*` constants into the Sephpa class. Call them now as `Sephpa::SEPA_PAIN_`.
 - added support for alternative language specific character replacement. Use the 
 `SepaUtilities::FLAG_ALT_REPLACEMENT_*` constants.
 - added an autoloader to load required files dynamic.
 - added patterns to SepaUtilities that can be used in HTML5 pattern attribute
 
-##1.1.2 - Sep 27, '14##
+## 1.1.2 - Sep 27, '14
 - ~~added an autoloader to load required files dynamic.~~
 - ~~added patterns to SepaUtilities that can be used in HTML5 pattern attribute~~
 - added checkAndSanitize function to SepaUtilities
@@ -79,10 +79,10 @@ sanitize all inputs its self.
 server settings
 - updated readme + example.php
 
-##1.1.1 - Sep 18, '14##
+## 1.1.1 - Sep 18, '14
 - Fixed some bugs in SepaUtilities
 
-##1.1.0 - Sep 7, '14##
+## 1.1.0 - Sep 7, '14
 - Renamed the project to Sephpa
 - Renamed SepaXmlFile.php to Sephpa.php
 - runs on PHP 5.3, 5.4, 5.5 and 5.6
@@ -99,13 +99,13 @@ sanitize the input before handing it to Sephpa
 - Bug fixed: CtgyPurp tag (Category Purpose) was written with a lower case 'c'.
 
 
-##1.0.2 - May 3, '14##
+## 1.0.2 - May 3, '14
 - changed file encoding to utf-8
 
-##1.0.1 - Nov 10, '13##
+## 1.0.1 - Nov 10, '13
 - Bug fixed: remittance information was not added to direct debit files
 
-##1.0.0 - Sep 8, '13##
+## 1.0.0 - Sep 8, '13
 - First stable release
 - supports SEPA credit transfer (pain.001.002.03)
 - supports SEPA direct debit (pain.008.002.02)
