@@ -43,30 +43,33 @@ Just add
 to your `composer.json` and include the Composer autoloader to your script.
 
 ### Direct download
-You can download it here. Make sure you also download [SepaUtilities](https://github.com/AbcAeffchen/SepaUtilities) 
-and make it available. You can use the following snippet to make Sephpa available to your project. 
-Depending on where you put the Sephpa files and where you add the autoloader, you have to adjust
-the path to the src directory of Sephpa.
-
-```php
-function sephpaAutoloader($class) {
-    $class = preg_replace('#AbcAeffchen\\\Sephpa\\\([^\.]+).php#','$1',$class);
-    switch($class)
-    {
-        case 'Sephpa':
-        case 'SephpaCreditTransfer':
-        case 'SephpaDirectDebit':
-            require __DIR__ . '/src/' . $class . '.php';
-            break;
-        default:
-            require __DIR__ . '/src/payment-collections/' . $class . '.php';
-    }
-}
-
-spl_autoload_register('sephpaAutoloader');
+You can download Sephpa from this GitHub page. Make sure you also download [SepaUtilities](https://github.com/AbcAeffchen/SepaUtilities).
+You should store the files in a structure that looks like this:
+```
+your project root
+├── your_code
+│   └── ...
+└── vendor
+    ├── Sephpa          (the Sephpa project go here)
+    ├── SepaUtilities   (the SepaUtilities files go here)
+    └── ...
 ```
 
-Feel free to improve or adapt this to your requirement.
+In your code you can include the Sephpa autoloader by including the file
+```
+vendor/Sephpa/src/autoloader.php
+```
+You also need to include the SepaUtilities file which should be
+```
+vendor/SepaUtilities/src/SepaUtilities.php
+```
+
+In total your code should look something like this:
+```
+require PROJECT_ROOT . '/vendor/Sephpa/src/autoloader.php';
+require PROJECT_ROOT . '/vendor/abcaeffchen/sepa-utilities/src/SepaUtilities.php';
+```
+You need to define `PROJECT_ROOT` by yourself.
 
 ## Creating a new SEPA file
 **Note:** This is not meant to teach you SEPA. If you want to learn more about SEPA or SEPA files,

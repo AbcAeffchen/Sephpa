@@ -1,7 +1,7 @@
 Sephpa - Change Log
 ===============
 
-## 1.4.0 - Not released yet
+## 2.0.0 - Not released yet
 - new: support for PHP 7.0, 7.1 and HHVM.
 - new: support for pain.001.001.03 and pain.008.001.02<br>
 Notice that this implementation fits the new german standard that is valid from November 2016. 
@@ -19,6 +19,7 @@ they are automatically packed into a .zip file.
 use this you have to also install the package `SepaDocumenter`. See the readme for
 an example.  
 It also supports to download multiple files as a single zip file.
+- new: an autoloader file that can be used out of the box if you don't want to use composer.
 - fixed: invalid xml file if checkAndSanitize is turned off and `AmdmntInd` is not provided (issue #6)
 - fixed: some minor bugs no one seems to have noticed yet.
 - changed: corrected some doc comments
