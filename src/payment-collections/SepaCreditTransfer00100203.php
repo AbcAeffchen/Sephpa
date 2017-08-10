@@ -153,7 +153,7 @@ class SepaCreditTransfer00100203 implements SepaPaymentCollection
         if( !empty( $this->transferInfo['btchBookg'] ) )
             $pmtInf->addChild('BtchBookg', $this->transferInfo['btchBookg']);
         $pmtInf->addChild('NbOfTxs', $this->getNumberOfTransactions());
-        $pmtInf->addChild('CtrlSum', sprintf('%01.2f', $this->getCtrlSum()));
+        $pmtInf->addChild('CtrlSum', sprintf('%01.2F', $this->getCtrlSum()));
 
         $pmtTpInf = $pmtInf->addChild('PmtTpInf');
         $pmtTpInf->addChild('InstrPrty', 'NORM');

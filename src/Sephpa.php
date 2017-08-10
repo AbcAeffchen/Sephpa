@@ -134,7 +134,7 @@ abstract class Sephpa
         $grpHdr->addChild('MsgId', $this->msgId);
         $grpHdr->addChild('CreDtTm', $creDtTm);
         $grpHdr->addChild('NbOfTxs', $totalNumberOfTransaction);
-        $grpHdr->addChild('CtrlSum', sprintf('%01.2f', $this->getCtrlSum()));
+        $grpHdr->addChild('CtrlSum', sprintf('%01.2F', $this->getCtrlSum()));
         $grpHdr->addChild('InitgPty')->addChild('Nm', $this->initgPty);
         
         foreach($this->paymentCollections as $paymentCollection)
