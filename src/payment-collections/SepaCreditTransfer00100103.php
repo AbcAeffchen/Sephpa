@@ -200,7 +200,7 @@ class SepaCreditTransfer00100103 implements SepaPaymentCollection
     private function generatePaymentXml(\SimpleXMLElement $cdtTrfTxInf, $payment, $ccy)
     {
         $cdtTrfTxInf->addChild('PmtId')->addChild('EndToEndId', $payment['pmtId']);
-        $cdtTrfTxInf->addChild('Amt')->addChild('InstdAmt', $payment['instdAmt'])
+        $cdtTrfTxInf->addChild('Amt')->addChild('InstdAmt', sprintf("%01.2F", $payment['instdAmt']))
                     ->addAttribute('Ccy', $ccy);
         if( !empty( $payment['bic'] ) )
             $cdtTrfTxInf->addChild('CdtrAgt')->addChild('FinInstnId')
