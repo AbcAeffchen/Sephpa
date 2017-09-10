@@ -8,8 +8,10 @@ php:
   - 7.2
   - hhvm
 
-before_script:
+before_install:
   - composer self-update
+
+install:
   - composer install --prefer-source --no-interaction
 
 script: phpunit
