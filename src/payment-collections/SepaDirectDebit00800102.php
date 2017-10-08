@@ -182,7 +182,7 @@ class SepaDirectDebit00800102 implements SepaPaymentCollection
         if( !empty( $this->debitInfo['btchBookg'] ) )
             $pmtInf->addChild('BtchBookg', $this->debitInfo['btchBookg']);
         $pmtInf->addChild('NbOfTxs', $this->getNumberOfTransactions());
-        $pmtInf->addChild('CtrlSum', sprintf('%01.2f', $this->getCtrlSum()));
+        $pmtInf->addChild('CtrlSum', sprintf('%01.2F', $this->getCtrlSum()));
 
         $pmtTpInf = $pmtInf->addChild('PmtTpInf');
         $pmtTpInf->addChild('SvcLvl')->addChild('Cd', 'SEPA');
@@ -233,7 +233,7 @@ class SepaDirectDebit00800102 implements SepaPaymentCollection
     private function generatePaymentXml(\SimpleXMLElement $drctDbtTxInf, $payment, $ccy)
     {
         $drctDbtTxInf->addChild('PmtId')->addChild('EndToEndId', $payment['pmtId']);
-        $drctDbtTxInf->addChild('InstdAmt', sprintf('%01.2f', $payment['instdAmt']))
+        $drctDbtTxInf->addChild('InstdAmt', sprintf('%01.2F', $payment['instdAmt']))
                      ->addAttribute('Ccy', $ccy);
 
         $mndtRltdInf = $drctDbtTxInf->addChild('DrctDbtTx')->addChild('MndtRltdInf');
