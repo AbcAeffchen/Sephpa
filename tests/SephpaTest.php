@@ -397,7 +397,6 @@ class SephpaTest extends PHPUnit\Framework\TestCase
                            $this->getDomDoc($this->getDirectDebitFile($version, false, true, true))->saveXML());
     }
 
-    // todo test the pdf functions
     public function testAdditionalDocuments()
     {
         // according to https://github.com/sebastianbergmann/phpunit-documentation/issues/171#issuecomment-337854895
@@ -405,10 +404,12 @@ class SephpaTest extends PHPUnit\Framework\TestCase
 
         $version = SephpaCreditTransfer::SEPA_PAIN_001_001_03;
         $file = $this->getCreditTransferFile($version, true, true, true);
-        $this->assertNull($file->store(__DIR__ . '/output/', ['addFileRoutingSlip' => true, 'addControlList' => true]));
+        $this->assertNull($file->store(__DIR__ . DIRECTORY_SEPARATOR . 'output',
+                                       ['addFileRoutingSlip' => true, 'addControlList' => true]));
 
         $version = SephpaDirectDebit::SEPA_PAIN_008_001_02;
         $file = $this->getDirectDebitFile($version, true, true, true);
-        $this->assertNull($file->store(__DIR__ . '/output/', ['addFileRoutingSlip' => true, 'addControlList' => true]));
+        $this->assertNull($file->store(__DIR__ . DIRECTORY_SEPARATOR . 'output',
+                                       ['addFileRoutingSlip' => true, 'addControlList' => true]));
     }
 }

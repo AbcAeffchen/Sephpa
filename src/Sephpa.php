@@ -124,7 +124,7 @@ abstract class Sephpa
         $grpHdr->addChild('CtrlSum', sprintf('%01.2f', $this->paymentCollection->getCtrlSum()));
         $grpHdr->addChild('InitgPty')->addChild('Nm', $this->initgPty);
         // todo add InitgPty > OrgId block support. here it is either bic or bei or an ID (TEXT35)
-        // todo test if it is valid to provied both information. Add notice that it is not recommended to use this at all.
+        // todo test if it is valid to provide both information. Add notice that it is not recommended to use this at all.
         // information is on page 42 DFÜ V3.0
 
         $pmtInf = $fileHead->addChild('PmtInf');
@@ -218,12 +218,11 @@ abstract class Sephpa
                 $zip->close();
             }
 
-            return [$this->getFileName() . '.zip', file_get_contents($tmpFile)];
+            return ['name' => $this->getFileName() . '.zip',
+                    'data' => file_get_contents($tmpFile)];
         }
-        else
-        {
-            return $files[0];
-        }
+
+        return $files[0];
     }
 
     /**
@@ -269,7 +268,7 @@ abstract class Sephpa
     /**
      * Generates the SEPA file and stores it on the server.
      *
-     * @param string $path    The path where the file gets stored without trailing "/".
+     * @param string $path    The path where the file gets stored without trailing DIRECTORY_SEPARATOR.
      * @param array  $options @see generateOutput() for details.
      * @throws SephpaInputException
      * @throws \Mpdf\MpdfException
@@ -278,8 +277,8 @@ abstract class Sephpa
     {
         $fileData = $this->generateOutput($options);
 
-        $file = fopen($path . '/' . $fileData[0], 'wb');
-        fwrite($file, $fileData[1]);
+        $file = fopen($path . DIRECTORY_SEPARATOR . $fileData['name'], 'wb');
+        fwrite($file, $fileData['data']);
         fclose($file);
     }
 }
