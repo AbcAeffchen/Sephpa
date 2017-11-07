@@ -3,10 +3,10 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2016 Alexander Schickedanz
+ * @copyright ©2017 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 namespace AbcAeffchen\Sephpa;
@@ -43,7 +43,7 @@ class SepaCreditTransfer00100103 extends SepaCreditTransferCollection
         if($this->checkAndSanitize)
         {
             // All fields contain valid information?
-            $checkResult = SepaUtilities::checkAndSanitizeAll($transferInfo, $this->sanitizeFlags, array('allowEmptyBic' => true));
+            $checkResult = SepaUtilities::checkAndSanitizeAll($transferInfo, $this->sanitizeFlags, ['allowEmptyBic' => true]);
 
             if($checkResult !== true)
                 throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
@@ -74,7 +74,8 @@ class SepaCreditTransfer00100103 extends SepaCreditTransferCollection
 
             $bicRequired = (!SepaUtilities::isEEATransaction($this->dbtrIban,$paymentInfo['iban']));
 
-            $checkResult = SepaUtilities::checkAndSanitizeAll($paymentInfo, $this->sanitizeFlags,array('allowEmptyBic' => $bicRequired));
+            $checkResult = SepaUtilities::checkAndSanitizeAll($paymentInfo, $this->sanitizeFlags,
+                                                              ['allowEmptyBic' => $bicRequired]);
 
             if($checkResult !== true)
                 throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');

@@ -3,10 +3,10 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2016 Alexander Schickedanz
+ * @copyright ©2017 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 namespace AbcAeffchen\Sephpa;
@@ -42,7 +42,7 @@ class SepaDirectDebit00800202 extends SepaDirectDebitCollection
             if(!SepaUtilities::checkRequiredCollectionKeys($debitInfo, self::VERSION) )
                 throw new SephpaInputException('One of the required inputs \'pmtInfId\', \'lclInstrm\', \'seqTp\', \'cdtr\', \'iban\', \'bic\', \'ci\' is missing.');
 
-            $checkResult = SepaUtilities::checkAndSanitizeAll($debitInfo, $this->sanitizeFlags, array('version' => self::VERSION));
+            $checkResult = SepaUtilities::checkAndSanitizeAll($debitInfo, $this->sanitizeFlags, ['version' => self::VERSION]);
 
             if($checkResult !== true)
                 throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
@@ -73,7 +73,8 @@ class SepaDirectDebit00800202 extends SepaDirectDebitCollection
 
         if($this->checkAndSanitize)
         {
-            $checkResult = SepaUtilities::checkAndSanitizeAll($paymentInfo, $this->sanitizeFlags,array('version' => self::VERSION));
+            $checkResult = SepaUtilities::checkAndSanitizeAll($paymentInfo, $this->sanitizeFlags,
+                                                              ['version' => self::VERSION]);
 
             if($checkResult !== true)
                 throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
@@ -81,11 +82,11 @@ class SepaDirectDebit00800202 extends SepaDirectDebitCollection
             if( !empty( $paymentInfo['amdmntInd'] ) && $paymentInfo['amdmntInd'] === 'true' )
             {
 
-                if( SepaUtilities::containsNotAnyKey($paymentInfo, array('orgnlMndtId',
-                                                                         'orgnlCdtrSchmeId_nm',
-                                                                         'orgnlCdtrSchmeId_id',
-                                                                         'orgnlDbtrAcct_iban',
-                                                                         'orgnlDbtrAgt'))
+                if( SepaUtilities::containsNotAnyKey($paymentInfo, ['orgnlMndtId',
+                                                                    'orgnlCdtrSchmeId_nm',
+                                                                    'orgnlCdtrSchmeId_id',
+                                                                    'orgnlDbtrAcct_iban',
+                                                                    'orgnlDbtrAgt'])
                 )
                     throw new SephpaInputException('You set \'amdmntInd\' to \'true\', so you have to set also at least one of the following inputs: \'orgnlMndtId\', \'orgnlCdtrSchmeId_nm\', \'orgnlCdtrSchmeId_id\', \'orgnlDbtrAcct_iban\', \'orgnlDbtrAgt\'.');
 

@@ -28,7 +28,7 @@ abstract class SepaCreditTransferCollection implements SepaPaymentCollection
     /**
      * @var mixed[] $payments Saves all payments
      */
-    protected $payments = array();
+    protected $payments = [];
     /**
      * @var mixed[] $transferInfo Saves the transfer information for the collection.
      */

@@ -50,11 +50,11 @@ class SephpaTest extends PHPUnit\Framework\TestCase
      */
     private function getCreditTransferFile($version, $addBIC, $addOptionalData, $checkAndSanitize)
     {
-        $transferInformation = array(
+        $transferInformation = [
             'pmtInfId'      => 'PaymentID-1234',            // ID of the payment collection
             'dbtr'          => 'Name of Debtor2',           // (max 70 characters)
             'iban'          => 'DE21500500001234567897',    // IBAN of the Debtor
-        );
+        ];
 
         if($addBIC)
             $transferInformation['bic'] = 'BELADEBEXXX';
@@ -71,12 +71,12 @@ class SephpaTest extends PHPUnit\Framework\TestCase
                                                        $version, $transferInformation, $checkAndSanitize);
 
 
-        $paymentData = array(
+        $paymentData = [
             'pmtId'     => 'TransferID-1234-1',     // ID of the payment (EndToEndId)
             'instdAmt'  => 1.14,                    // amount,
             'iban'      => 'DE21500500009876543210',// IBAN of the Creditor
             'cdtr'      => 'Name of Creditor',      // (max 70 characters)
-        );
+        ];
 
         if($addBIC)
             $paymentData['bic'] = 'SPUEDE2UXXX';
@@ -103,14 +103,14 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     private function getDirectDebitFile($version, $addBIC, $addOptionalData, $checkAndSanitize)
     {
 
-        $directDebitInformation = array(
+        $directDebitInformation = [
             'pmtInfId'      => 'PaymentID-1235',        // ID of the payment collection
             'lclInstrm'     => SepaUtilities::LOCAL_INSTRUMENT_CORE_DIRECT_DEBIT,
             'seqTp'         => SepaUtilities::SEQUENCE_TYPE_FIRST,
             'cdtr'          => 'Name of Creditor',      // (max 70 characters)
             'iban'          => 'DE87200500001234567890',// IBAN of the Creditor
             'ci'            => 'DE98ZZZ09999999999',    // Creditor-Identifier
-        );
+        ];
 
         if($addBIC)
             $directDebitInformation['bic'] = 'BELADEBEXXX';
@@ -123,14 +123,14 @@ class SephpaTest extends PHPUnit\Framework\TestCase
             $directDebitInformation['reqdColltnDt']  = '2013-11-25';            // Date: YYYY-MM-DD
         }
 
-        $paymentData = array(
+        $paymentData = [
             'pmtId'               => 'TransferID-1235-1',       // ID of the payment (EndToEndId)
             'instdAmt'            => 2.34,                      // amount
             'mndtId'              => 'Mandate-Id',              // Mandate ID
             'dtOfSgntr'           => '2010-04-12',              // Date of signature
             'dbtr'                => 'Name of Debtor',          // (max 70 characters)
             'iban'                => 'DE87200500001234567890',  // IBAN of the Debtor
-        );
+        ];
 
         if($addBIC)
             $paymentData['bic'] = 'BELADEBEXXX';
@@ -229,7 +229,7 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     public function testCreditTransfer00100103()
     {
         $version = SephpaCreditTransfer::SEPA_PAIN_001_001_03;
-        foreach(array('pain.001.001.03','pain.001.001.03_GBIC') as $xsdFileVersion)
+        foreach(['pain.001.001.03', 'pain.001.001.03_GBIC'] as $xsdFileVersion)
         {
             $xsdFile = __DIR__ . '/schemata/' . $xsdFileVersion . '.xsd';
             static::assertTrue($this->getDomDoc($this->getCreditTransferFile($version, true, true, true))
@@ -333,7 +333,7 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     public function testDirectDebit00800102()
     {
         $version = SephpaDirectDebit::SEPA_PAIN_008_001_02;
-        foreach(array('pain.008.001.02','pain.008.001.02_GBIC') as $xsdFileVersion)
+        foreach(['pain.008.001.02', 'pain.008.001.02_GBIC'] as $xsdFileVersion)
         {
             $xsdFile = __DIR__ . '/schemata/' . $xsdFileVersion . '.xsd';
             static::assertTrue($this->getDomDoc($this->getDirectDebitFile($version, true, true, true))

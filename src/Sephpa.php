@@ -258,7 +258,7 @@ abstract class Sephpa
      * @throws SephpaInputException
      * @throws \Mpdf\MpdfException
      */
-    public function download($options = array())
+    public function download($options = [])
     {
         $file = $this->generateOutput($options);
 
@@ -274,7 +274,7 @@ abstract class Sephpa
      * @throws SephpaInputException
      * @throws \Mpdf\MpdfException
      */
-    public function store($path, $options = array())
+    public function store($path, $options = [])
     {
         $fileData = $this->generateOutput($options);
 

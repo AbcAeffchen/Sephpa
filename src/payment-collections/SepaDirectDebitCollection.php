@@ -29,7 +29,7 @@ abstract class SepaDirectDebitCollection implements SepaPaymentCollection
     /**
      * @var mixed[] $payments Saves all payments
      */
-    protected $payments = array();
+    protected $payments = [];
     /**
      * @var mixed[] $debitInfo Saves the transfer information for the collection.
      */
