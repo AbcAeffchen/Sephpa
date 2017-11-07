@@ -17,7 +17,7 @@
     },
     "require": {
         "php": ">=5.6.0",
-        "ext-simplexml": "*",
+        "ext-xml": "*",
         "abcaeffchen/sepa-utilities": "~1.2.4"
     },
     "require-dev": {
