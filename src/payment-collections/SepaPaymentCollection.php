@@ -9,7 +9,7 @@
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
-namespace AbcAeffchen\Sephpa;
+namespace AbcAeffchen\Sephpa\PaymentCollections;
 
 /**
  * Abstract class for credit transfer and debit

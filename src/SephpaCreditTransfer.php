@@ -61,17 +61,17 @@ class SephpaCreditTransfer extends Sephpa
             case self::SEPA_PAIN_001_001_03:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_001_001_03;
                 $this->version = self::SEPA_PAIN_001_001_03;
-                $this->paymentCollection = new SepaCreditTransfer00100103($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
+                $this->paymentCollection = new PaymentCollections\SepaCreditTransfer00100103($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             case self::SEPA_PAIN_001_002_03:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_001_002_03;
                 $this->version = self::SEPA_PAIN_001_002_03;
-                $this->paymentCollection = new SepaCreditTransfer00100203($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
+                $this->paymentCollection = new PaymentCollections\SepaCreditTransfer00100203($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             case self::SEPA_PAIN_001_003_03:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_001_003_03;
                 $this->version = self::SEPA_PAIN_001_003_03;
-                $this->paymentCollection = new SepaCreditTransfer00100303($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
+                $this->paymentCollection = new PaymentCollections\SepaCreditTransfer00100303($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             default:
                 throw new SephpaInputException('You choose an invalid SEPA file version. Please use the SEPA_PAIN_001_* constants.');

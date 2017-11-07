@@ -9,8 +9,9 @@
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
-namespace AbcAeffchen\Sephpa;
+namespace AbcAeffchen\Sephpa\PaymentCollections;
 use AbcAeffchen\SepaUtilities\SepaUtilities;
+use AbcAeffchen\Sephpa\SephpaInputException;
 
 /**
  * Manages direct debits

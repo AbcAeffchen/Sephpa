@@ -10,9 +10,9 @@
  */
 
 namespace AbcAeffchen\Sephpa;
+use AbcAeffchen\SepaUtilities\SepaUtilities;
 
 require_once __DIR__ . '/Sephpa.php';
-use AbcAeffchen\SepaUtilities\SepaUtilities;
 /**
  * Base class for both credit transfer and direct debit
  */
@@ -64,22 +64,22 @@ class SephpaDirectDebit extends Sephpa
             case self::SEPA_PAIN_008_001_02:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_008_001_02;
                 $this->version = self::SEPA_PAIN_008_001_02;
-                $this->paymentCollection = new SepaDirectDebit00800102($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
+                $this->paymentCollection = new PaymentCollections\SepaDirectDebit00800102($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             case self::SEPA_PAIN_008_001_02_AUSTRIAN_003:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_008_001_02_AUSTRIAN_003;
                 $this->version = self::SEPA_PAIN_008_001_02_AUSTRIAN_003;
-                $this->paymentCollection = new SepaDirectDebit00800102Austrian003($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
+                $this->paymentCollection = new PaymentCollections\SepaDirectDebit00800102Austrian003($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             case self::SEPA_PAIN_008_002_02:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_008_002_02;
                 $this->version = self::SEPA_PAIN_008_002_02;
-                $this->paymentCollection = new SepaDirectDebit00800202($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
+                $this->paymentCollection = new PaymentCollections\SepaDirectDebit00800202($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             case self::SEPA_PAIN_008_003_02:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_008_003_02;
                 $this->version = self::SEPA_PAIN_008_003_02;
-                $this->paymentCollection = new SepaDirectDebit00800302($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
+                $this->paymentCollection = new PaymentCollections\SepaDirectDebit00800302($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             default:
                 throw new SephpaInputException('You choose an invalid SEPA file version. Please use the SEPA_PAIN_008_* constants.');

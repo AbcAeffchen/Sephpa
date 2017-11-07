@@ -50,7 +50,7 @@ abstract class Sephpa
      */
     protected $creationDateTime;
     /**
-     * @type SepaPaymentCollection $paymentCollection Stores all payment objects
+     * @type PaymentCollections\SepaPaymentCollection $paymentCollection Stores all payment objects
      */
     protected $paymentCollection;
     /**

@@ -29,7 +29,8 @@
     },
     "autoload": {
         "psr-4": {
-            "AbcAeffchen\\Sephpa\\": ["src/","src/payment-collections/"]
+            "AbcAeffchen\\Sephpa\\": "src/",
+            "AbcAeffchen\\Sephpa\\PaymentCollections\\": "src/payment-collections/"
         }
     }
 }

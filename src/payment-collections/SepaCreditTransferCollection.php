@@ -9,7 +9,7 @@
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
-namespace AbcAeffchen\Sephpa;
+namespace AbcAeffchen\Sephpa\PaymentCollections;
 
 abstract class SepaCreditTransferCollection implements SepaPaymentCollection
 {

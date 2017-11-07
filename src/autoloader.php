@@ -6,14 +6,14 @@
  * @copyright ©2017 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 namespace AbcAeffchen\Sephpa;
 
 function sephpaAutoloader($class)
 {
-    $class = preg_replace('#AbcAeffchen\\\Sephpa\\\([^\.]+)#', '$1', $class);
+    $class = preg_replace('#AbcAeffchen\\\Sephpa\\\(PaymentCollections\\\)?([^\.]+)#', '$2', $class);
 
     switch($class)
     {
