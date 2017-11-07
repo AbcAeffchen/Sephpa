@@ -3,10 +3,10 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2016 Alexander Schickedanz
+ * @copyright ©2017 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -15,11 +15,7 @@ use AbcAeffchen\Sephpa\SephpaCreditTransfer;
 
 function testTimeMemory()
 {
-    $before = microtime(true);
-
-    $creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
-                                                   SephpaCreditTransfer::SEPA_PAIN_001_001_03,
-                                                   false);
+    $start = microtime(true);
 
     $collectionData = array(
         'pmtInfId'      => 'PaymentID-1234',            // ID of the payment collection
@@ -32,6 +28,10 @@ function testTimeMemory()
         'ultmtDebtr'    => 'Ultimate Debtor Name'       // just an information, this do not affect the payment (max 70 characters)
     );
 
+    $creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
+                                                   SephpaCreditTransfer::SEPA_PAIN_001_001_03,
+                                                   $collectionData, false);
+
     $paymentData = array(
         'pmtId'     => 'TransferID-1234-1',     // ID of the payment (EndToEndId)
         'instdAmt'  => 1.14,                    // amount,
@@ -42,15 +42,13 @@ function testTimeMemory()
         'rmtInf'    => 'Remittance Information should longer'   // unstructured information about the remittance (max 140 characters)
     );
 
-    $creditTransferCollection = $creditTransferFile->addCollection($collectionData);
-
     for($i = 0; $i < 100000; $i++)
-        $creditTransferCollection->addPayment($paymentData);
+        $creditTransferFile->addPayment($paymentData);
 
-    $creditTransferFile->storeSepaFile(__DIR__ . '\payment.xml');
+    $creditTransferFile->store(__DIR__);
 
     echo memory_get_peak_usage() / 1024.0 / 1024.0 . " MB\n";
-    echo (microtime(true) - $before) . ' s';
+    echo (microtime(true) - $start) . ' s';
 }
 
 testTimeMemory();

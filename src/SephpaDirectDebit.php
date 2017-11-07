@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2016 Alexander Schickedanz
+ * @copyright ©2017 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -44,14 +44,16 @@ class SephpaDirectDebit extends Sephpa
     /**
      * Creates a SepaXmlFile object and sets the head data
      *
-     * @param string $initgPty The name of the initiating party (max. 70 characters)
-     * @param string $msgId    The unique id of the file
-     * @param int    $version  Sets the type and version of the sepa file. Use the SEPA_PAIN_*
-     *                         constants
+     * @param string $initgPty   The name of the initiating party (max. 70 characters)
+     * @param string $msgId      The unique id of the file
+     * @param int    $version    Sets the type and version of the sepa file. Use the SEPA_PAIN_*
+     *                           constants
+     * @param array  $debitInfo  Required keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'reqdColltnDt', 'cdtr', 'iban', 'bic', 'ci';
+     *                           optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt'
      * @param bool   $checkAndSanitize
      * @throws SephpaInputException
      */
-    public function __construct($initgPty, $msgId, $version, $checkAndSanitize = true)
+    public function __construct($initgPty, $msgId, $version, array $debitInfo, $checkAndSanitize = true)
     {
         parent::__construct($initgPty, $msgId, $version, $checkAndSanitize);
 
@@ -62,18 +64,22 @@ class SephpaDirectDebit extends Sephpa
             case self::SEPA_PAIN_008_001_02:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_008_001_02;
                 $this->version = self::SEPA_PAIN_008_001_02;
+                $this->paymentCollection = new SepaDirectDebit00800102($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             case self::SEPA_PAIN_008_001_02_AUSTRIAN_003:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_008_001_02_AUSTRIAN_003;
                 $this->version = self::SEPA_PAIN_008_001_02_AUSTRIAN_003;
+                $this->paymentCollection = new SepaDirectDebit00800102Austrian003($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             case self::SEPA_PAIN_008_002_02:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_008_002_02;
                 $this->version = self::SEPA_PAIN_008_002_02;
+                $this->paymentCollection = new SepaDirectDebit00800202($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             case self::SEPA_PAIN_008_003_02:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_008_003_02;
                 $this->version = self::SEPA_PAIN_008_003_02;
+                $this->paymentCollection = new SepaDirectDebit00800302($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             default:
                 throw new SephpaInputException('You choose an invalid SEPA file version. Please use the SEPA_PAIN_008_* constants.');
@@ -83,111 +89,86 @@ class SephpaDirectDebit extends Sephpa
     /**
      * Adds a new collection of direct debits and sets main data
      *
-     * @param mixed[] $debitInfo Required keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'reqdColltnDt', 'cdtr', 'iban', 'bic', 'ci';
-     *                           optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt'
+     * @param array $paymentInfo @see \Sephpa\SepaDirectDebit*::addPayment() for details.
      * @throws SephpaInputException
-     * @return SepaPaymentCollection
      */
-    public function addCollection(array $debitInfo)
+    public function addPayment(array $paymentInfo)
     {
-        switch($this->version)
-        {
-            case self::SEPA_PAIN_008_001_02:
-                $paymentCollection = new SepaDirectDebit00800102($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
-                break;
-            case self::SEPA_PAIN_008_001_02_AUSTRIAN_003:
-                $paymentCollection = new SepaDirectDebit00800102Austrian003($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
-                break;
-            case self::SEPA_PAIN_008_002_02:
-                $paymentCollection = new SepaDirectDebit00800202($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
-                break;
-            case self::SEPA_PAIN_008_003_02:
-                $paymentCollection = new SepaDirectDebit00800302($debitInfo, $this->checkAndSanitize, $this->sanitizeFlags);
-                break;
-            default:
-                throw new SephpaInputException('You choose an invalid SEPA file version. Please use the SEPA_PAIN_008_* constants.');
-        }
-
-        $this->paymentCollections[] = $paymentCollection;
-        
-        return $paymentCollection;
+        $this->paymentCollection->addPayment($paymentInfo);
     }
 
     /**
-     * Generates the SEPA file and starts a download using the header 'Content-Disposition: attachment;'
-     * The file will not stored on the server.
+     * Generates a File Routing Slip and returns it as [name, data] array. Requires mPDF.
      *
-     * @param string $filename
-     * @param array  $options Available options:
-     *                        (bool) "correctlySortedFiles": Only available for direct debit files.
-     *                                               If set to true, there will one file per
-     *                                               collection be created. Defaults to true.
-     *                        (bool) "addFileRoutingSlips": Adds file routing slips for every created
-     *                                               SEPA file. Defaults to false.
-     * @throws SephpaInputException
+     * @param array $options @see generateOutput() for details.
+     * @return array A File Routing Slip and returns it as [name, data] array.
+     * @throws \Mpdf\MpdfException
      */
-    public function downloadSepaFile($filename = 'payments.xml', $options = array())
+    protected function getFileRoutingSlip(array $options)
     {
-        // direct debit file and multiple files have to be created
-        if(!isset($options['correctlySortedFiles']) || $options['correctlySortedFiles'])
-        {
-            if(!class_exists('\\ZipArchive'))
-                throw new SephpaInputException('You need the libzip extension (class ZipArchive) to download multiple files.');
+        $collectionData = $this->paymentCollection->getCollectionData($options['dateFormat']);
 
-            $tmpFile = tempnam(sys_get_temp_dir(), 'sephpa');
-            $zip = new \ZipArchive();
-            if($zip->open($tmpFile, \ZipArchive::CREATE))
-            {
-                foreach($this->generateMultiFileXml() as $xmlFile)
-                {
-                    $zip->addFromString($xmlFile[0] . '.xml', $xmlFile[1]);
-                }
+        $collectionData = array_merge($collectionData,
+                                      ['file_name'              => $this->getFileName() . '.xml',
+                                       'scheme_version'         => SepaUtilities::version2string($this->version),
+                                       'payment_type'           => 'Direct Debit',
+                                       'message_id'             => $this->msgId,
+                                       'creation_date_time'     => $this->creationDateTime,
+                                       'initialising_party'     => $this->initgPty,
+                                       'number_of_transactions' => $this->paymentCollection->getNumberOfTransactions(),
+                                       'control_sum'            => sprintf($options['moneyFormat']['currency'],
+                                                                           number_format($this->paymentCollection->getCtrlSum(), 2,
+                                                                                         $options['moneyFormat']['dec_point'],
+                                                                                         $options['moneyFormat']['thousands_sep'])),
+                                       'current_date'           => ( new \DateTime() )->format($options['dateFormat'])]
+        );
 
-                $zip->close();
+        $template = empty($options['FRSTemplate'])
+            ? __DIR__ . '/../templates/file_routing_slip_german.tpl'
+            : $options['FRSTemplate'];
 
-                // send headers for zip download
-                header('Pragma: public');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-                header('Cache-Control: public');
-                header('Content-Description: File Transfer');
-                header('Content-type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="'
-                   . str_replace('.xml', '', $filename . (strtolower(substr($filename, -4)) !== '.zip' ? '.zip' : '')) . '"');
-                header('Content-Transfer-Encoding: binary');
-                // make sure the file size isn't cached
-                clearstatcache();
-                header('Content-Length: ' . filesize($tmpFile));
-                ob_end_flush();
-                // output the file
-                @readfile($tmpFile);
-                unlink($tmpFile);
-            }
-        }
-        else
-        {
-            parent::downloadSepaFile($filename, $options);
-        }
+        return ['name' => $this->getFileName() . '.FileRoutingSlip.pdf',
+                'data' => \AbcAeffchen\SepaDocumentor\FileRoutingSlip::createPDF($template, $collectionData)];
     }
 
     /**
-     * Generates the SEPA file and stores it on the server.
+     * Generates a Control List and returns it as [name, data] array. Requires mPDF.
      *
-     * @param string $filename The path and filename
-     * @param array  $options Available options:
-     *                        (bool) "correctlySortedFiles": Only available for direct debit files.
-     *                                               If set to true, there will one file per
-     *                                               collection be created. Defaults to true.
-     *                        (bool) "storeAsZipFile": Stores all generated file in a zip file.
-     *                        (bool) "addFileRoutingSlips": Adds file routing slips for every created
-     *                                               SEPA file. Defaults to false.
-     * @throws SephpaInputException
+     * @param array $options @see generateOutput() for details.
+     * @return array A Control List and returns it as [name, data] array.
+     * @throws \Mpdf\MpdfException
      */
-    public function storeSepaFile($filename = 'payments.xml', $options = array())
+    protected function getControlList(array $options)
     {
-        $file = fopen($filename, 'wb');
-        fwrite($file, $this->generateXml());
-        fclose($file);
+        $transactions = $this->paymentCollection->getTransactionData($options['moneyFormat']);
+        $collectionData = $this->paymentCollection->getCollectionData($options['dateFormat']);
+
+        $collectionData = array_merge($collectionData,
+                                      ['file_name'              => $this->getFileName() . '.xml',
+                                       'message_id'             => $this->msgId,
+                                       'creation_date_time'     => $this->creationDateTime,
+                                       'number_of_transactions' => $this->paymentCollection->getNumberOfTransactions(),
+                                       'control_sum'            => sprintf($options['moneyFormat']['currency'],
+                                                                           number_format($this->paymentCollection->getCtrlSum(), 2,
+                                                                                         $options['moneyFormat']['dec_point'],
+                                                                                         $options['moneyFormat']['thousands_sep']))
+                                      ]
+        );
+
+        $template = empty($options['CLTemplate'])
+            ? __DIR__ . '/../templates/direct_debit_control_list_german.tpl'
+            : $options['CLTemplate'];
+
+        return ['name' => $this->getFileName() . '.ControlList.pdf',
+                'data' => \AbcAeffchen\SepaDocumentor\ControlList::createPDF($template, $collectionData, $transactions)];
     }
 
+    /**
+     * Returns the prefix of the names of the generated files.
+     * @return string The prefix of the names of the generated files.
+     */
+    protected function getFileName()
+    {
+        return 'Sephpa.DirectDebit.' . $this->msgId;
+    }
 }

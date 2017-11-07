@@ -1,4 +1,14 @@
 <?php
+/**
+ * Sephpa
+ *
+ * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
+ * @copyright ©2017 Alexander Schickedanz
+ * @link      https://github.com/AbcAeffchen/Sephpa
+ *
+ * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
+ */
+
 /*
  * This is just an example. Please read the documentation
  * of the SEPA file format to learn more about using SEPA files.
@@ -10,12 +20,7 @@ use AbcAeffchen\Sephpa\SephpaDirectDebit;
 
 require_once '../src/Sephpa.php';
 
-// generate a SepaCreditTransfer object (pain.001.002.03).
-$creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
-                                               SephpaCreditTransfer::SEPA_PAIN_001_003_03);
-
-// at least one in every SEPA file
-$creditTransferCollection = $creditTransferFile->addCollection(array(
+$collectionData = array(
                     // needed information about the payer
                         'pmtInfId'      => 'PaymentID-1234',    // ID of the payment collection
                         'dbtr'          => 'Name of Debtor2',   // (max 70 characters)
@@ -27,10 +32,15 @@ $creditTransferCollection = $creditTransferFile->addCollection(array(
                         //'ctgyPurp'      => ,                  // Do not use this if you do not know how. For further information read the SEPA documentation
                         'reqdExctnDt'   => '2013-11-25',        // Date: YYYY-MM-DD
                         'ultmtDebtr'    => 'Ultimate Debtor Name'   // just an information, this do not affect the payment (max 70 characters)
-                    ));
-                    
+                    );
+
+// generate a SepaCreditTransfer object (pain.001.002.03).
+$creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
+                                               SephpaCreditTransfer::SEPA_PAIN_001_003_03,
+                                               $collectionData);
+
 // at least one in every CreditTransferCollection
-$creditTransferCollection->addPayment(array(
+$creditTransferFile->addPayment(array(
                     // needed information about the one who gets payed
                         'pmtId'     => 'TransferID-1234-1',     // ID of the payment (EndToEndId)
                         'instdAmt'  => 1.14,                    // amount, 
@@ -43,15 +53,10 @@ $creditTransferCollection->addPayment(array(
                         'rmtInf'    => 'Remittance Information' // unstructured information about the remittance (max 140 characters)
                     ));
 
-$creditTransferFile->storeSepaFile();
-
+$creditTransferFile->store(__DIR__);
 
 // generate a SepaDirectDebit object (pain.008.002.02).
-$directDebitFile = new SephpaDirectDebit('Initiator Name', 'MessageID-1235',
-                                         SephpaDirectDebit::SEPA_PAIN_008_003_02);
-
-// at least one in every SEPA file. No limit.
-$directDebitCollection = $directDebitFile->addCollection(array(
+$collectionData = array(
                     // needed information about the payer
                         'pmtInfId'      => 'PaymentID-1235',        // ID of the payment collection
                         'lclInstrm'     => SepaUtilities::LOCAL_INSTRUMENT_CORE_DIRECT_DEBIT,
@@ -66,10 +71,16 @@ $directDebitCollection = $directDebitFile->addCollection(array(
                         //'ctgyPurp'      => ,                      // Do not use this if you not know how. For further information read the SEPA documentation
                         'ultmtCdtr'     => 'Ultimate Creditor Name',// just an information, this do not affect the payment (max 70 characters)
                         'reqdColltnDt'  => '2013-11-25'             // Date: YYYY-MM-DD
-                    ));
-                    
+                    );
+
+$directDebitFile = new SephpaDirectDebit('Initiator Name', 'MessageID-1235',
+                                         SephpaDirectDebit::SEPA_PAIN_008_003_02,
+                                         $collectionData);
+
+// at least one in every SEPA file. No limit.
+
 // at least one in every DirectDebitCollection. No limit.
-$directDebitCollection->addPayment(array(
+$directDebitFile->addPayment(array(
                     // needed information about the 
                         'pmtId'         => 'TransferID-1235-1',     // ID of the payment (EndToEndId)
                         'instdAmt'      => 2.34,                    // amount
@@ -92,5 +103,4 @@ $directDebitCollection->addPayment(array(
                         'orgnlDbtrAgt'          => 'SMNDA'          // only 'SMNDA' allowed if used
 ));
 
-$directDebitFile->storeSepaFile();
-
+$directDebitFile->store(__DIR__);

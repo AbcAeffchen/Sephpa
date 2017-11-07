@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2016 Alexander Schickedanz
+ * @copyright ©2017 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -40,14 +40,17 @@ class SephpaCreditTransfer extends Sephpa
     /**
      * Creates a SepaXmlFile object and sets the head data
      *
-     * @param string $initgPty The name of the initiating party
-     * @param string $msgId    The unique id of the file
-     * @param int    $version  Sets the type and version of the sepa file. Use the SEPA_PAIN_*
-     *                         constants
+     * @param string $initgPty      The name of the initiating party
+     * @param string $msgId         The unique id of the file
+     * @param int    $version       Sets the type and version of the sepa file. Use the SEPA_PAIN_*
+     *                              constants
+     * @param array $transferInfo   Required keys: 'pmtInfId', 'dbtr', 'iban', ('bic' only pain.001.002.03
+     *                              optional for all other versions);
+     *                              optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt', 'ultmtDbtr'
      * @param bool   $checkAndSanitize
      * @throws SephpaInputException
      */
-    public function __construct($initgPty, $msgId, $version, $checkAndSanitize = true)
+    public function __construct($initgPty, $msgId, $version, array $transferInfo, $checkAndSanitize = true)
     {
         parent::__construct($initgPty, $msgId, $version, $checkAndSanitize);
 
@@ -58,14 +61,17 @@ class SephpaCreditTransfer extends Sephpa
             case self::SEPA_PAIN_001_001_03:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_001_001_03;
                 $this->version = self::SEPA_PAIN_001_001_03;
+                $this->paymentCollection = new SepaCreditTransfer00100103($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             case self::SEPA_PAIN_001_002_03:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_001_002_03;
                 $this->version = self::SEPA_PAIN_001_002_03;
+                $this->paymentCollection = new SepaCreditTransfer00100203($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             case self::SEPA_PAIN_001_003_03:
                 $this->xmlInitString = self::INITIAL_STRING_PAIN_001_003_03;
                 $this->version = self::SEPA_PAIN_001_003_03;
+                $this->paymentCollection = new SepaCreditTransfer00100303($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
                 break;
             default:
                 throw new SephpaInputException('You choose an invalid SEPA file version. Please use the SEPA_PAIN_001_* constants.');
@@ -73,32 +79,88 @@ class SephpaCreditTransfer extends Sephpa
     }
 
     /**
-     * Adds a new collection of credit transfers and sets main data
+     * Adds a new payment to the SEPA file.
      *
-     * @param mixed[] $transferInfo Required keys: 'pmtInfId', 'dbtr', 'iban', ('bic' only pain.001.002.03);
-     *                              optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt', 'ultmtDbtr'
+     * @param array $paymentInfo @see \Sephpa\SepaCreditTransfer*::addPayment() for details.
      * @throws SephpaInputException
-     * @return SepaPaymentCollection
      */
-    public function addCollection(array $transferInfo)
+    public function addPayment(array $paymentInfo)
     {
-        switch($this->version)
-        {
-            case self::SEPA_PAIN_001_001_03:
-                $paymentCollection = new SepaCreditTransfer00100103($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
-                break;
-            case self::SEPA_PAIN_001_002_03:
-                $paymentCollection = new SepaCreditTransfer00100203($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
-                break;
-            case self::SEPA_PAIN_001_003_03:
-                $paymentCollection = new SepaCreditTransfer00100303($transferInfo, $this->checkAndSanitize, $this->sanitizeFlags);
-                break;
-            default:
-                throw new SephpaInputException('You choose an invalid SEPA file version. Please use the SEPA_PAIN_001_* constants.');
-        }
-        $this->paymentCollections[] = $paymentCollection;
-        
-        return $paymentCollection;
+        $this->paymentCollection->addPayment($paymentInfo);
     }
 
+    /**
+     * Generates a File Routing Slip and returns it as [name, data] array. Requires mPDF.
+     *
+     * @param array $options @see generateOutput() for details.
+     * @return array A File Routing Slip and returns it as [name, data] array.
+     * @throws \Mpdf\MpdfException
+     */
+    protected function getFileRoutingSlip(array $options)
+    {
+        $collectionData = $this->paymentCollection->getCollectionData($options['dateFormat']);
+
+        $collectionData = array_merge($collectionData,
+           ['file_name'              => $this->getFileName() . '.xml',
+            'scheme_version'         => SepaUtilities::version2string($this->version),
+            'payment_type'           => 'Credit Transfer',
+            'message_id'             => $this->msgId,
+            'creation_date_time'     => $this->creationDateTime,
+            'initialising_party'     => $this->initgPty,
+            'number_of_transactions' => $this->paymentCollection->getNumberOfTransactions(),
+            'control_sum'            => sprintf($options['moneyFormat']['currency'],
+                                                number_format($this->paymentCollection->getCtrlSum(), 2,
+                                                              $options['moneyFormat']['dec_point'],
+                                                              $options['moneyFormat']['thousands_sep'])),
+            'current_date'           => ( new \DateTime() )->format($options['dateFormat'])]
+        );
+
+        $template = empty($options['FRSTemplate'])
+            ? __DIR__ . '/../templates/file_routing_slip_german.tpl'
+            : $options['FRSTemplate'];
+
+        return ['name' => $this->getFileName() . '.FileRoutingSlip.pdf',
+                'data' => \AbcAeffchen\SepaDocumentor\FileRoutingSlip::createPDF($template, $collectionData)];
+    }
+
+    /**
+     * Generates a Control List and returns it as [name, data] array. Requires mPDF.
+     *
+     * @param array $options @see generateOutput() for details.
+     * @return array A Control List and returns it as [name, data] array.
+     * @throws \Mpdf\MpdfException
+     */
+    protected function getControlList(array $options)
+    {
+        $transactions = $this->paymentCollection->getTransactionData($options['moneyFormat']);
+        $collectionData = $this->paymentCollection->getCollectionData($options['dateFormat']);
+
+        $collectionData = array_merge($collectionData,
+           ['file_name'              => $this->getFileName() . '.xml',
+            'message_id'             => $this->msgId,
+            'creation_date_time'     => $this->creationDateTime,
+            'number_of_transactions' => $this->paymentCollection->getNumberOfTransactions(),
+            'control_sum'            => sprintf($options['moneyFormat']['currency'],
+                                                number_format($this->paymentCollection->getCtrlSum(), 2,
+                                                              $options['moneyFormat']['dec_point'],
+                                                              $options['moneyFormat']['thousands_sep']))
+           ]
+        );
+
+        $template = empty($options['CLTemplate'])
+            ? __DIR__ . '/../templates/credit_transfer_control_list_german.tpl'
+            : $options['CLTemplate'];
+
+        return ['name' => $this->getFileName() . '.ControlList.pdf',
+                'data' => \AbcAeffchen\SepaDocumentor\ControlList::createPDF($template, $collectionData, $transactions)];
+    }
+
+    /**
+     * Returns the prefix of the names of the generated files.
+     * @return string The prefix of the names of the generated files.
+     */
+    protected function getFileName()
+    {
+        return 'Sephpa.CreditTransfer.' . $this->msgId;
+    }
 }
