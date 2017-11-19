@@ -166,27 +166,29 @@ abstract class Sephpa
     }
 
     /**
-     * @param array $options   possible fields:
-     *                         - (bool) `addFileRoutingSlip`: If true, a file routing slip will be
-     *                           added. Default ist false.
-     *                         - (string) `FRSTemplate`: The path to the template for the file routing
-     *                           slip. Default is the bundled file routing slip (german version).
-     *                         - (bool) `addControlList`: If true, a control list will be added.
-     *                           Default is false.
-     *                         - (string) `CLTemplate`: The path to the template for this control
-     *                           list. Default is the bundled control list template for either credit
-     *                           transfer of direct debit (german version).
-     *                         - (string[]) `moneyFormat`: Used to format amounts of money using
-     *                           sprintf() and number_format(). The array needs to have the following keys:
-     *                           `dec_point` (default is ','), `thousands_sep` (default is '.') and
-     *                           `currency` (default is '%s €')
-     *                         - (string) `dateFormat`: The format a date is represented in the PDF
-     *                           files. Default is 'd.m.Y'. See date() documentation for details.
-     * @return string[]
+     * @param array $options       possible fields:
+     *                             - (bool) `addFileRoutingSlip`: If true, a file routing slip will be
+     *                             added. Default ist false.
+     *                             - (string) `FRSTemplate`: The path to the template for the file routing
+     *                             slip. Default is the bundled file routing slip (german version).
+     *                             - (bool) `addControlList`: If true, a control list will be added.
+     *                             Default is false.
+     *                             - (string) `CLTemplate`: The path to the template for this control
+     *                             list. Default is the bundled control list template for either credit
+     *                             transfer of direct debit (german version).
+     *                             - (string[]) `moneyFormat`: Used to format amounts of money using
+     *                             sprintf() and number_format(). The array needs to have the following keys:
+     *                             `dec_point` (default is ','), `thousands_sep` (default is '.') and
+     *                             `currency` (default is '%s €')
+     *                             - (string) `dateFormat`: The format a date is represented in the PDF
+     *                             files. Default is 'd.m.Y'. See date() documentation for details.
+     * @param bool  $zipToOneFile  If true, multiple files get zipped to one file.
+     * @return string[]|string[][] Returns a file as a pair [name, data], if $zipToOneFile is true,
+     *                             else it is an array of such pairs.
      * @throws SephpaInputException
      * @throws \Mpdf\MpdfException
      */
-    public function generateOutput(array $options)
+    public function generateOutput(array $options, $zipToOneFile = true)
     {
         $options = $this->sanitizeOutputOptions($options);
 
@@ -199,6 +201,9 @@ abstract class Sephpa
 
         if($options['addControlList'])
             $files[] = $this->getControlList($options);
+
+        if(!$zipToOneFile)
+            return $files;
 
         // multiple files need to be joint to one zip file.
         if(count($files) > 1)
@@ -259,7 +264,7 @@ abstract class Sephpa
      */
     public function download($options = [])
     {
-        $file = $this->generateOutput($options);
+        $file = $this->generateOutput($options, true);
 
         header('Content-Disposition: attachment; filename="' . $file['name'] . '"');
         print $file['data'];
@@ -275,7 +280,7 @@ abstract class Sephpa
      */
     public function store($path, $options = [])
     {
-        $fileData = $this->generateOutput($options);
+        $fileData = $this->generateOutput($options, true);
 
         $file = fopen($path . DIRECTORY_SEPARATOR . $fileData['name'], 'wb');
         fwrite($file, $fileData['data']);
