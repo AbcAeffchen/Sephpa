@@ -19,28 +19,35 @@ use AbcAeffchen\Sephpa\SephpaInputException;
 
 class SephpaTest extends PHPUnit\Framework\TestCase
 {
-    private function invokeGenerateXml(&$object, $dateTime)
+    /**
+     * Calls the protected method `generateXml()` of the provided Sephpa object.
+     * @param Sephpa $object
+     * @return mixed
+     */
+    private function invokeGenerateXml(Sephpa &$object)
     {
         $reflection = new \ReflectionClass(get_class($object));
         $method = $reflection->getMethod('generateXml');
         $method->setAccessible(true);
 
-        return $method->invokeArgs($object, [$dateTime]);
+        return $method->invokeArgs($object, []);
     }
 
     /**
+     * Get a DOMDocument object from a Sephpa Object. This is used to check the xml format.
      * @param Sephpa $sephpaFile    A Sephpa object (SephpaCreditTransfer or SephpaDirectDebit)
      * @return DOMDocument
      */
     private function getDomDoc(Sephpa $sephpaFile)
     {
         $domDoc = new DOMDocument();
-        $domDoc->loadXML($this->invokeGenerateXml($sephpaFile,'2014-10-19T00:38:44'));
+        $domDoc->loadXML($this->invokeGenerateXml($sephpaFile));
 
         return $domDoc;
     }
 
     /**
+     * Generates test data for all test of the Credit Transfer tests.
      * @param int  $version Use SephpaCreditTransfer::SEPA_PAIN_001_* constants
      * @param bool $addBIC
      * @param bool $addOptionalData
@@ -93,6 +100,7 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     }
 
     /**
+     * Generates test data for all tests of the Direct Debit classes.
      * @param int  $version Use SephpaDirectDebit::SEPA_PAIN_008_* constants
      * @param bool $addBIC
      * @param bool $addOptionalData
@@ -397,6 +405,12 @@ class SephpaTest extends PHPUnit\Framework\TestCase
                            $this->getDomDoc($this->getDirectDebitFile($version, false, true, true))->saveXML());
     }
 
+    /**
+     * Tests if File Routing Slip and Control List are generated. This tests creates an output
+     * folder in the tests folder containing two zip files, that contain the xml and pdf files.
+     * @throws SephpaInputException
+     * @throws \Mpdf\MpdfException
+     */
     public function testAdditionalDocuments()
     {
         // according to https://github.com/sebastianbergmann/phpunit-documentation/issues/171#issuecomment-337854895
