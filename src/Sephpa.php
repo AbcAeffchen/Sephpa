@@ -186,7 +186,7 @@ abstract class Sephpa
      * @throws SephpaInputException
      * @throws \Mpdf\MpdfException
      */
-    protected function generateOutput(array $options)
+    public function generateOutput(array $options)
     {
         $options = $this->sanitizeOutputOptions($options);
 
