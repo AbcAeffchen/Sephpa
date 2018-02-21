@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2017 Alexander Schickedanz
+ * @copyright ©2018 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -44,18 +44,24 @@ class SephpaDirectDebit extends Sephpa
     /**
      * Creates a SepaXmlFile object and sets the head data
      *
-     * @param string $initgPty   The name of the initiating party (max. 70 characters)
-     * @param string $msgId      The unique id of the file
-     * @param int    $version    Sets the type and version of the sepa file. Use the SEPA_PAIN_*
-     *                           constants
-     * @param array  $debitInfo  Required keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'reqdColltnDt', 'cdtr', 'iban', 'bic', 'ci';
-     *                           optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt'
-     * @param bool   $checkAndSanitize
+     * @param string   $initgPty  The name of the initiating party (max. 70 characters)
+     * @param string   $msgId     The unique id of the file
+     * @param int      $version   Sets the type and version of the sepa file. Use the SEPA_PAIN_*
+     *                            constants
+     * @param array    $debitInfo Required keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'reqdColltnDt', 'cdtr', 'iban', 'bic', 'ci';
+     *                            optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt'
+     * @param string[] $orgId     It is not recommended to use this at all. If you have to use
+     *                            this, the standard only allows one of the two. If you provide
+     *                            both, options, both will be included in the SEPA file. So
+     *                            only use this if you know what you do. Available keys:
+     *                            - `id`: An Identifier of the organisation.
+     *                            - `bob`: A BIC or BEI that identifies the organisation.
+     * @param bool     $checkAndSanitize
      * @throws SephpaInputException
      */
-    public function __construct($initgPty, $msgId, $version, array $debitInfo, $checkAndSanitize = true)
+    public function __construct($initgPty, $msgId, $version, array $debitInfo, array $orgId = [], $checkAndSanitize = true)
     {
-        parent::__construct($initgPty, $msgId, $version, $checkAndSanitize);
+        parent::__construct($initgPty, $msgId, $version, $orgId, $checkAndSanitize);
 
         $this->paymentType = 'CstmrDrctDbtInitn';
 

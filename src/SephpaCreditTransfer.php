@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2017 Alexander Schickedanz
+ * @copyright ©2018 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -44,15 +44,21 @@ class SephpaCreditTransfer extends Sephpa
      * @param string $msgId         The unique id of the file
      * @param int    $version       Sets the type and version of the sepa file. Use the SEPA_PAIN_*
      *                              constants
-     * @param array $transferInfo   Required keys: 'pmtInfId', 'dbtr', 'iban', ('bic' only pain.001.002.03
+     * @param array  $transferInfo  Required keys: 'pmtInfId', 'dbtr', 'iban', ('bic' only pain.001.002.03
      *                              optional for all other versions);
      *                              optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt', 'ultmtDbtr'
+     * @param string[] $orgId       It is not recommended to use this at all. If you have to use
+     *                              this, the standard only allows one of the two. If you provide
+     *                              both, options, both will be included in the SEPA file. So
+     *                              only use this if you know what you do. Available keys:
+     *                              - `id`: An Identifier of the organisation.
+     *                              - `bob`: A BIC or BEI that identifies the organisation.
      * @param bool   $checkAndSanitize
      * @throws SephpaInputException
      */
-    public function __construct($initgPty, $msgId, $version, array $transferInfo, $checkAndSanitize = true)
+    public function __construct($initgPty, $msgId, $version, array $transferInfo, array $orgId = [], $checkAndSanitize = true)
     {
-        parent::__construct($initgPty, $msgId, $version, $checkAndSanitize);
+        parent::__construct($initgPty, $msgId, $version, $orgId, $checkAndSanitize);
 
         $this->paymentType = 'CstmrCdtTrfInitn';
 

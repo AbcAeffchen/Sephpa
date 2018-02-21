@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2017 Alexander Schickedanz
+ * @copyright ©2018 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -17,6 +17,25 @@ use AbcAeffchen\SepaUtilities\SepaUtilities;
 use AbcAeffchen\Sephpa\SephpaDirectDebit;
 use AbcAeffchen\Sephpa\SephpaInputException;
 use AbcAeffchen\Sephpa\SephpaMultiFile;
+
+class TestClass
+{
+    public $testArray = [];
+
+    /**
+     * TestClass constructor.
+     * This class is for testing the return method.
+     */
+    public function __construct()
+    {
+        $this->testArray = [0,0,0,0,0];
+    }
+
+    public function &getEnd()
+    {
+        return $this->testArray[count($this->testArray)-1];
+    }
+}
 
 class SephpaTest extends PHPUnit\Framework\TestCase
 {
@@ -56,7 +75,7 @@ class SephpaTest extends PHPUnit\Framework\TestCase
      * @return SephpaCreditTransfer
      * @throws SephpaInputException
      */
-    private function getCreditTransferFile($version, $addBIC, $addOptionalData, $checkAndSanitize)
+    private function getCreditTransferFile($version, $addBIC, $addOptionalData, $checkAndSanitize, $orgId = [])
     {
         $transferInformation = [
             'pmtInfId'      => 'PaymentID-1234',            // ID of the payment collection
@@ -76,7 +95,7 @@ class SephpaTest extends PHPUnit\Framework\TestCase
         }
 
         $creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
-                                                       $version, $transferInformation, $checkAndSanitize);
+                                                       $version, $transferInformation, $orgId, $checkAndSanitize);
 
 
         $paymentData = [
@@ -109,7 +128,7 @@ class SephpaTest extends PHPUnit\Framework\TestCase
      * @return SephpaDirectDebit
      * @throws SephpaInputException
      */
-    private function getDirectDebitFile($version, $addBIC, $addOptionalData, $checkAndSanitize)
+    private function getDirectDebitFile($version, $addBIC, $addOptionalData, $checkAndSanitize, $orgId = [])
     {
 
         $directDebitInformation = [
@@ -159,11 +178,23 @@ class SephpaTest extends PHPUnit\Framework\TestCase
 
         // generate a SepaDirectDebit object (pain.008.002.02).
         $directDebitFile = new SephpaDirectDebit('Initiator Name', 'MessageID-1235',
-                                                 $version, $directDebitInformation, $checkAndSanitize);
+                                                 $version, $directDebitInformation, $orgId, $checkAndSanitize);
 
         $directDebitFile->addPayment($paymentData);
 
         return $directDebitFile;
+    }
+
+    public function testOrgId()
+    {
+        $version = SephpaCreditTransfer::SEPA_PAIN_001_002_03;
+        $xsdFile = __DIR__ . '/schemata/pain.001.002.03.xsd';
+        static::assertTrue($this->getDomDoc($this->getCreditTransferFile($version,true,true,true,[]))
+                                ->schemaValidate($xsdFile));
+        static::assertTrue($this->getDomDoc($this->getCreditTransferFile($version,true,true,true,['id' => 'testID']))
+                                ->schemaValidate($xsdFile));
+        static::assertTrue($this->getDomDoc($this->getCreditTransferFile($version,true,true,true,['bob' => 'BELADEBEXXX']))
+                                ->schemaValidate($xsdFile));
     }
 
     public function testCreditTransfer00100203()
@@ -404,5 +435,13 @@ class SephpaTest extends PHPUnit\Framework\TestCase
                            $this->getDomDoc($this->getDirectDebitFile($version, false, false, true))->saveXML());
         static::assertSame($this->getDomDoc($this->getDirectDebitFile($version, false, true, false))->saveXML(),
                            $this->getDomDoc($this->getDirectDebitFile($version, false, true, true))->saveXML());
+    }
+
+    public function testEndReference()
+    {
+        $testObj = new TestClass();
+        $end = &$testObj->getEnd();
+        $end = 1;
+        $this->assertSame(1, end($testObj->testArray));
     }
 }

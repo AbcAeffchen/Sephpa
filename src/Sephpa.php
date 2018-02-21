@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2017 Alexander Schickedanz
+ * @copyright ©2018 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -61,28 +61,47 @@ abstract class Sephpa
      * @type int $sanitizeFlags
      */
     protected $sanitizeFlags = 0;
+
     /**
-     * Creates a SepaXmlFile object and sets the head data
+     * Creates a SepaXmlFile object and sets the head data.
      *
-     * @param string $initgPty The name of the initiating party (max. 70 characters)
-     * @param string $msgId    The unique id of the file
-     * @param int    $type     Sets the type and version of the sepa file. Use the SEPA_PAIN_* constants
-     * @param bool   $checkAndSanitize
+     * @param string   $initgPty The name of the initiating party (max. 70 characters)
+     * @param string   $msgId    The unique id of the file
+     * @param int      $type     Sets the type and version of the SEPA file. Use the
+     *                           SEPA_PAIN_* constants
+     * @param string[] $orgId    It is not recommended to use this at all. If you have to use
+     *                           this, the standard only allows one of the two. If you provide
+     *                           both, options, both will be included in the SEPA file. So
+     *                           only use this if you know what you do. Available keys:
+     *                           - `id`: An Identifier of the organisation.
+     *                           - `bob`: A BIC or BEI that identifies the organisation.
+     * @param bool     $checkAndSanitize
+     * @throws SephpaInputException
      */
-    public function __construct($initgPty, $msgId, $type, $checkAndSanitize = true)
+    public function __construct($initgPty, $msgId, $type, array $orgId = [], $checkAndSanitize = true)
     {
         $this->checkAndSanitize = $checkAndSanitize;
         $this->creationDateTime = (new \DateTime())->format('Y-m-d\TH:i:s');
 
         if($this->checkAndSanitize)
         {
-            $this->initgPty = SepaUtilities::checkAndSanitize('initgpty',$initgPty);
-            $this->msgId    = SepaUtilities::checkAndSanitize('msgid',$msgId);
+            $this->initgPty = SepaUtilities::checkAndSanitize('initgpty', $initgPty);
+            $this->msgId    = SepaUtilities::checkAndSanitize('msgid', $msgId);
+            $this->orgId    = ['id' => isset($orgId['id']) ? SepaUtilities::checkAndSanitize('orgid_id', $orgId['id']) : '',
+                               'bob' =>isset($orgId['bob']) ? SepaUtilities::checkAndSanitize('orgid_bob', $orgId['bob']) : ''
+                ];
+
+            if($this->initgPty === false || $this->msgId === false ||
+                (!empty($this->orgId) && ($this->orgId['id'] === false || $this->orgId['bob'] === false)))
+                throw new SephpaInputException('The input was invalid and couldn\'t be sanitized.');
         }
         else
         {
             $this->initgPty = $initgPty;
             $this->msgId    = $msgId;
+            $this->orgId    = ['id' => isset($orgId['id']) ?  $orgId['id'] : '',
+                               'bob' =>isset($orgId['bob']) ? $orgId['bob'] : ''
+            ];
         }
     }
 
@@ -122,10 +141,17 @@ abstract class Sephpa
         $grpHdr->addChild('CreDtTm', $this->creationDateTime);
         $grpHdr->addChild('NbOfTxs', $this->paymentCollection->getNumberOfTransactions());
         $grpHdr->addChild('CtrlSum', sprintf('%01.2f', $this->paymentCollection->getCtrlSum()));
-        $grpHdr->addChild('InitgPty')->addChild('Nm', $this->initgPty);
-        // todo add InitgPty > OrgId block support. here it is either bic or bei or an ID (TEXT35)
-        // todo test if it is valid to provide both information. Add notice that it is not recommended to use this at all.
-        // information is on page 42 DFÜ V3.0
+
+        $initgPty = $grpHdr->addChild('InitgPty');
+        $initgPty->addChild('Nm', $this->initgPty);
+        if(!empty($this->orgId['bob']) || !empty($this->orgId['id']))
+        {
+            $orgId = $initgPty->addChild('Id')->addChild('OrgId');
+            if(!empty($this->orgId['id']))
+                $orgId->addChild('Othr')->addChild('Id', $this->orgId['id']);
+            if(!empty($this->orgId['bob']))
+                $orgId->addChild('BICOrBEI', $this->orgId['bob']);
+        }
 
         $pmtInf = $fileHead->addChild('PmtInf');
         $this->paymentCollection->generateCollectionXml($pmtInf);
