@@ -1,8 +1,13 @@
 Sephpa - Change Log
 ===============
 
-## 2.0.0 - Not released yet
-- new: support for PHP 7.0, 7.1 and HHVM.
+## 2.0.0 - *** *, '18
+This is a new major release. It comes with many new features and changes. This also effects the
+interface (highlighted with **bold** text). The changes are as minimal as possible to make it as easy as possible to migrate to
+the new version, but still old code will not work with this version. To be clear: You should migrate
+to the new version, since version 1 is no longer supported.
+
+- new: support for PHP 7.0, 7.1, 7.2 and HHVM.
 - new: support for pain.001.001.03 and pain.008.001.02<br>
 Notice that this implementation fits the new german standard that is valid from November 2016. 
 It is said that this is compatible with the formats with the same name from 2009 that is used 
@@ -12,25 +17,36 @@ for the old version and `SEPA_PAIN_001_001_03_GBIC` for the new german version o
 transfer files (respectively `SEPA_PAIN_001_001_03` and `SEPA_PAIN_001_001_03_GBIC` for direct 
 debit files).
 - new: support for pain.008.001.02.austrian.003
-- new: You can store/download Direct Debit payments as multiple homogeneous files. You have the
-option to store the files as one .zip file or multiple xml files. If you want to download them,
-they are automatically packed into a .zip file.
+- new: an autoloader file that can be used out of the box if you don't want to use composer.
+- new: SephpaMultiFile class to easier handle multiple Sephpa files.
+- **changed**: SEPA files no longer Support multiple collections. This change was made because the
+banks seem not to support this feature of the file scheme and either split the files up them self
+or just don't take the file and request the user to split the files up.
+So the `addCollection` function was removed. You now need to create a new Sephpa object if you
+need a new collection or use the new multi file class. 
 - new: all store/download functions have now the option to store documentation files as PDF. To
-use this you have to also install the package `SepaDocumenter`. See the readme for
+use this you have to also install the package `SepaDocumentor`. See the readme for
 an example.  
 It also supports to download multiple files as a single zip file.
-- new: an autoloader file that can be used out of the box if you don't want to use composer.
+- new: `orgId > BICOrBEI` and `orgId > Othr > Id` are supported on the file level. This is needed in some countries.
+But it is highly recommended not to use it unless your bank requires this and you know what you 
+are doing. 
 - fixed: invalid xml file if checkAndSanitize is turned off and `AmdmntInd` is not provided (issue #6)
 - fixed: some minor bugs no one seems to have noticed yet.
-- changed: corrected some doc comments
 - changed: updated SepaUtilities to ~1.2.3
 - changed: made generateXml private. This should not break any code, since no one should be using
+- changed: corrected some doc comments
 this function directly. It was only public to directly access the generated xml for testing.
-- changed: removed the creation date parameter from `storeSepaFile()` and `downloadSepaFile()`.
+- **changed**: renamed `storeSepaFile()` to `store()` and `downloadSepaFile()` to `download()`.
+- **changed**: removed the creation date parameter from `storeSepaFile()` and `downloadSepaFile()`.
+- **changed**: the file name provided to `storeSepaFile()` and `downloadSepaFile()` should no longer
+contain a file ending like `.xml`.
 This should not break any code since it was recommended not to use this. It was just for easier testing.
+- **changed**: Sephpa constructor now throws a SephpaInvalidInput exception if the input was invalid
+and couldn't be sanitized.
 - dependency: For multi file downloads you need [`libzip`](http://php.net/manual/en/book.zip.php).
-- dev: improved testing of sepa files and added a ton of tests.
-- dev: updated PHPUnit to v5.6.*
+- dev: improved testing of SEPA files and added a ton of tests.
+- dev: updated PHPUnit to v5.7.* and 6.3.* depending on PHP version.
 
 ## 1.3.0 - Feb 5, '15
 - updated SepaUtilities to 1.1.0
