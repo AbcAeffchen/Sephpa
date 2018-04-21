@@ -28,11 +28,12 @@ class SephpaMultiFile
      * @param string[] $transferInfo
      * @param bool     $checkAndSanitize
      * @return SephpaCreditTransfer
+     * @throws SephpaInputException
      */
-    public function addCreditTransferFile($initgPty, $msgId, $version, array $transferInfo, $checkAndSanitize = true)
+    public function &addCreditTransferFile($initgPty, $msgId, $version, array $transferInfo, $checkAndSanitize = true)
     {
         $this->files[] = new SephpaCreditTransfer($initgPty, $msgId, $version, $transferInfo, $checkAndSanitize);
-        return end($this->files);   // todo make sure, that this is a reference!
+        return $this->files[count($this->files)-1];
     }
 
     /**
@@ -42,11 +43,12 @@ class SephpaMultiFile
      * @param string[] $debitInfo
      * @param bool     $checkAndSanitize
      * @return SephpaDirectDebit
+     * @throws SephpaInputException
      */
-    public function addDirectDebitFile($initgPty, $msgId, $version, array $debitInfo, $checkAndSanitize = true)
+    public function &addDirectDebitFile($initgPty, $msgId, $version, array $debitInfo, $checkAndSanitize = true)
     {
         $this->files[] = new SephpaDirectDebit($initgPty, $msgId, $version, $debitInfo, $checkAndSanitize);
-        return end($this->files);   // todo make sure that this is a refernce!
+        return $this->files[count($this->files)-1];
     }
 
     /**
@@ -106,7 +108,6 @@ class SephpaMultiFile
 
         return ['name' => $this->getFileName() . '.zip',
                 'data' => file_get_contents($tmpFile)];
-
     }
 
     private function getFileName()
