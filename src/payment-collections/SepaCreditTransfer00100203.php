@@ -3,44 +3,25 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2016 Alexander Schickedanz
+ * @copyright ©2018 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
-namespace AbcAeffchen\Sephpa;
+namespace AbcAeffchen\Sephpa\PaymentCollections;
 use AbcAeffchen\SepaUtilities\SepaUtilities;
+use AbcAeffchen\Sephpa\SephpaInputException;
 
 /**
  * Manages credit transfers
  */
-class SepaCreditTransfer00100203 implements SepaPaymentCollection
+class SepaCreditTransfer00100203 extends SepaCreditTransferCollection
 {
-    /**
-     * @var string CCY Default currency
-     */
-    const CCY = 'EUR';
     /**
      * @type int VERSION The SEPA file version of this collection
      */
     const VERSION = SepaUtilities::SEPA_PAIN_001_002_03;
-    /**
-     * @type bool $sanitizeFlags
-     */
-    private $checkAndSanitize = true;
-    /**
-     * @type int $sanitizeFlags
-     */
-    private $sanitizeFlags = 0;
-    /**
-     * @var mixed[] $payments Saves all payments
-     */
-    private $payments = array();
-    /**
-     * @var mixed[] $transferInfo Saves the transfer information for the collection.
-     */
-    private $transferInfo;
 
     /**
      * @param mixed[] $transferInfo needed keys: 'pmtInfId', 'dbtr', 'iban', 'bic';
@@ -104,32 +85,6 @@ class SepaCreditTransfer00100203 implements SepaPaymentCollection
         }
 
         $this->payments[] = $paymentInfo;
-    }
-
-    /**
-     * Calculates the sum of all payments in this collection
-     *
-     * @return float
-     */
-    public function getCtrlSum()
-    {
-        $sum = 0;
-        foreach($this->payments as $payment)
-        {
-            $sum += $payment['instdAmt'];
-        }
-
-        return $sum;
-    }
-
-    /**
-     * counts the payments in this collection
-     *
-     * @return int
-     */
-    public function getNumberOfTransactions()
-    {
-        return count($this->payments);
     }
 
     /**

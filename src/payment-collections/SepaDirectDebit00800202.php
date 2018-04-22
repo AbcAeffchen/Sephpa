@@ -3,44 +3,25 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2016 Alexander Schickedanz
+ * @copyright ©2018 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
-namespace AbcAeffchen\Sephpa;
+namespace AbcAeffchen\Sephpa\PaymentCollections;
 use AbcAeffchen\SepaUtilities\SepaUtilities;
+use AbcAeffchen\Sephpa\SephpaInputException;
 
 /**
  * Manages direct debits
  */
-class SepaDirectDebit00800202 implements SepaPaymentCollection
+class SepaDirectDebit00800202 extends SepaDirectDebitCollection
 {
-    /**
-     * @var string CCY Default currency
-     */
-    const CCY = 'EUR';
     /**
      * @type int VERSION The SEPA file version of this collection
      */
     const VERSION = SepaUtilities::SEPA_PAIN_008_002_02;
-    /**
-     * @type bool $sanitizeFlags
-     */
-    private $checkAndSanitize = true;
-    /**
-     * @type int $sanitizeFlags
-     */
-    private $sanitizeFlags = 0;
-    /**
-     * @var mixed[] $payments Saves all payments
-     */
-    private $payments = array();
-    /**
-     * @var mixed[] $debitInfo Saves the transfer information for the collection.
-     */
-    private $debitInfo;
 
     /**
      * @param mixed[] $debitInfo        Needed keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'cdtr',
@@ -62,7 +43,7 @@ class SepaDirectDebit00800202 implements SepaPaymentCollection
             if(!SepaUtilities::checkRequiredCollectionKeys($debitInfo, self::VERSION) )
                 throw new SephpaInputException('One of the required inputs \'pmtInfId\', \'lclInstrm\', \'seqTp\', \'cdtr\', \'iban\', \'bic\', \'ci\' is missing.');
 
-            $checkResult = SepaUtilities::checkAndSanitizeAll($debitInfo, $this->sanitizeFlags, array('version' => self::VERSION));
+            $checkResult = SepaUtilities::checkAndSanitizeAll($debitInfo, $this->sanitizeFlags, ['version' => self::VERSION]);
 
             if($checkResult !== true)
                 throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
@@ -93,7 +74,8 @@ class SepaDirectDebit00800202 implements SepaPaymentCollection
 
         if($this->checkAndSanitize)
         {
-            $checkResult = SepaUtilities::checkAndSanitizeAll($paymentInfo, $this->sanitizeFlags,array('version' => self::VERSION));
+            $checkResult = SepaUtilities::checkAndSanitizeAll($paymentInfo, $this->sanitizeFlags,
+                                                              ['version' => self::VERSION]);
 
             if($checkResult !== true)
                 throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
@@ -101,11 +83,11 @@ class SepaDirectDebit00800202 implements SepaPaymentCollection
             if( !empty( $paymentInfo['amdmntInd'] ) && $paymentInfo['amdmntInd'] === 'true' )
             {
 
-                if( SepaUtilities::containsNotAnyKey($paymentInfo, array('orgnlMndtId',
-                                                                         'orgnlCdtrSchmeId_nm',
-                                                                         'orgnlCdtrSchmeId_id',
-                                                                         'orgnlDbtrAcct_iban',
-                                                                         'orgnlDbtrAgt'))
+                if( SepaUtilities::containsNotAnyKey($paymentInfo, ['orgnlMndtId',
+                                                                    'orgnlCdtrSchmeId_nm',
+                                                                    'orgnlCdtrSchmeId_id',
+                                                                    'orgnlDbtrAcct_iban',
+                                                                    'orgnlDbtrAgt'])
                 )
                     throw new SephpaInputException('You set \'amdmntInd\' to \'true\', so you have to set also at least one of the following inputs: \'orgnlMndtId\', \'orgnlCdtrSchmeId_nm\', \'orgnlCdtrSchmeId_id\', \'orgnlDbtrAcct_iban\', \'orgnlDbtrAgt\'.');
 
@@ -121,28 +103,6 @@ class SepaDirectDebit00800202 implements SepaPaymentCollection
         }
 
         $this->payments[] = $paymentInfo;
-    }
-    
-    /**
-     * Calculates the sum of all payments in this collection
-     * @return float
-     */
-    public function getCtrlSum()
-    {
-        $sum = 0;
-        foreach($this->payments as $payment){
-            $sum += $payment['instdAmt'];
-        }
-        return $sum;
-    }
-    
-    /**
-     * Counts the payments in this collection
-     * @return int
-     */
-    public function getNumberOfTransactions()
-    {
-        return count($this->payments);
     }
 
     /**

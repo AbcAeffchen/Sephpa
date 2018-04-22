@@ -3,16 +3,22 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2016 Alexander Schickedanz
+ * @copyright ©2018 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
- * @author    Alexander Schickedanz <abcaeffchen@gmail.com>
+ * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
-namespace AbcAeffchen\Sephpa;
+namespace AbcAeffchen\Sephpa\PaymentCollections;
+use AbcAeffchen\SepaUtilities\SepaUtilities;
 
 class SepaDirectDebit00800102Austrian003 extends SepaDirectDebit00800102
 {
+    /**
+     * @type int VERSION The SEPA file version of this collection
+     */
+    const VERSION = SepaUtilities::SEPA_PAIN_008_001_02_AUSTRIAN_003;
+
     const NO_BIC_PROVIDED = 'NOTAVAIL';
 
     public function __construct(array $debitInfo, $checkAndSanitize = true, $flags = 0)

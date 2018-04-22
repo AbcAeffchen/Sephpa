@@ -1,1 +1,5 @@
 vendor/
+composer.lock
+
+.idea/
+tests/output/
