@@ -9,7 +9,7 @@ Sephpa - A PHP class to export SEPA files
 
 ## General
 **Sephpa** [sefa] is a PHP class that creates SEPA XML files. The created XML files fulfill
-the specifications of Electronic Banking Internet Communication Standard (EBICS)
+the specifications of Electronic Banking Internet Communication Standard (EBICS).
 
 ## Supported file versions
 - SEPA Credit Transfer
@@ -23,9 +23,12 @@ the specifications of Electronic Banking Internet Communication Standard (EBICS)
     - pain.008.003.02
 
 ## Requirements
-Sephpa was created for PHP 5.6, 7.0, 7.1 and HHVM and requires [SepaUtilities 1.2.3+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
+Sephpa was created for PHP 5.6, 7.0, 7.1, 7.2 and HHVM and requires [SepaUtilities 1.2.4+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
 Sephpa should also work with PHP <5.6, but since this versions are very old and don't get
 any security updates, it is strongly recommended not to use PHP older than 5.6.
+
+If you want to download correctly sorted files, you also need the zip library and for documentation
+files you need [SepaDocumentor](https://github.com/AbcAeffchen/SepaDocumentor).
 
 ## Installation
 
@@ -35,7 +38,7 @@ Just add
 ```json
 {
     "require": {
-        "abcaeffchen/sephpa": "~1.4.0"
+        "abcaeffchen/sephpa": "~2.0.0"
     }
 }
 ```
@@ -71,6 +74,20 @@ require PROJECT_ROOT . '/vendor/abcaeffchen/sepa-utilities/src/SepaUtilities.php
 ```
 You need to define `PROJECT_ROOT` by yourself.
 
+### Documentation Module
+Sephpa uses [SepaDocumentor](https://github.com/AbcAeffchen/SepaDocumentor) to create File
+Routing Slips and Control Lists. If you are interested in this files you need to add
+
+```
+{
+    "require": {
+        "abcaeffchen/sepa-documentor": "~1.0.0"
+    }
+}
+```
+
+to your composer file or download it from the website and make it available to Sephpa.
+
 ## Creating a new SEPA file
 **Note:** This is not meant to teach you SEPA. If you want to learn more about SEPA or SEPA files,
 you should ask your bank for help. You use this library at your own risk and I assume no liability
@@ -105,7 +122,7 @@ Once you created the SephpaCreditTransfer object, you can add a payment collecti
 as many payment collections as you like.
 
 ```php
-$creditTransferCollection = $creditTransferFile->addCollection(array(
+$creditTransferCollection = $creditTransferFile->addCollection([
 // required information about the debtor
     'pmtInfId'      => 'PaymentID-1234',        // ID of the payment collection
     'dbtr'          => 'Name of Debtor',        // (max 70 characters)
@@ -117,13 +134,13 @@ $creditTransferCollection = $creditTransferFile->addCollection(array(
     //'ctgyPurp'      => ,                      // Category Purpose. Do not use this if you do not know how. For further information read the SEPA documentation
     'reqdExctnDt'   => '2013-11-25',            // Requested Execution Date: YYYY-MM-DD
     'ultmtDebtr'    => 'Ultimate Debtor Name'   // just an information, this do not affect the payment (max 70 characters)
-));
+]);
 ```
 
 You can add as many payments as you want to each collection.
 
 ```php
-$creditTransferCollection->addPayment(array(
+$creditTransferCollection->addPayment([
 // required information about the creditor
     'pmtId'     => 'TransferID-1234-1',     // ID of the payment (EndToEndId)
     'instdAmt'  => 0.42,                    // amount,
@@ -134,7 +151,7 @@ $creditTransferCollection->addPayment(array(
     'ultmtCdrt' => 'Ultimate Creditor Name',// just an information, this do not affect the payment (max 70 characters)
     //'purp'      => ,                      // Do not use this if you do not know how. For further information read the SEPA documentation
     'rmtInf'    => 'Remittance Information' // unstructured information about the remittance (max 140 characters)
-));
+]);
 ```
 
 ### Direct Debits
@@ -145,7 +162,7 @@ $directDebitFile = new SephpaDirectDebit('Initiator Name',
                                          'MessageID-1235', 
                                          SephpaDirectDebit::SEPA_PAIN_008_002_02);
 
-$directDebitCollection = $directDebitFile->addCollection(array(
+$directDebitCollection = $directDebitFile->addCollection([
 // required information about the creditor
     'pmtInfId'      => 'PaymentID-1235',        // ID of the payment collection
     'lclInstrm'     => SepaUtilities::LOCAL_INSTRUMENT_CORE_DIRECT_DEBIT,
@@ -160,9 +177,9 @@ $directDebitCollection = $directDebitFile->addCollection(array(
     //'ctgyPurp'      => ,                      // Do not use this if you not know how. For further information read the SEPA documentation
     'ultmtCdtr'     => 'Ultimate Creditor Name',// just an information, this do not affect the payment (max 70 characters)
     'reqdColltnDt'  => '2013-11-25'             // Requested Collection Date: YYYY-MM-DD
-));
+]);
                     
-$directDebitCollection->addPayment(array(
+$directDebitCollection->addPayment([
 // required information about the debtor
     'pmtId'         => 'TransferID-1235-1',     // ID of the payment (EndToEndId)
     'instdAmt'      => 2.34,                    // amount
@@ -183,28 +200,30 @@ $directDebitCollection->addPayment(array(
     'orgnlCdtrSchmeId_id'   => 'DE98AAA09999999999',
     'orgnlDbtrAcct_iban'    => 'DE87200500001234567890',// Original Debtor Account
     'orgnlDbtrAgt'          => 'SMNDA'          // only 'SMNDA' allowed if used
-));
+]);
 ```
 
 Note: With pain.008.001.02 the key `orgnlDbtrAgt` is no longer available. It got replaced with 
 `orgnlDbtrAgt_bic` and you can input the old BIC. But in general it looks like you just can omit
 both `orgnlDbtrAcct_iban` and `orgnlDbtrAgt_bic` and it should work.
 
-### Get the Sepa file
+### Get the SEPA and documentation file(s)
 After you have added some payments to your payment collection you can save the finished file by
 
 ```php
-$creditTransferFile->storeSepaFile();
+$creditTransferFile->store();
 ```
 
 or get it directly without saving it on the server by
 
 ```php
-$creditTransferFile->downloadSepaFile();
+$creditTransferFile->download();
 ```
 
 Notice that you can hand over a filename you like, but you should only use the file extension  
-`.xml`.
+`.xml`. You can also use an array of options to include file routing slips and control lists.
+
+You need libzip to be installed if you want to store or download multiple files at once.
 
 ## Credits
 Thanks to [Hermann Herz](https://github.com/Heart1010) who supported me debugging and with great 
