@@ -75,6 +75,7 @@ abstract class Sephpa
      *                           only use this if you know what you do. Available keys:
      *                           - `id`: An Identifier of the organisation.
      *                           - `bob`: A BIC or BEI that identifies the organisation.
+     *                           - `prvtId`: An Identifier of the organisation (Needed for some banks like Cajamar in Spain).
      * @param bool     $checkAndSanitize
      * @throws SephpaInputException
      */
@@ -88,7 +89,8 @@ abstract class Sephpa
             $this->initgPty = SepaUtilities::checkAndSanitize('initgpty', $initgPty);
             $this->msgId    = SepaUtilities::checkAndSanitize('msgid', $msgId);
             $this->orgId    = ['id' => isset($orgId['id']) ? SepaUtilities::checkAndSanitize('orgid_id', $orgId['id']) : '',
-                               'bob' =>isset($orgId['bob']) ? SepaUtilities::checkAndSanitize('orgid_bob', $orgId['bob']) : ''
+                               'bob' =>isset($orgId['bob']) ? SepaUtilities::checkAndSanitize('orgid_bob', $orgId['bob']) : '',
+                               'prvtId' =>isset($orgId['prvtId']) ? SepaUtilities::checkAndSanitize('orgid_id', $orgId['prvtId']) : ''
                 ];
 
             if($this->initgPty === false || $this->msgId === false ||
@@ -100,7 +102,8 @@ abstract class Sephpa
             $this->initgPty = $initgPty;
             $this->msgId    = $msgId;
             $this->orgId    = ['id' => isset($orgId['id']) ?  $orgId['id'] : '',
-                               'bob' =>isset($orgId['bob']) ? $orgId['bob'] : ''
+                               'bob' =>isset($orgId['bob']) ? $orgId['bob'] : '',
+                               'prvtId' =>isset($orgId['prvtId']) ? $orgId['prvtId'] : ''
             ];
         }
     }
@@ -151,6 +154,9 @@ abstract class Sephpa
                 $orgId->addChild('Othr')->addChild('Id', $this->orgId['id']);
             if(!empty($this->orgId['bob']))
                 $orgId->addChild('BICOrBEI', $this->orgId['bob']);
+        }
+        if(!empty($this->orgId['prvtId'])) {                                                                                                                               
+            $prvtId = $initgPty->addChild('Id')->addChild('PrvtId')->addChild('Othr')->addChild('Id', $this->orgId['prvtId']);                                             
         }
 
         $pmtInf = $fileHead->addChild('PmtInf');
