@@ -164,6 +164,17 @@ class SepaCreditTransfer00100103 extends SepaCreditTransferCollection
 
         if( isset( $payment['ultmtCdtr'] ) )
             $cdtTrfTxInf->addChild('UltmtCdtr')->addChild('Nm', $payment['ultmtCdtr']);
+
+        if( isset( $payment['ultmtDbtr'] ) ||  isset( $payment['ultmtDbtrId'] ) ){
+            $cdtTrfTxInf->addChild('UltmtDbtr');
+
+            if( isset( $payment['ultmtDbtr'] )  )
+                $cdtTrfTxInf->UltmtDbtr->addChild('Nm', $payment['ultmtDbtr']);
+
+            if( isset( $payment['ultmtDbtrId'] )  )
+                $cdtTrfTxInf->UltmtDbtr->addChild('Id')->addChild('OrgId')->addChild('Othr')->addChild('Id', $payment['ultmtDbtrId']);
+        }
+
         if( isset( $payment['purp'] ) )
             $cdtTrfTxInf->addChild('Purp')->addChild('Cd', $payment['purp']);
         if( isset( $payment['rmtInf'] ) )
