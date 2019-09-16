@@ -128,7 +128,7 @@ abstract class Sephpa
      * @throws SephpaInputException
      * @return string Just the xml code of the file
      */
-    protected function generateXml()
+    public function generateXml()
     {
         if($this->paymentCollection->getNumberOfTransactions() === 0)
             throw new SephpaInputException('The file contains no payments.');
