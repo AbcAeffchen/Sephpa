@@ -11,6 +11,8 @@
 
 namespace AbcAeffchen\Sephpa;
 use AbcAeffchen\SepaUtilities\SepaUtilities;
+use DOMDocument;
+
 
 // Set default Timezone
 date_default_timezone_set(@date_default_timezone_get());
@@ -125,10 +127,11 @@ abstract class Sephpa
     /**
      * Generates the XML file from the given data. All empty collections are skipped.
      *
+     * @param bool     $prettyXML
      * @throws SephpaInputException
      * @return string Just the xml code of the file
      */
-    public function generateXml()
+    public function generateXml($prettyXML = false)
     {
         if($this->paymentCollection->getNumberOfTransactions() === 0)
             throw new SephpaInputException('The file contains no payments.');
@@ -156,7 +159,16 @@ abstract class Sephpa
         $pmtInf = $fileHead->addChild('PmtInf');
         $this->paymentCollection->generateCollectionXml($pmtInf);
 
-        return $xml->asXML();
+        if($prettyXML === true )
+        {
+            $xmlDocument = new DOMDocument();
+            $xmlDocument->preserveWhiteSpace = false;
+            $xmlDocument->formatOutput = true;
+            $xmlDocument->loadXML($xml->asXML());
+            return $xmlDocument->saveXML();
+        }else{
+            return $xml->asXML();
+        }
     }
 
     /**
@@ -172,6 +184,9 @@ abstract class Sephpa
         // sanitize options
         $options['addFileRoutingSlip'] = isset($options['addFileRoutingSlip']) && $options['addFileRoutingSlip'];
         $options['addControlList']     = isset($options['addControlList']) && $options['addControlList'];
+
+        if(empty($options['prettyXML']))
+            $options['prettyXML']=false;
 
         // check dependencies
         if(($options['addFileRoutingSlip'] || $options['addControlList'])
@@ -220,7 +235,7 @@ abstract class Sephpa
 
         $files = [];
         $files[] = ['name' => $this->getFileName() . '.xml',
-                    'data' => $this->generateXml()];
+                    'data' => $this->generateXml($options['prettyXML'])];
 
         if($options['addFileRoutingSlip'])
             $files[] = $this->getFileRoutingSlip($options);
@@ -290,10 +305,10 @@ abstract class Sephpa
      */
     public function download($options = [])
     {
-        $file = $this->generateOutput($options, true);
+        $fileData = $this->generateOutput($options, true);
 
-        header('Content-Disposition: attachment; filename="' . $file['name'] . '"');
-        print $file['data'];
+        header('Content-Disposition: attachment; filename="' . $fileData['name'] . '"');
+        print $fileData['data'];
     }
 
     /**
