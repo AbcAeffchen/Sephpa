@@ -223,6 +223,7 @@ abstract class Sephpa
      *                             `currency` (default is '%s €')
      *                             - (string) `dateFormat`: The format a date is represented in the PDF
      *                             files. Default is 'd.m.Y'. See date() documentation for details.
+     *                             - (bool) prettyXML. If true, generate a formated XML. Default is false.
      * @param bool  $zipToOneFile  If true, multiple files get zipped to one file.
      * @return string[]|string[][] Returns a file as a pair [name, data], if $zipToOneFile is true,
      *                             else it is an array of such pairs.

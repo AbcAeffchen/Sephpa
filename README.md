@@ -211,14 +211,24 @@ both `orgnlDbtrAcct_iban` and `orgnlDbtrAgt_bic` and it should work.
 After you have added some payments to your payment collection you can save the finished file by
 
 ```php
-$creditTransferFile->store();
+$creditTransferFile->store($path, Array $options);
 ```
 
 or get it directly without saving it on the server by
 
 ```php
-$creditTransferFile->download();
+$creditTransferFile->download(Array $options);
 ```
+To get XML data
+```php
+$xml = $creditTransferFile->generateXml($prettyXML=false);
+```
+
+The filename prefix can be set by calling setFileName function before the store or download function.
+```php
+$creditTransferFile->setFileName('Sepa');
+```
+
 
 Notice that you can hand over a filename you like, but you should only use the file extension  
 `.xml`. You can also use an array of options to include file routing slips and control lists.
