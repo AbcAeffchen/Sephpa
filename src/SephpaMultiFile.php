@@ -20,6 +20,7 @@ class SephpaMultiFile
      * @var Sephpa[] $files Stores the generated files.
      */
     private $files = [];
+    private $fileNamePrefix= 'Sephpa.';
 
     /**
      * @param string   $initgPty
@@ -112,6 +113,15 @@ class SephpaMultiFile
 
     private function getFileName()
     {
-        return 'Sephpa.' . (new \DateTime())->format('Y-m-d-H-i-s');
+        return  $this->fileNamePrefix . (new \DateTime())->format('Y-m-d-H-i-s');
+    }
+    
+    /**
+     * set the prefix of the names of the generated files.
+     * @param string fileNamePrefix  The prefix of the names of the generated files.
+     */
+    public function setFileName($fileNamePrefix)
+    {
+        return $this->fileNamePrefix = $fileNamePrefix;
     }
 }

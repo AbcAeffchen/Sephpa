@@ -64,6 +64,7 @@ class SephpaDirectDebit extends Sephpa
         parent::__construct($initgPty, $msgId, $version, $orgId, $checkAndSanitize);
 
         $this->paymentType = 'CstmrDrctDbtInitn';
+        $this->fileNamePrefix= 'Sephpa.DirectDebit.';
 
         switch($version)
         {
@@ -175,6 +176,15 @@ class SephpaDirectDebit extends Sephpa
      */
     protected function getFileName()
     {
-        return 'Sephpa.DirectDebit.' . $this->msgId;
+        return $this->fileNamePrefix . $this->msgId;
+    }
+
+    /**
+     * set the prefix of the names of the generated files.
+     * @param string fileNamePrefix  The prefix of the names of the generated files.
+     */
+    public function setFileName($fileNamePrefix)
+    {
+        return $this->fileNamePrefix = $fileNamePrefix;
     }
 }

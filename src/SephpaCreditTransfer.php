@@ -61,6 +61,7 @@ class SephpaCreditTransfer extends Sephpa
         parent::__construct($initgPty, $msgId, $version, $orgId, $checkAndSanitize);
 
         $this->paymentType = 'CstmrCdtTrfInitn';
+        $this->fileNamePrefix= 'Sephpa.CreditTransfer.';
 
         switch($version)
         {
@@ -167,6 +168,15 @@ class SephpaCreditTransfer extends Sephpa
      */
     protected function getFileName()
     {
-        return 'Sephpa.CreditTransfer.' . $this->msgId;
+        return $this->fileNamePrefix . $this->msgId;
+    }
+
+    /**
+     * set the prefix of the names of the generated files.
+     * @param string fileNamePrefix  The prefix of the names of the generated files.
+     */
+    public function setFileName($fileNamePrefix)
+    {
+        return $this->fileNamePrefix = $fileNamePrefix;
     }
 }
