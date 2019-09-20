@@ -155,16 +155,6 @@ class SepaCreditTransfer00100103 extends SepaCreditTransferCollection
         $cdtTrfTxInf->addChild('PmtId')->addChild('EndToEndId', $payment['pmtId']);
         $cdtTrfTxInf->addChild('Amt')->addChild('InstdAmt', sprintf("%01.2F", $payment['instdAmt']))
                     ->addAttribute('Ccy', $ccy);
-        if( !empty( $payment['bic'] ) )
-            $cdtTrfTxInf->addChild('CdtrAgt')->addChild('FinInstnId')
-                        ->addChild('BIC', $payment['bic']);
-
-        $cdtTrfTxInf->addChild('Cdtr')->addChild('Nm', $payment['cdtr']);
-        $cdtTrfTxInf->addChild('CdtrAcct')->addChild('Id')->addChild('IBAN', $payment['iban']);
-
-        if( isset( $payment['ultmtCdtr'] ) )
-            $cdtTrfTxInf->addChild('UltmtCdtr')->addChild('Nm', $payment['ultmtCdtr']);
-
         if( isset( $payment['ultmtDbtr'] ) ||  isset( $payment['ultmtDbtrId'] ) ){
             $cdtTrfTxInf->addChild('UltmtDbtr');
 
@@ -174,6 +164,15 @@ class SepaCreditTransfer00100103 extends SepaCreditTransferCollection
             if( isset( $payment['ultmtDbtrId'] )  )
                 $cdtTrfTxInf->UltmtDbtr->addChild('Id')->addChild('OrgId')->addChild('Othr')->addChild('Id', $payment['ultmtDbtrId']);
         }
+        if( !empty( $payment['bic'] ) )
+            $cdtTrfTxInf->addChild('CdtrAgt')->addChild('FinInstnId')
+                        ->addChild('BIC', $payment['bic']);
+
+        $cdtTrfTxInf->addChild('Cdtr')->addChild('Nm', $payment['cdtr']);
+        $cdtTrfTxInf->addChild('CdtrAcct')->addChild('Id')->addChild('IBAN', $payment['iban']);
+
+        if( isset( $payment['ultmtCdtr'] ) )
+            $cdtTrfTxInf->addChild('UltmtCdtr')->addChild('Nm', $payment['ultmtCdtr']);
 
         if( isset( $payment['purp'] ) )
             $cdtTrfTxInf->addChild('Purp')->addChild('Cd', $payment['purp']);
