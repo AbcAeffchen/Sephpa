@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2018 Alexander Schickedanz
+ * @copyright ©2020 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -58,7 +58,7 @@ class SephpaCreditTransfer extends Sephpa
      */
     public function __construct($initgPty, $msgId, $version, array $transferInfo, array $orgId = [], $checkAndSanitize = true)
     {
-        parent::__construct($initgPty, $msgId, $version, $orgId, $checkAndSanitize);
+        parent::__construct($initgPty, $msgId, $orgId, $checkAndSanitize);
 
         $this->paymentType = 'CstmrCdtTrfInitn';
 

@@ -67,8 +67,6 @@ abstract class Sephpa
      *
      * @param string   $initgPty The name of the initiating party (max. 70 characters)
      * @param string   $msgId    The unique id of the file
-     * @param int      $type     Sets the type and version of the SEPA file. Use the
-     *                           SEPA_PAIN_* constants
      * @param string[] $orgId    It is not recommended to use this at all. If you have to use
      *                           this, the standard only allows one of the two. If you provide
      *                           both, options, both will be included in the SEPA file. So
@@ -78,7 +76,7 @@ abstract class Sephpa
      * @param bool     $checkAndSanitize
      * @throws SephpaInputException
      */
-    public function __construct($initgPty, $msgId, $type, array $orgId = [], $checkAndSanitize = true)
+    public function __construct($initgPty, $msgId, array $orgId = [], $checkAndSanitize = true)
     {
         $this->checkAndSanitize = $checkAndSanitize;
         $this->creationDateTime = (new \DateTime())->format('Y-m-d\TH:i:s');
