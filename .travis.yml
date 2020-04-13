@@ -15,6 +15,7 @@ matrix:
     - php: hhvm
 
 install:
+  - mkdir tests/output
   - composer install --prefer-source --no-interaction
 
 script: vendor/phpunit/phpunit/phpunit

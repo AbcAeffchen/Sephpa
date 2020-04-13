@@ -24,7 +24,7 @@
     "issues": "https://github.com/AbcAeffchen/Sephpa/issues"
   },
   "require": {
-    "php": ">=7.2.0",
+    "php": ">=7.1",
     "ext-xml": "*",
     "ext-simplexml": "*",
     "abcaeffchen/sepa-utilities": "~1.2.5"
