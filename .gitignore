@@ -1,5 +1,7 @@
 vendor/
 composer.lock
+composer.phar
 
 .idea/
 tests/output/
+.phpunit.result.cache

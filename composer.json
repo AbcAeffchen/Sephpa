@@ -1,36 +1,47 @@
 {
-    "name": "abcaeffchen/sephpa",
-    "type": "library",
-    "description": "Generates Sepa files for credit transfers (pain.001.001.03, pain.001.002.03, pain.001.003.03) and direct debit (pain.008.001.02, pain.008.002.02, pain.008.003.02)",
-    "keywords": ["sepa","xml","banking","files","finance","credit transfer","direct debit"],
-    "homepage": "https://github.com/AbcAeffchen/Sephpa",
-    "license": "LGPL-3.0",
-    "authors": [
-        {
-            "name": "Alexander Schickedanz (AbcAeffchen)",
-            "email": "abcaeffchen@gmail.com",
-            "role": "Developer"
-        }
-    ],
-    "support": {
-        "issues": "https://github.com/AbcAeffchen/Sephpa/issues"
-    },
-    "require": {
-        "php": ">=5.6.0",
-        "ext-xml": "*",
-        "abcaeffchen/sepa-utilities": "~1.2.5"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "5.7.* || 6.3.*",
-        "abcaeffchen/sepa-documentor": "~1.0.0"
-    },
-    "suggest": {
-        "ext-zlib": "Needed to store or download multiple files at once."
-    },
-    "autoload": {
-        "psr-4": {
-            "AbcAeffchen\\Sephpa\\": "src/",
-            "AbcAeffchen\\Sephpa\\PaymentCollections\\": "src/payment-collections/"
-        }
+  "name": "abcaeffchen/sephpa",
+  "type": "library",
+  "description": "Generates SEPA files for credit transfers (pain.001.001.03, pain.001.002.03, pain.001.003.03) and direct debit (pain.008.001.02, pain.008.002.02, pain.008.003.02)",
+  "keywords": [
+    "sepa",
+    "xml",
+    "banking",
+    "files",
+    "finance",
+    "credit transfer",
+    "direct debit"
+  ],
+  "homepage": "https://github.com/AbcAeffchen/Sephpa",
+  "license": "LGPL-3.0",
+  "authors": [
+    {
+      "name": "Alexander Schickedanz (AbcAeffchen)",
+      "email": "abcaeffchen@gmail.com",
+      "role": "Developer"
     }
+  ],
+  "support": {
+    "issues": "https://github.com/AbcAeffchen/Sephpa/issues"
+  },
+  "require": {
+    "php": ">=7.2.0",
+    "ext-xml": "*",
+    "ext-simplexml": "*",
+    "abcaeffchen/sepa-utilities": "~1.2.5"
+  },
+  "require-dev": {
+    "ext-dom": "*",
+    "phpunit/phpunit": "^9 | ^8",
+    "abcaeffchen/sepa-documentor": "~1.0.0"
+  },
+  "suggest": {
+    "ext-zip": "Needed to store or download multiple files at once.",
+    "abcaeffchen/sepa-documentor": "~1.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "AbcAeffchen\\Sephpa\\": "src/",
+      "AbcAeffchen\\Sephpa\\PaymentCollections\\": "src/payment-collections/"
+    }
+  }
 }

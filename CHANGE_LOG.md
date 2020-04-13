@@ -7,7 +7,7 @@ interface (highlighted with **bold** text). The changes are as minimal as possib
 the new version, but still old code will not work with this version. To be clear: You should migrate
 to the new version, since version 1 is no longer supported.
 
-- new: support for PHP 7.0, 7.1, 7.2 and HHVM.
+- new: support for PHP 7.2, 7.3, 7.4.
 - new: support for pain.001.001.03 and pain.008.001.02<br>
 Notice that this implementation fits the new german standard that is valid from November 2016. 
 It is said that this is compatible with the formats with the same name from 2009 that is used 
@@ -46,7 +46,7 @@ This should not break any code since it was recommended not to use this. It was 
 and couldn't be sanitized.
 - dependency: For multi file downloads you need [`libzip`](http://php.net/manual/en/book.zip.php).
 - dev: improved testing of SEPA files and added a ton of tests.
-- dev: updated PHPUnit to v5.7.* and 6.3.* depending on PHP version.
+- dev: updated PHPUnit to v8 and v9 depending on PHP version.
 
 ## 1.3.0 - Feb 5, '15
 - updated SepaUtilities to 1.1.0

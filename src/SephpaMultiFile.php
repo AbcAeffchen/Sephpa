@@ -3,13 +3,17 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2018 Alexander Schickedanz
+ * @copyright ©2020 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 namespace AbcAeffchen\Sephpa;
+
+use DateTime;
+use Mpdf\MpdfException;
+use ZipArchive;
 
 /**
  * Base class for both credit transfer and direct debit
@@ -24,37 +28,39 @@ class SephpaMultiFile
     /**
      * @param string   $initgPty
      * @param string   $msgId
-     * @param int      $version Use SephpCreditTransfer::SEPA_PAIN_* constants
+     * @param int      $version Use SephpaCreditTransfer::SEPA_PAIN_* constants
      * @param string[] $transferInfo
+     * @param array    $orgId
      * @param bool     $checkAndSanitize
      * @return SephpaCreditTransfer
      * @throws SephpaInputException
      */
-    public function &addCreditTransferFile($initgPty, $msgId, $version, array $transferInfo, $checkAndSanitize = true)
+    public function &addCreditTransferFile($initgPty, $msgId, $version, array $transferInfo, array $orgId = [], $checkAndSanitize = true)
     {
-        $this->files[] = new SephpaCreditTransfer($initgPty, $msgId, $version, $transferInfo, $checkAndSanitize);
-        return $this->files[count($this->files)-1];
+        $this->files[] = new SephpaCreditTransfer($initgPty, $msgId, $version, $transferInfo, $orgId, $checkAndSanitize);
+        return $this->files[count($this->files) - 1];
     }
 
     /**
      * @param string   $initgPty
      * @param string   $msgId
-     * @param int      $version Use SephpDirectDebit::SEPA_PAIN_* constants
+     * @param int      $version Use SephpaDirectDebit::SEPA_PAIN_* constants
      * @param string[] $debitInfo
+     * @param array    $orgId
      * @param bool     $checkAndSanitize
      * @return SephpaDirectDebit
      * @throws SephpaInputException
      */
-    public function &addDirectDebitFile($initgPty, $msgId, $version, array $debitInfo, $checkAndSanitize = true)
+    public function &addDirectDebitFile($initgPty, $msgId, $version, array $debitInfo, array $orgId = [], $checkAndSanitize = true)
     {
-        $this->files[] = new SephpaDirectDebit($initgPty, $msgId, $version, $debitInfo, $checkAndSanitize);
-        return $this->files[count($this->files)-1];
+        $this->files[] = new SephpaDirectDebit($initgPty, $msgId, $version, $debitInfo, $orgId, $checkAndSanitize);
+        return $this->files[count($this->files) - 1];
     }
 
     /**
      * @param array $options @see Sephpa::generateOutput() for details.
      * @throws SephpaInputException
-     * @throws \Mpdf\MpdfException
+     * @throws MpdfException
      */
     public function download(array $options = [])
     {
@@ -68,7 +74,7 @@ class SephpaMultiFile
      * @param string $path
      * @param array  $options @see Sephpa::generateOutput() for details.
      * @throws SephpaInputException
-     * @throws \Mpdf\MpdfException
+     * @throws MpdfException
      */
     public function store($path, array $options = [])
     {
@@ -83,17 +89,17 @@ class SephpaMultiFile
      * @param array $options    @see Sephpa::generateOutput() for details
      * @return string[] [name, data]
      * @throws SephpaInputException
-     * @throws \Mpdf\MpdfException
+     * @throws MpdfException
      */
     private function generateCombinedZipFile(array $options)
     {
         if(!class_exists('ZipArchive'))
             throw new SephpaInputException('You need the libzip extension (class ZipArchive) to zip multiple files.');
 
-        $zip = new \ZipArchive();
+        $zip = new ZipArchive();
 
         $tmpFile = tempnam(sys_get_temp_dir(), 'sephpa');
-        if($zip->open($tmpFile, \ZipArchive::CREATE))
+        if($zip->open($tmpFile, ZipArchive::CREATE))
         {
             foreach($this->files as &$file)
             {
@@ -112,6 +118,6 @@ class SephpaMultiFile
 
     private function getFileName()
     {
-        return 'Sephpa.' . (new \DateTime())->format('Y-m-d-H-i-s');
+        return 'Sephpa.' . (new DateTime())->format('Y-m-d-H-i-s');
     }
 }

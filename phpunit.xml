@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Sephpa
+  ~
+  ~ @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
+  ~ @copyright ©2020 Alexander Schickedanz
+  ~ @link      https://github.com/AbcAeffchen/Sephpa
+  ~
+  ~ @author  Alexander Schickedanz <abcaeffchen@gmail.com>
+  -->
+
 <phpunit backupGlobals="false"
          backupStaticAttributes="false"
          bootstrap="vendor/autoload.php"
@@ -7,11 +17,11 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          processIsolation="false"
-         stopOnFailure="false"
-         syntaxCheck="false">
+         stopOnFailure="false">
     <testsuites>
         <testsuite name="Sephpa Tests">
             <file>./tests/SephpaTest.php</file>
+            <file>./tests/SephpaStoreTest.php</file>
         </testsuite>
     </testsuites>
     <filter>
