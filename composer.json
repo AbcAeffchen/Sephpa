@@ -31,8 +31,8 @@
   },
   "require-dev": {
     "ext-dom": "*",
-    "phpunit/phpunit": "^9 | ^8",
-    "abcaeffchen/sepa-documentor": "~1.0.0"
+    "phpunit/phpunit": "^9 || ^8 || ^7",
+    "abcaeffchen/sepa-documentor": "^2.0"
   },
   "suggest": {
     "ext-zip": "Needed to store or download multiple files at once.",
