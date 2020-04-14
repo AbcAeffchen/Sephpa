@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2018 Alexander Schickedanz
+ * @copyright ©2020 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -62,7 +62,7 @@ class SepaCreditTransfer00100103 extends SepaCreditTransferCollection
      * Adds a payment to the payment collection
      *
      * @param mixed[] $paymentInfo needed keys: 'pmtId', 'instdAmt', 'iban', 'bic', 'cdtr';
-     *                             optional keys: 'ultmtCdrt', 'purp', 'rmtInf'
+     *                             optional keys: 'ultmtCdrt', 'purp', 'rmtInf', 'ultmtDbtr', 'ultmtDbtrId'
      * @throws SephpaInputException
      * @return void
      */
@@ -155,6 +155,17 @@ class SepaCreditTransfer00100103 extends SepaCreditTransferCollection
         $cdtTrfTxInf->addChild('PmtId')->addChild('EndToEndId', $payment['pmtId']);
         $cdtTrfTxInf->addChild('Amt')->addChild('InstdAmt', sprintf("%01.2F", $payment['instdAmt']))
                     ->addAttribute('Ccy', $ccy);
+
+        if( isset( $payment['ultmtDbtr'] ) ||  isset( $payment['ultmtDbtrId'] ) ){
+            $cdtTrfTxInf->addChild('UltmtDbtr');
+
+            if( isset( $payment['ultmtDbtr'] )  )
+                $cdtTrfTxInf->UltmtDbtr->addChild('Nm', $payment['ultmtDbtr']);
+
+            if( isset( $payment['ultmtDbtrId'] )  )
+                $cdtTrfTxInf->UltmtDbtr->addChild('Id')->addChild('OrgId')->addChild('Othr')->addChild('Id', $payment['ultmtDbtrId']);
+        }
+
         if( !empty( $payment['bic'] ) )
             $cdtTrfTxInf->addChild('CdtrAgt')->addChild('FinInstnId')
                         ->addChild('BIC', $payment['bic']);

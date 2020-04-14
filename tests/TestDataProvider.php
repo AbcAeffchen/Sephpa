@@ -51,6 +51,8 @@ class TestDataProvider
 
         if($addOptionalData)
         {
+            $paymentData['ultmtDbtr'] = 'Ultimate Debtor Name';
+            $paymentData['ultmtDbtrId'] = 'Ultimate Debtor ID';
             $paymentData['ultmtCdrt'] = 'Ultimate Creditor Name';   // just an information, this do not affect the payment (max 70 characters)
             $paymentData['rmtInf']    = 'Remittance Information';   // unstructured information about the remittance (max 140 characters)
         }
