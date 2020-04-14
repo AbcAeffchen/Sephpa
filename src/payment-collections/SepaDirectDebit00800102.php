@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2018 Alexander Schickedanz
+ * @copyright ©2020 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -75,7 +75,7 @@ class SepaDirectDebit00800102 extends SepaDirectDebitCollection
             if(!SepaUtilities::checkRequiredPaymentKeys($paymentInfo, self::VERSION) )
                 throw new SephpaInputException('One of the required inputs \'pmtId\', \'instdAmt\', \'mndtId\', \'dtOfSgntr\', \'dbtr\', \'iban\' is missing.');
 
-            $bicRequired = (!SepaUtilities::isEEATransaction($this->cdtrIban,$paymentInfo['iban']));
+            $bicRequired = (!SepaUtilities::isEEATransaction($this->debitInfo['iban'], $paymentInfo['iban']));
 
             $checkResult = SepaUtilities::checkAndSanitizeAll($paymentInfo, $this->sanitizeFlags,
                                                               ['allowEmptyBic' => $bicRequired, 'version' => self::VERSION]);

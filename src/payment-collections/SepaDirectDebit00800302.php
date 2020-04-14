@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2018 Alexander Schickedanz
+ * @copyright ©2020 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -75,7 +75,7 @@ class SepaDirectDebit00800302 extends SepaDirectDebitCollection
 
         if($this->checkAndSanitize)
         {
-            $bicRequired = (!SepaUtilities::isNationalTransaction($this->cdtrIban,$paymentInfo['iban']) && $this->today <= SepaUtilities::BIC_REQUIRED_THRESHOLD);
+            $bicRequired = (!SepaUtilities::isNationalTransaction($this->debitInfo['iban'], $paymentInfo['iban']) && $this->today <= SepaUtilities::BIC_REQUIRED_THRESHOLD);
 
             $checkResult = SepaUtilities::checkAndSanitizeAll($paymentInfo, $this->sanitizeFlags,
                                                               ['allowEmptyBic' => $bicRequired, 'version' => self::VERSION]);
