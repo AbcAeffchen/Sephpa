@@ -27,10 +27,11 @@
     "php": ">=7.1",
     "ext-xml": "*",
     "ext-simplexml": "*",
-    "abcaeffchen/sepa-utilities": "~1.2.5"
+    "abcaeffchen/sepa-utilities": "dev-master"
   },
   "require-dev": {
     "ext-dom": "*",
+    "ext-zip": "*",
     "phpunit/phpunit": "^9 || ^8 || ^7",
     "abcaeffchen/sepa-documentor": "^2.0"
   },

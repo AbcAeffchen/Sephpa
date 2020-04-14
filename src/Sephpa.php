@@ -3,14 +3,21 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2018 Alexander Schickedanz
+ * @copyright ©2020 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 namespace AbcAeffchen\Sephpa;
+
+use AbcAeffchen\SepaDocumentor\ControlList;
+use AbcAeffchen\SepaDocumentor\FileRoutingSlip;
 use AbcAeffchen\SepaUtilities\SepaUtilities;
+use DateTime;
+use Exception;
+use Mpdf\MpdfException;
+use ZipArchive;
 
 // Set default Timezone
 date_default_timezone_set(@date_default_timezone_get());
@@ -18,7 +25,7 @@ date_default_timezone_set(@date_default_timezone_get());
 /**
  * Class SephpaInputException thrown if an invalid input is detected
  */
-class SephpaInputException extends \Exception {}
+class SephpaInputException extends Exception {}
 
 /**
  * Base class for both credit transfer and direct debit
@@ -46,13 +53,17 @@ abstract class Sephpa
      */
     protected $msgId;
     /**
+     * @type array $orgId
+     */
+    protected $orgId;
+    /**
      * @type string $creationDateTime The date time string of the creation date.
      */
     protected $creationDateTime;
     /**
-     * @type PaymentCollections\SepaPaymentCollection $paymentCollection Stores all payment objects
+     * @type PaymentCollections\SepaPaymentCollection[] $paymentCollections Stores all payment objects
      */
-    protected $paymentCollection;
+    protected $paymentCollections = [];
     /**
      * @type bool $checkAndSanitize
      */
@@ -68,8 +79,8 @@ abstract class Sephpa
      * @param string   $initgPty The name of the initiating party (max. 70 characters)
      * @param string   $msgId    The unique id of the file
      * @param string[] $orgId    It is not recommended to use this at all. If you have to use
-     *                           this, the standard only allows one of the two. If you provide
-     *                           both, options, both will be included in the SEPA file. So
+     *                           this, the standard only allows one of the two keys. If you provide
+     *                           both, both will be included in the SEPA file. So
      *                           only use this if you know what you do. Available keys:
      *                           - `id`: An Identifier of the organisation.
      *                           - `bob`: A BIC or BEI that identifies the organisation.
@@ -79,15 +90,14 @@ abstract class Sephpa
     public function __construct($initgPty, $msgId, array $orgId = [], $checkAndSanitize = true)
     {
         $this->checkAndSanitize = $checkAndSanitize;
-        $this->creationDateTime = (new \DateTime())->format('Y-m-d\TH:i:s');
+        $this->creationDateTime = (new DateTime())->format('Y-m-d\TH:i:s');
 
         if($this->checkAndSanitize)
         {
             $this->initgPty = SepaUtilities::checkAndSanitize('initgpty', $initgPty);
             $this->msgId    = SepaUtilities::checkAndSanitize('msgid', $msgId);
             $this->orgId    = ['id' => isset($orgId['id']) ? SepaUtilities::checkAndSanitize('orgid_id', $orgId['id']) : '',
-                               'bob' =>isset($orgId['bob']) ? SepaUtilities::checkAndSanitize('orgid_bob', $orgId['bob']) : ''
-                ];
+                               'bob' =>isset($orgId['bob']) ? SepaUtilities::checkAndSanitize('orgid_bob', $orgId['bob']) : ''];
 
             if($this->initgPty === false || $this->msgId === false ||
                 (!empty($this->orgId) && ($this->orgId['id'] === false || $this->orgId['bob'] === false)))
@@ -98,8 +108,7 @@ abstract class Sephpa
             $this->initgPty = $initgPty;
             $this->msgId    = $msgId;
             $this->orgId    = ['id' => isset($orgId['id']) ?  $orgId['id'] : '',
-                               'bob' =>isset($orgId['bob']) ? $orgId['bob'] : ''
-            ];
+                               'bob' =>isset($orgId['bob']) ? $orgId['bob'] : ''];
         }
     }
 
@@ -107,18 +116,18 @@ abstract class Sephpa
      * This flags will only be used if checkAndSanitize is set to true.
      * @param int $flags Use the SepaUtilities Flags
      */
-    public function setSanitizeFlags($flags)
+    public function setSanitizeFlags($flags) : void
     {
         $this->sanitizeFlags = $flags;
     }
 
     /**
-     * Adds a new payment to the SEPA file.
+     * Adds a new collection and sets main data.
      *
-     * @param mixed[] $information An array with information about the payment.
+     * @param mixed[] $information An array with information about the collection.
      * @throws SephpaInputException
      */
-    abstract protected function addPayment(array $information);
+    abstract protected function addCollection(array $information);
 
     /**
      * Generates the XML file from the given data. All empty collections are skipped.
@@ -126,10 +135,14 @@ abstract class Sephpa
      * @throws SephpaInputException
      * @return string Just the xml code of the file
      */
-    protected function generateXml()
+    protected function generateXml() : string
     {
-        if($this->paymentCollection->getNumberOfTransactions() === 0)
-            throw new SephpaInputException('The file contains no payments.');
+        if(count($this->paymentCollections) === 0)
+            throw new SephpaInputException('No payment collections provided.');
+
+        $totalNumberOfTransaction = $this->getNumberOfTransactions();
+        if($totalNumberOfTransaction === 0)
+            throw new SephpaInputException('No payments provided.');
 
         $xml = simplexml_load_string($this->xmlInitString);
         $fileHead = $xml->addChild($this->paymentType);
@@ -137,8 +150,8 @@ abstract class Sephpa
         $grpHdr = $fileHead->addChild('GrpHdr');
         $grpHdr->addChild('MsgId', $this->msgId);
         $grpHdr->addChild('CreDtTm', $this->creationDateTime);
-        $grpHdr->addChild('NbOfTxs', $this->paymentCollection->getNumberOfTransactions());
-        $grpHdr->addChild('CtrlSum', sprintf('%01.2F', $this->paymentCollection->getCtrlSum()));
+        $grpHdr->addChild('NbOfTxs', $totalNumberOfTransaction);
+        $grpHdr->addChild('CtrlSum', sprintf('%01.2F', $this->getCtrlSum()));
 
         $initgPty = $grpHdr->addChild('InitgPty');
         $initgPty->addChild('Nm', $this->initgPty);
@@ -151,8 +164,15 @@ abstract class Sephpa
                 $orgId->addChild('BICOrBEI', $this->orgId['bob']);
         }
 
-        $pmtInf = $fileHead->addChild('PmtInf');
-        $this->paymentCollection->generateCollectionXml($pmtInf);
+        foreach($this->paymentCollections as $paymentCollection)
+        {
+            // ignore empty collections
+            if($paymentCollection->getNumberOfTransactions() === 0)
+                continue;
+
+            $pmtInf = $fileHead->addChild('PmtInf');
+            $paymentCollection->generateCollectionXml($pmtInf);
+        }
 
         return $xml->asXML();
     }
@@ -165,7 +185,7 @@ abstract class Sephpa
      * @return bool[] The $options array with all three fields set.
      * @throws SephpaInputException
      */
-    protected function sanitizeOutputOptions(array $options)
+    protected function sanitizeOutputOptions(array $options) : array
     {
         // sanitize options
         $options['addFileRoutingSlip'] = isset($options['addFileRoutingSlip']) && $options['addFileRoutingSlip'];
@@ -210,9 +230,9 @@ abstract class Sephpa
      * @return string[]|string[][] Returns a file as a pair [name, data], if $zipToOneFile is true,
      *                             else it is an array of such pairs.
      * @throws SephpaInputException
-     * @throws \Mpdf\MpdfException
+     * @throws MpdfException
      */
-    public function generateOutput(array $options, $zipToOneFile = true)
+    public function generateOutput(array $options, $zipToOneFile = true) : array
     {
         $options = $this->sanitizeOutputOptions($options);
 
@@ -221,10 +241,10 @@ abstract class Sephpa
                     'data' => $this->generateXml()];
 
         if($options['addFileRoutingSlip'])
-            $files[] = $this->getFileRoutingSlip($options);
+            $files = array_merge($files, $this->getFileRoutingSlips($options));
 
         if($options['addControlList'])
-            $files[] = $this->getControlList($options);
+            $files = array_merge($files, $this->getControlLists($options));
 
         if(!$zipToOneFile)
             return $files;
@@ -236,8 +256,8 @@ abstract class Sephpa
                 throw new SephpaInputException('You need the libzip extension (class ZipArchive) to download multiple files.');
 
             $tmpFile = tempnam(sys_get_temp_dir(), 'sephpa');
-            $zip = new \ZipArchive();
-            if($zip->open($tmpFile, \ZipArchive::CREATE))
+            $zip = new ZipArchive();
+            if($zip->open($tmpFile, ZipArchive::CREATE))
             {
                 foreach($files as $file)
                 {
@@ -255,28 +275,90 @@ abstract class Sephpa
     }
 
     /**
-     * Generates a File Routing Slip and returns it as [name, data] array. Requires mPDF.
+     * Generates a File Routing Slip for each collection and returns it as array of [name, data_string]
+     * arrays. Requires mPDF.
      *
      * @param array $options @see generateOutput() for details.
-     * @return array A File Routing Slip and returns it as [name, data] array.
-     * @throws \Mpdf\MpdfException
+     * @return array A File Routing Slip and returns it as array of [name, data_string] arrays.
+     * @throws MpdfException
      */
-    protected abstract function getFileRoutingSlip(array $options);
+    protected function getFileRoutingSlips(array $options) : array
+    {
+        $template = empty($options['FRSTemplate'])
+            ? __DIR__ . '/../templates/file_routing_slip_german.tpl'
+            : $options['FRSTemplate'];
+
+        $fileRoutingSlips = [];
+
+        foreach($this->paymentCollections as $paymentCollection)
+        {
+            $collectionData = array_merge($paymentCollection->getCollectionData($options['dateFormat']),
+                ['file_name'              => $this->getFileName() . '.xml',
+                 'scheme_version'         => SepaUtilities::version2string($this->version),
+                 'payment_type'           => SepaUtilities::version2transactionType($this->version) === SepaUtilities::SEPA_TRANSACTION_TYPE_CT ? 'Credit Transfer' : 'Direct Debit',
+                 'message_id'             => $this->msgId,
+                 'creation_date_time'     => $this->creationDateTime,
+                 'initialising_party'     => $this->initgPty,
+                 'number_of_transactions' => $paymentCollection->getNumberOfTransactions(),
+                 'control_sum'            => sprintf($options['moneyFormat']['currency'],
+                                                     number_format($paymentCollection->getCtrlSum(), 2,
+                                                                   $options['moneyFormat']['dec_point'],
+                                                                   $options['moneyFormat']['thousands_sep'])),
+                 'current_date'           => (new DateTime())->format($options['dateFormat'])]);
+
+            $fileRoutingSlips[] = ['name' => $this->getFileName()
+                                            . '.' . str_replace(['\\', '/'], '-', $collectionData['collection_reference'])
+                                            . '.FileRoutingSlip.pdf',
+                                   'data' => FileRoutingSlip::createPDF($template, $collectionData)];
+        }
+
+        return $fileRoutingSlips;
+    }
 
     /**
-     * Generates a Control List and returns it as [name, data] array. Requires mPDF.
+     * Generates a Control List for each collection and returns it as array of [name, data_string]
+     * arrays. Requires mPDF.
      *
      * @param array $options @see generateOutput() for details.
-     * @return array A Control List and returns it as [name, data] array.
-     * @throws \Mpdf\MpdfException
+     * @return array A Control List for each collection and returns it as array of [name, data_string] arrays.
+     * @throws MpdfException
      */
-    protected abstract function getControlList(array $options);
+    protected function getControlLists(array $options) : array
+    {
+        $template = $options['CLTemplate']
+            ?? (SepaUtilities::version2transactionType($this->version) === SepaUtilities::SEPA_TRANSACTION_TYPE_CT
+                ? __DIR__ . '/../templates/credit_transfer_control_list_german.tpl'
+                : __DIR__ . '/../templates/direct_debit_control_list_german.tpl');
+
+        $controlLists = [];
+
+        foreach($this->paymentCollections as $paymentCollection)
+        {
+            $collectionData = array_merge($paymentCollection->getCollectionData($options['dateFormat']),
+                ['file_name'              => $this->getFileName() . '.xml',
+                 'message_id'             => $this->msgId,
+                 'creation_date_time'     => $this->creationDateTime,
+                 'number_of_transactions' => $paymentCollection->getNumberOfTransactions(),
+                 'control_sum'            => sprintf($options['moneyFormat']['currency'],
+                                                     number_format($paymentCollection->getCtrlSum(), 2,
+                                                                   $options['moneyFormat']['dec_point'],
+                                                                   $options['moneyFormat']['thousands_sep']))]);
+
+            $controlLists[] = ['name' => $this->getFileName()
+                                        . '.' . str_replace(['\\', '/'], '-', $collectionData['collection_reference'])
+                                        . '.ControlList.pdf',
+                               'data' => ControlList::createPDF($template, $collectionData,
+                                                                $paymentCollection->getTransactionData($options['moneyFormat']))];
+        }
+
+        return $controlLists;
+    }
 
     /**
      * Returns the name prefix of the generated files.
      * @return string The name prefix of the generated files.
      */
-    protected abstract function getFileName();
+    protected abstract function getFileName() : string;
 
     /**
      * Generates the SEPA file and starts a download using the header 'Content-Disposition: attachment;'
@@ -284,7 +366,7 @@ abstract class Sephpa
      *
      * @param array $options @see generateOutput() for details.
      * @throws SephpaInputException
-     * @throws \Mpdf\MpdfException
+     * @throws MpdfException
      */
     public function download($options = [])
     {
@@ -300,7 +382,7 @@ abstract class Sephpa
      * @param string $path    The path where the file gets stored without trailing DIRECTORY_SEPARATOR.
      * @param array  $options @see generateOutput() for details.
      * @throws SephpaInputException
-     * @throws \Mpdf\MpdfException
+     * @throws MpdfException
      */
     public function store($path, $options = [])
     {
@@ -309,5 +391,33 @@ abstract class Sephpa
         $file = fopen($path . DIRECTORY_SEPARATOR . $fileData['name'], 'wb');
         fwrite($file, $fileData['data']);
         fclose($file);
+    }
+
+    /**
+     * Calculates the sum of all payments
+     * @return float
+     */
+    private function getCtrlSum() : float
+    {
+        $ctrlSum = 0;
+        foreach($this->paymentCollections as $collection){
+            $ctrlSum += $collection->getCtrlSum();
+        }
+
+        return $ctrlSum;
+    }
+
+    /**
+     * Calculates the number payments in all collections
+     * @return int
+     */
+    private function getNumberOfTransactions() : int
+    {
+        $nbOfTxs = 0;
+        foreach($this->paymentCollections as $collection){
+            $nbOfTxs += $collection->getNumberOfTransactions();
+        }
+
+        return $nbOfTxs;
     }
 }

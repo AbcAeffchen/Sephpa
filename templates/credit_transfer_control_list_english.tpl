@@ -10,6 +10,10 @@
         <td style="width: 50%; text-align: right;">{{message_id}}</td>
     </tr>
     <tr>
+        <td>Collection Reference</td>
+        <td style="width: 50%; text-align: right;">{{collection_reference}}</td>
+    </tr>
+    <tr>
         <td>Date / Time</td>
         <td style="width: 50%; text-align: right;">{{creation_date_time}}</td>
     </tr>

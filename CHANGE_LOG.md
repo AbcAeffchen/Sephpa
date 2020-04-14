@@ -19,11 +19,6 @@ debit files).
 - new: support for pain.008.001.02.austrian.003
 - new: an autoloader file that can be used out of the box if you don't want to use composer.
 - new: SephpaMultiFile class to easier handle multiple Sephpa files.
-- **changed**: SEPA files no longer Support multiple collections. This change was made because the
-banks seem not to support this feature of the file scheme and either split the files up them self
-or just don't take the file and request the user to split the files up.
-So the `addCollection` function was removed. You now need to create a new Sephpa object if you
-need a new collection or use the new multi file class. 
 - new: all store/download functions have now the option to store documentation files as PDF. To
 use this you have to also install the package `SepaDocumentor`. See the readme for
 an example.  

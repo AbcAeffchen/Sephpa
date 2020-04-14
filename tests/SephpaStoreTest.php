@@ -12,7 +12,6 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/TestDataProvider.php';
 
-use AbcAeffchen\SepaUtilities\SepaUtilities;
 use Mpdf\MpdfException;
 use AbcAeffchen\Sephpa\{SephpaCreditTransfer, SephpaDirectDebit, SephpaInputException, SephpaMultiFile};
 
@@ -57,15 +56,15 @@ class SephpaStoreTest extends PHPUnit\Framework\TestCase
 
         $sephpaMultiFile = new SephpaMultiFile();
         $creditTransferFile = $sephpaMultiFile->addCreditTransferFile('Initiator Name', 'MessageID-1234',
-                                                                      SephpaCreditTransfer::SEPA_PAIN_001_001_03,
-                                                                      TDP::getCreditTransferData(false, false), [], true);
+                                                                      SephpaCreditTransfer::SEPA_PAIN_001_001_03, [], true);
         $directDebitFile = $sephpaMultiFile->addDirectDebitFile('Initiator Name',
                                                                 'MessageID-1235',
-                                                                SephpaDirectDebit::SEPA_PAIN_008_001_02,
-                                                                TDP::getDirectDebitData(false, false), [], true);
+                                                                SephpaDirectDebit::SEPA_PAIN_008_001_02, [], true);
 
-        $creditTransferFile->addPayment(TDP::getCreditTransferPaymentData(false, false));
-        $directDebitFile->addPayment(TDP::getDirectDebitPaymentData(false, false));
+        $creditTransferFile->addCollection(TDP::getCreditTransferData(false, false))
+                           ->addPayment(TDP::getCreditTransferPaymentData(false, false));
+        $directDebitFile->addCollection(TDP::getDirectDebitData(false, false))
+                        ->addPayment(TDP::getDirectDebitPaymentData(false, false));
 
         $this->assertNull($sephpaMultiFile->store(__DIR__ . DIRECTORY_SEPARATOR . 'output',
                                                   ['addFileRoutingSlip' => true,

@@ -127,11 +127,11 @@ class TestDataProvider
     public static function getCreditTransferFile($version, $addBIC, $addOptionalData, $checkAndSanitize, $orgId = [])
     {
         $creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
-                                                       $version,
-                                                       self::getCreditTransferData($addBIC, $addOptionalData),
-                                                       $orgId, $checkAndSanitize);
+                                                       $version, $orgId, $checkAndSanitize);
 
-        $creditTransferFile->addPayment(self::getCreditTransferPaymentData($addBIC, $addOptionalData));
+        $ctCollection = $creditTransferFile->addCollection(self::getCreditTransferData($addBIC, $addOptionalData));
+
+        $ctCollection->addPayment(self::getCreditTransferPaymentData($addBIC, $addOptionalData));
 
         return $creditTransferFile;
     }
@@ -139,10 +139,11 @@ class TestDataProvider
     /**
      * Generates test data for all tests of the Direct Debit classes.
      *
-     * @param int  $version Use SephpaDirectDebit::SEPA_PAIN_008_* constants
-     * @param bool $addBIC
-     * @param bool $addOptionalData
-     * @param bool $checkAndSanitize
+     * @param int   $version Use SephpaDirectDebit::SEPA_PAIN_008_* constants
+     * @param bool  $addBIC
+     * @param bool  $addOptionalData
+     * @param bool  $checkAndSanitize
+     * @param array $orgId
      * @return SephpaDirectDebit
      * @throws SephpaInputException
      */
@@ -150,10 +151,11 @@ class TestDataProvider
     {
         // generate a SepaDirectDebit object (pain.008.002.02).
         $directDebitFile = new SephpaDirectDebit('Initiator Name', 'MessageID-1235', $version,
-                                                 self::getDirectDebitData($addBIC, $addOptionalData),
                                                  $orgId, $checkAndSanitize);
 
-        $directDebitFile->addPayment(self::getDirectDebitPaymentData($addBIC, $addOptionalData));
+        $debitCollection = $directDebitFile->addCollection(self::getDirectDebitData($addBIC, $addOptionalData));
+
+        $debitCollection->addPayment(self::getDirectDebitPaymentData($addBIC, $addOptionalData));
 
         return $directDebitFile;
     }
