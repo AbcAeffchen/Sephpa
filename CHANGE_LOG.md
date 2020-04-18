@@ -11,7 +11,7 @@ to the new version, since version 1 is no longer supported.
 - new: support for pain.001.001.03 and pain.008.001.02<br>
 Notice that this implementation fits the new german standard that is valid from November 2016. 
 It is said that this is compatible with the formats with the same name from 2009 that is used 
-in many other countries but germany. But since it has less restrictions than the file format 
+in many other countries but germany. But since it has fewer restrictions than the file format 
 from 2009, you can choose witch one you need via the SepaUtilities constants `SEPA_PAIN_001_001_03`
 for the old version and `SEPA_PAIN_001_001_03_GBIC` for the new german version of SEPA credit 
 transfer files (respectively `SEPA_PAIN_001_001_03` and `SEPA_PAIN_001_001_03_GBIC` for direct 
@@ -23,8 +23,11 @@ debit files).
 use this you have to also install the package `SepaDocumentor`. See the readme for
 an example.  
 It also supports to download multiple files as a single zip file.
-- new: `orgId > BICOrBEI` and `orgId > Othr > Id` are supported on the file level. This is needed in some countries.
-But it is highly recommended not to use it unless your bank requires this and you know what you 
+- new: `orgId > BICOrBEI` and `orgId > Othr > Id` are supported on the file level. This is needed in some countries.  
+It is *highly recommended not to use it* unless your bank requires this and you know what you 
+are doing. 
+- new: `InitgPtyId` is supported on the file level. This is also needed in some countries.  
+It is *highly recommended not to use it* unless your bank requires this and you know what you 
 are doing. 
 - fixed: invalid xml file if checkAndSanitize is turned off and `AmdmntInd` is not provided (issue #6)
 - fixed: some minor bugs no one seems to have noticed yet.

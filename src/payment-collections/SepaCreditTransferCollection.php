@@ -3,13 +3,18 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2018 Alexander Schickedanz
+ * @copyright ©2020 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 namespace AbcAeffchen\Sephpa\PaymentCollections;
+
+use AbcAeffchen\SepaUtilities\SepaUtilities;
+use DateTime;
+use Exception;
+use SimpleXMLElement;
 
 abstract class SepaCreditTransferCollection implements SepaPaymentCollection
 {
@@ -88,22 +93,24 @@ abstract class SepaCreditTransferCollection implements SepaPaymentCollection
     /**
      * Generates the xml for the collection using generatePaymentXml
      *
-     * @param \SimpleXMLElement $pmtInf The PmtInf-Child of the xml object
+     * @param SimpleXMLElement $pmtInf The PmtInf-Child of the xml object
      * @return void
      */
-    abstract public function generateCollectionXml(\SimpleXMLElement $pmtInf);
+    abstract public function generateCollectionXml(SimpleXMLElement $pmtInf);
 
     /**
-     * Generate an array of arrays containing all data relevant to the file routing slip and control list.
+     * Generate an array of arrays containing all data relevant to the file routing slip and
+     * control list.
      *
      * @param string $dateFormat @see date() for details.
      * @return string[]
+     * @throws Exception
      */
     public function getCollectionData($dateFormat)
     {
         $data = ['due_date' => empty($this->transferInfo['reqdExctnDt'])
-                     ? \DateTime::createFromFormat('Y-m-d', \AbcAeffchen\SepaUtilities\SepaUtilities::getDateWithOffset(1))->format($dateFormat)
-                     : \DateTime::createFromFormat('Y-m-d', $this->transferInfo['reqdExctnDt'])->format($dateFormat),
+                     ? DateTime::createFromFormat('Y-m-d', SepaUtilities::getDateWithOffset(1))->format($dateFormat)
+                     : DateTime::createFromFormat('Y-m-d', $this->transferInfo['reqdExctnDt'])->format($dateFormat),
                  'collection_reference' => $this->transferInfo['pmtInfId'],
                  'debtor_name' => $this->transferInfo['dbtr'],
                  'iban' => $this->transferInfo['iban']];
@@ -118,7 +125,7 @@ abstract class SepaCreditTransferCollection implements SepaPaymentCollection
      * Generate an array of arrays containing all transaction data relevant to the control list.
      *
      * @param string[] $moneyFormat Array containing the keys `currency`, `dec_point` and `thousands_sep`.
-     * @return \string[][]
+     * @return string[]
      */
     public function getTransactionData(array $moneyFormat)
     {

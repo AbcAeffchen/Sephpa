@@ -54,22 +54,26 @@ class SephpaDirectDebit extends Sephpa
     /**
      * Creates a SepaXmlFile object and sets the head data
      *
-     * @param string   $initgPty  The name of the initiating party (max. 70 characters)
-     * @param string   $msgId     The unique id of the file
-     * @param int      $version   Sets the type and version of the sepa file. Use the SEPA_PAIN_*
-     *                            constants
-     * @param string[] $orgId     It is not recommended to use this at all. If you have to use
-     *                            this, the standard only allows one of the two. If you provide
-     *                            both, options, both will be included in the SEPA file. So
-     *                            only use this if you know what you do. Available keys:
-     *                            - `id`: An Identifier of the organisation.
-     *                            - `bob`: A BIC or BEI that identifies the organisation.
+     * @param string   $initgPty   The name of the initiating party (max. 70 characters)
+     * @param string   $msgId      The unique id of the file
+     * @param int      $version    Sets the type and version of the sepa file. Use the SEPA_PAIN_*
+     *                             constants
+     * @param string[] $orgId      It is not recommended to use this at all. If you have to use
+     *                             this, the standard only allows one of the two. If you provide
+     *                             both, options, both will be included in the SEPA file. So
+     *                             only use this if you know what you do. Available keys:
+     *                             - `id`: An Identifier of the organisation.
+     *                             - `bob`: A BIC or BEI that identifies the organisation.
+     * @param string   $initgPtyId An ID of the initiating party (max. 35 characters)
      * @param bool     $checkAndSanitize
      * @throws SephpaInputException
      */
-    public function __construct($initgPty, $msgId, int $version, array $orgId = [], $checkAndSanitize = true)
+    public function __construct($initgPty, $msgId, int $version, array $orgId = [], $initgPtyId = null, $checkAndSanitize = true)
     {
-        parent::__construct($initgPty, $msgId, $orgId, $checkAndSanitize);
+        if($version === self::SEPA_PAIN_008_001_02_AUSTRIAN_003 && $initgPtyId !== null)
+            throw new SephpaInputException('$initgPtyId is not supported by pain.008.001.02.austrian.003.');
+
+        parent::__construct($initgPty, $msgId, $orgId, $initgPtyId, $checkAndSanitize);
 
         $this->paymentType = 'CstmrDrctDbtInitn';
 

@@ -1,4 +1,5 @@
-<?php /**
+<?php
+/**
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
@@ -6,13 +7,15 @@
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
- */ /** @noinspection PhpUnhandledExceptionInspection */
+ */
+
+/** @noinspection PhpUnhandledExceptionInspection */
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/TestDataProvider.php';
 
 use AbcAeffchen\SepaUtilities\SepaUtilities;
 use AbcAeffchen\Sephpa\{Sephpa, SephpaCreditTransfer, SephpaDirectDebit, SephpaInputException};
-
 use AbcAeffchen\Sephpa\TestDataProvider as TDP;
 
 class ReturnReferenceTestClass
@@ -30,12 +33,33 @@ class ReturnReferenceTestClass
 
     public function &getEnd()
     {
-        return $this->testArray[count($this->testArray)-1];
+        return $this->testArray[count($this->testArray) - 1];
     }
 }
 
 class SephpaTest extends PHPUnit\Framework\TestCase
 {
+    public function ctVersionProvider()
+    {
+        return [
+            'ct2' => [SephpaCreditTransfer::SEPA_PAIN_001_002_03, __DIR__ . '/schemata/pain.001.002.03.xsd'],
+            'ct3' => [SephpaCreditTransfer::SEPA_PAIN_001_003_03, __DIR__ . '/schemata/pain.001.003.03.xsd'],
+            'ct1' => [SephpaCreditTransfer::SEPA_PAIN_001_001_03, __DIR__ . '/schemata/pain.001.001.03.xsd'],
+            'ct1_gbic' => [SephpaCreditTransfer::SEPA_PAIN_001_001_03, __DIR__ . '/schemata/pain.001.001.03_GBIC.xsd']
+        ];
+    }
+
+    public function ddVersionProvider()
+    {
+        return [
+            'dd2' => [SephpaDirectDebit::SEPA_PAIN_008_002_02, __DIR__ . '/schemata/pain.008.002.02.xsd'],
+            'dd3' => [SephpaDirectDebit::SEPA_PAIN_008_003_02, __DIR__ . '/schemata/pain.008.003.02.xsd'],
+            'dd1' => [SephpaDirectDebit::SEPA_PAIN_008_001_02, __DIR__ . '/schemata/pain.008.001.02.xsd'],
+            'dd1_gbic' => [SephpaDirectDebit::SEPA_PAIN_008_001_02, __DIR__ . '/schemata/pain.008.001.02_GBIC.xsd'],
+            'dd1_austrian' => [SephpaDirectDebit::SEPA_PAIN_008_001_02_AUSTRIAN_003, __DIR__ . '/schemata/pain.008.001.02.austrian.003.xsd']
+        ];
+    }
+
     public function testEndReference()
     {
         $testObj = new ReturnReferenceTestClass();
@@ -114,16 +138,35 @@ class SephpaTest extends PHPUnit\Framework\TestCase
         return $domDoc;
     }
 
-    public function testOrgId()
+    /**
+     * @dataProvider ctVersionProvider
+     */
+    public function testOrgId($version, $xsdFile)
     {
-        $version = SephpaCreditTransfer::SEPA_PAIN_001_002_03;
-        $xsdFile = __DIR__ . '/schemata/pain.001.002.03.xsd';
         static::assertTrue($this->getDomDoc(TDP::getCreditTransferFile($version,true,true,true,[]))
                                 ->schemaValidate($xsdFile));
         static::assertTrue($this->getDomDoc(TDP::getCreditTransferFile($version,true,true,true,['id' => 'testID']))
                                 ->schemaValidate($xsdFile));
         static::assertTrue($this->getDomDoc(TDP::getCreditTransferFile($version,true,true,true,['bob' => 'BELADEBEXXX']))
                                 ->schemaValidate($xsdFile));
+    }
+
+    /**
+     * @dataProvider ctVersionProvider
+     * @dataProvider ddVersionProvider
+     */
+    public function testInitgPtyId($version, $xsdFile)
+    {
+        // InitgPtyId is not supported by pain.008.001.02.austrian.003
+        if($version === SepaUtilities::SEPA_PAIN_008_001_02_AUSTRIAN_003)
+            static::expectException(SephpaInputException::class);
+
+        if(SepaUtilities::version2transactionType($version) === SepaUtilities::SEPA_TRANSACTION_TYPE_CT)
+            static::assertTrue($this->getDomDoc(TDP::getCreditTransferFile($version,true,true,true,[],'InitgPtyId-123'))
+                                    ->schemaValidate($xsdFile));
+        else
+            static::assertTrue($this->getDomDoc(TDP::getDirectDebitFile($version,true,true,true,[],'InitgPtyId-123'))
+                                    ->schemaValidate($xsdFile));
     }
 
     public function testCreditTransfer00100203()

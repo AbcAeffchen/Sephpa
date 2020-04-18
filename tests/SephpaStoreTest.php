@@ -56,10 +56,10 @@ class SephpaStoreTest extends PHPUnit\Framework\TestCase
 
         $sephpaMultiFile = new SephpaMultiFile();
         $creditTransferFile = $sephpaMultiFile->addCreditTransferFile('Initiator Name', 'MessageID-1234',
-                                                                      SephpaCreditTransfer::SEPA_PAIN_001_001_03, [], true);
+                                                                      SephpaCreditTransfer::SEPA_PAIN_001_001_03, [], null, true);
         $directDebitFile = $sephpaMultiFile->addDirectDebitFile('Initiator Name',
                                                                 'MessageID-1235',
-                                                                SephpaDirectDebit::SEPA_PAIN_008_001_02, [], true);
+                                                                SephpaDirectDebit::SEPA_PAIN_008_001_02, [], null, true);
 
         $creditTransferFile->addCollection(TDP::getCreditTransferData(false, false))
                            ->addPayment(TDP::getCreditTransferPaymentData(false, false));

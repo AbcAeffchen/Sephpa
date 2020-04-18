@@ -26,32 +26,34 @@ class SephpaMultiFile
     private $files = [];
 
     /**
-     * @param string   $initgPty
-     * @param string   $msgId
-     * @param int      $version Use SephpaCreditTransfer::SEPA_PAIN_* constants
-     * @param array    $orgId
-     * @param bool     $checkAndSanitize
+     * @param string $initgPty
+     * @param string $msgId
+     * @param int    $version Use SephpaCreditTransfer::SEPA_PAIN_* constants
+     * @param array  $orgId
+     * @param string $initgPtyId
+     * @param bool   $checkAndSanitize
      * @return SephpaCreditTransfer
      * @throws SephpaInputException
      */
-    public function &addCreditTransferFile($initgPty, $msgId, $version, array $orgId = [], $checkAndSanitize = true) : SephpaCreditTransfer
+    public function &addCreditTransferFile($initgPty, $msgId, $version, array $orgId = [], $initgPtyId = null, $checkAndSanitize = true) : SephpaCreditTransfer
     {
-        $this->files[] = new SephpaCreditTransfer($initgPty, $msgId, $version, $orgId, $checkAndSanitize);
+        $this->files[] = new SephpaCreditTransfer($initgPty, $msgId, $version, $orgId, $initgPtyId, $checkAndSanitize);
         return $this->files[count($this->files) - 1];
     }
 
     /**
-     * @param string   $initgPty
-     * @param string   $msgId
-     * @param int      $version Use SephpaDirectDebit::SEPA_PAIN_* constants
-     * @param array    $orgId
-     * @param bool     $checkAndSanitize
+     * @param string $initgPty
+     * @param string $msgId
+     * @param int    $version Use SephpaDirectDebit::SEPA_PAIN_* constants
+     * @param array  $orgId
+     * @param string $initgPtyId
+     * @param bool   $checkAndSanitize
      * @return SephpaDirectDebit
      * @throws SephpaInputException
      */
-    public function &addDirectDebitFile($initgPty, $msgId, $version, array $orgId = [], $checkAndSanitize = true) : SephpaDirectDebit
+    public function &addDirectDebitFile($initgPty, $msgId, $version, array $orgId = [], $initgPtyId = null, $checkAndSanitize = true) : SephpaDirectDebit
     {
-        $this->files[] = new SephpaDirectDebit($initgPty, $msgId, $version,$orgId, $checkAndSanitize);
+        $this->files[] = new SephpaDirectDebit($initgPty, $msgId, $version, $orgId, $initgPtyId, $checkAndSanitize);
         return $this->files[count($this->files) - 1];
     }
 

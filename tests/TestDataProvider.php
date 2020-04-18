@@ -118,18 +118,19 @@ class TestDataProvider
     /**
      * Generates test data for all test of the Credit Transfer tests.
      *
-     * @param int   $version Use SephpaCreditTransfer::SEPA_PAIN_001_* constants
-     * @param bool  $addBIC
-     * @param bool  $addOptionalData
-     * @param bool  $checkAndSanitize
-     * @param array $orgId
+     * @param int    $version Use SephpaCreditTransfer::SEPA_PAIN_001_* constants
+     * @param bool   $addBIC
+     * @param bool   $addOptionalData
+     * @param bool   $checkAndSanitize
+     * @param array  $orgId
+     * @param string $initgPtyId
      * @return SephpaCreditTransfer
      * @throws SephpaInputException
      */
-    public static function getCreditTransferFile($version, $addBIC, $addOptionalData, $checkAndSanitize, $orgId = [])
+    public static function getCreditTransferFile($version, $addBIC, $addOptionalData, $checkAndSanitize, $orgId = [], $initgPtyId = null)
     {
         $creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
-                                                       $version, $orgId, $checkAndSanitize);
+                                                       $version, $orgId, $initgPtyId, $checkAndSanitize);
 
         $ctCollection = $creditTransferFile->addCollection(self::getCreditTransferData($addBIC, $addOptionalData));
 
@@ -141,19 +142,20 @@ class TestDataProvider
     /**
      * Generates test data for all tests of the Direct Debit classes.
      *
-     * @param int   $version Use SephpaDirectDebit::SEPA_PAIN_008_* constants
-     * @param bool  $addBIC
-     * @param bool  $addOptionalData
-     * @param bool  $checkAndSanitize
-     * @param array $orgId
+     * @param int    $version Use SephpaDirectDebit::SEPA_PAIN_008_* constants
+     * @param bool   $addBIC
+     * @param bool   $addOptionalData
+     * @param bool   $checkAndSanitize
+     * @param array  $orgId
+     * @param string $initgPtyId
      * @return SephpaDirectDebit
      * @throws SephpaInputException
      */
-    public static function getDirectDebitFile($version, $addBIC, $addOptionalData, $checkAndSanitize, $orgId = [])
+    public static function getDirectDebitFile($version, $addBIC, $addOptionalData, $checkAndSanitize, $orgId = [], $initgPtyId = null)
     {
         // generate a SepaDirectDebit object (pain.008.002.02).
         $directDebitFile = new SephpaDirectDebit('Initiator Name', 'MessageID-1235', $version,
-                                                 $orgId, $checkAndSanitize);
+                                                 $orgId, $initgPtyId, $checkAndSanitize);
 
         $debitCollection = $directDebitFile->addCollection(self::getDirectDebitData($addBIC, $addOptionalData));
 

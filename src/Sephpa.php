@@ -49,6 +49,10 @@ abstract class Sephpa
      */
     protected $initgPty;
     /**
+     * @type string $initgPtyId Id of the party that initiates the transfer (optional and not recommended)
+     */
+    protected $initgPtyId;
+    /**
      * @type string $msgId identify the Sepa file (unique id for all files)
      */
     protected $msgId;
@@ -76,39 +80,42 @@ abstract class Sephpa
     /**
      * Creates a SepaXmlFile object and sets the head data.
      *
-     * @param string   $initgPty The name of the initiating party (max. 70 characters)
-     * @param string   $msgId    The unique id of the file
-     * @param string[] $orgId    It is not recommended to use this at all. If you have to use
-     *                           this, the standard only allows one of the two keys. If you provide
-     *                           both, both will be included in the SEPA file. So
-     *                           only use this if you know what you do. Available keys:
-     *                           - `id`: An Identifier of the organisation.
-     *                           - `bob`: A BIC or BEI that identifies the organisation.
+     * @param string   $initgPty   The name of the initiating party (max. 70 characters)
+     * @param string   $msgId      The unique id of the file
+     * @param string[] $orgId      It is not recommended to use this at all. If you have to use
+     *                             this, the standard only allows one of the two keys. If you provide
+     *                             both, both will be included in the SEPA file. So
+     *                             only use this if you know what you do. Available keys:
+     *                             - `id`: An Identifier of the organisation.
+     *                             - `bob`: A BIC or BEI that identifies the organisation.
+     * @param string   $initgPtyId An ID of the initiating party (max. 35 characters)
      * @param bool     $checkAndSanitize
      * @throws SephpaInputException
      */
-    public function __construct($initgPty, $msgId, array $orgId = [], $checkAndSanitize = true)
+    protected function __construct($initgPty, $msgId, array $orgId = [], $initgPtyId = null, $checkAndSanitize = true)
     {
         $this->checkAndSanitize = $checkAndSanitize;
         $this->creationDateTime = (new DateTime())->format('Y-m-d\TH:i:s');
 
         if($this->checkAndSanitize)
         {
-            $this->initgPty = SepaUtilities::checkAndSanitize('initgpty', $initgPty);
-            $this->msgId    = SepaUtilities::checkAndSanitize('msgid', $msgId);
-            $this->orgId    = ['id' => isset($orgId['id']) ? SepaUtilities::checkAndSanitize('orgid_id', $orgId['id']) : '',
-                               'bob' =>isset($orgId['bob']) ? SepaUtilities::checkAndSanitize('orgid_bob', $orgId['bob']) : ''];
+            $this->initgPty   = SepaUtilities::checkAndSanitize('initgpty', $initgPty);
+            $this->initgPtyId = $initgPtyId === null ? null : SepaUtilities::checkAndSanitize('initgptyid', $initgPtyId);
+            $this->msgId      = SepaUtilities::checkAndSanitize('msgid', $msgId);
+            $this->orgId      = ['id' => isset($orgId['id']) ? SepaUtilities::checkAndSanitize('orgid_id', $orgId['id']) : '',
+                                 'bob' =>isset($orgId['bob']) ? SepaUtilities::checkAndSanitize('orgid_bob', $orgId['bob']) : ''];
 
-            if($this->initgPty === false || $this->msgId === false ||
+            if($this->initgPty === false || $this->initgPtyId === false || $this->msgId === false ||
                 (!empty($this->orgId) && ($this->orgId['id'] === false || $this->orgId['bob'] === false)))
                 throw new SephpaInputException('The input was invalid and couldn\'t be sanitized.');
         }
         else
         {
-            $this->initgPty = $initgPty;
-            $this->msgId    = $msgId;
-            $this->orgId    = ['id' => isset($orgId['id']) ?  $orgId['id'] : '',
-                               'bob' =>isset($orgId['bob']) ? $orgId['bob'] : ''];
+            $this->initgPty   = $initgPty;
+            $this->initgPtyId = $initgPtyId;
+            $this->msgId      = $msgId;
+            $this->orgId      = ['id'  => isset($orgId['id']) ? $orgId['id'] : '',
+                                 'bob' => isset($orgId['bob']) ? $orgId['bob'] : ''];
         }
     }
 
@@ -155,9 +162,16 @@ abstract class Sephpa
 
         $initgPty = $grpHdr->addChild('InitgPty');
         $initgPty->addChild('Nm', $this->initgPty);
+
+        if($this->initgPtyId !== null || !empty($this->orgId['bob']) || !empty($this->orgId['id']))
+            $initgPty->addChild('Id');
+
+        if($this->initgPtyId !== null)
+            $initgPty->Id->addChild('PrvtId')->addChild('Othr')->addChild('Id', $this->initgPtyId);
+
         if(!empty($this->orgId['bob']) || !empty($this->orgId['id']))
         {
-            $orgId = $initgPty->addChild('Id')->addChild('OrgId');
+            $orgId = $initgPty->Id->addChild('OrgId');
             if(!empty($this->orgId['id']))
                 $orgId->addChild('Othr')->addChild('Id', $this->orgId['id']);
             if(!empty($this->orgId['bob']))
