@@ -96,14 +96,16 @@ class SephpaMultiFile
         if(!class_exists('ZipArchive'))
             throw new SephpaInputException('You need the libzip extension (class ZipArchive) to zip multiple files.');
 
+        $options['zipToOneFile'] = false;
+
         $zip = new ZipArchive();
 
         $tmpFile = tempnam(sys_get_temp_dir(), 'sephpa');
         if($zip->open($tmpFile, ZipArchive::CREATE))
         {
-            foreach($this->files as &$file)
+            foreach($this->files as $file)
             {
-                foreach($file->generateOutput($options, false) as $item)
+                foreach($file->generateOutput($options) as $item)
                 {
                     $zip->addFromString($item['name'], $item['data']);
                 }

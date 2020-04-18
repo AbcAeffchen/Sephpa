@@ -139,7 +139,7 @@ abstract class Sephpa
     abstract protected function addCollection(array $information);
 
     /**
-     * Generates the XML file from the given data. All empty collections are skipped.
+     * Generates the XML string from the given data. All empty collections are skipped.
      *
      * @throws SephpaInputException
      * @return string Just the xml code of the file
@@ -206,6 +206,7 @@ abstract class Sephpa
         // sanitize options
         $options['addFileRoutingSlip'] = isset($options['addFileRoutingSlip']) && $options['addFileRoutingSlip'];
         $options['addControlList']     = isset($options['addControlList']) && $options['addControlList'];
+        $options['zipToOneFile']       = isset($options['zipToOneFile']) && $options['zipToOneFile'];
 
         // check dependencies
         if(($options['addFileRoutingSlip'] || $options['addControlList'])
@@ -226,29 +227,28 @@ abstract class Sephpa
     }
 
     /**
-     * @param array $options       possible fields:
-     *                             - (bool) `addFileRoutingSlip`: If true, a file routing slip will be
-     *                             added. Default ist false.
-     *                             - (string) `FRSTemplate`: The path to the template for the file routing
-     *                             slip. Default is the bundled file routing slip (german version).
-     *                             - (bool) `addControlList`: If true, a control list will be added.
-     *                             Default is false.
-     *                             - (string) `CLTemplate`: The path to the template for this control
-     *                             list. Default is the bundled control list template for either credit
-     *                             transfer of direct debit (german version).
-     *                             - (string[]) `moneyFormat`: Used to format amounts of money using
-     *                             sprintf() and number_format(). The array needs to have the following keys:
-     *                             `dec_point` (default is ','), `thousands_sep` (default is '.') and
-     *                             `currency` (default is '%s €')
-     *                             - (string) `dateFormat`: The format a date is represented in the PDF
-     *                             files. Default is 'd.m.Y'. See date() documentation for details.
-     * @param bool  $zipToOneFile  If true, multiple files get zipped to one file.
-     * @return string[]|string[][] Returns a file as a pair [name, data], if $zipToOneFile is true,
-     *                             else it is an array of such pairs.
+     * @param array $options possible fields:
+     *                       - (bool) `addFileRoutingSlip`: If true, a file routing slip will be
+     *                       added. Default ist false.
+     *                       - (string) `FRSTemplate`: The path to the template for the file routing
+     *                       slip. Default is the bundled file routing slip (german version).
+     *                       - (bool) `addControlList`: If true, a control list will be added.
+     *                       Default is false.
+     *                       - (string) `CLTemplate`: The path to the template for this control
+     *                       list. Default is the bundled control list template for either credit
+     *                       transfer of direct debit (german version).
+     *                       - (string[]) `moneyFormat`: Used to format amounts of money using
+     *                       sprintf() and number_format(). The array needs to have the following keys:
+     *                       `dec_point` (default is ','), `thousands_sep` (default is '.') and
+     *                       `currency` (default is '%s €')
+     *                       - (string) `dateFormat`: The format a date is represented in the PDF
+     *                       files. Default is 'd.m.Y'. See date() documentation for details.
+     *                       - (bool) `zipToOneFile`: If true, multiple files get zipped to one file.
+     * @return string[][]    Returns a a pair [name, data] for each file
      * @throws SephpaInputException
      * @throws MpdfException
      */
-    public function generateOutput(array $options, $zipToOneFile = true) : array
+    public function generateOutput(array $options = []) : array
     {
         $options = $this->sanitizeOutputOptions($options);
 
@@ -262,32 +262,27 @@ abstract class Sephpa
         if($options['addControlList'])
             $files = array_merge($files, $this->getControlLists($options));
 
-        if(!$zipToOneFile)
+        if(!$options['zipToOneFile'])
             return $files;
 
         // multiple files need to be joint to one zip file.
-        if(count($files) > 1)
+        if(!class_exists('ZipArchive'))
+            throw new SephpaInputException('You need the libzip extension (class ZipArchive) to download multiple files.');
+
+        $tmpFile = tempnam(sys_get_temp_dir(), 'sephpa');
+        $zip = new ZipArchive();
+        if($zip->open($tmpFile, ZipArchive::CREATE))
         {
-            if(!class_exists('ZipArchive'))
-                throw new SephpaInputException('You need the libzip extension (class ZipArchive) to download multiple files.');
-
-            $tmpFile = tempnam(sys_get_temp_dir(), 'sephpa');
-            $zip = new ZipArchive();
-            if($zip->open($tmpFile, ZipArchive::CREATE))
+            foreach($files as $file)
             {
-                foreach($files as $file)
-                {
-                    $zip->addFromString($file['name'], $file['data']);
-                }
-
-                $zip->close();
+                $zip->addFromString($file['name'], $file['data']);
             }
 
-            return ['name' => $this->getFileName() . '.zip',
-                    'data' => file_get_contents($tmpFile)];
+            $zip->close();
         }
 
-        return $files[0];
+        return [['name' => $this->getFileName() . '.zip',
+                'data' => file_get_contents($tmpFile)]];
     }
 
     /**
@@ -380,13 +375,17 @@ abstract class Sephpa
      * Generates the SEPA file and starts a download using the header 'Content-Disposition: attachment;'
      * The file will not stored on the server.
      *
-     * @param array $options @see generateOutput() for details.
+     * @param array $options @see generateOutput() for details. zipToOneFile is forced to be true
+     *                       if the settings lead to multiple files.
      * @throws SephpaInputException
      * @throws MpdfException
      */
     public function download($options = [])
     {
-        $file = $this->generateOutput($options, true);
+        if(($options['addControlList'] ?? false) || ($options['addFileRoutingSlip'] ?? false))
+            $options['zipToOneFile'] = true;
+
+        $file = $this->generateOutput($options)[0];
 
         header('Content-Disposition: attachment; filename="' . $file['name'] . '"');
         print $file['data'];
@@ -402,11 +401,14 @@ abstract class Sephpa
      */
     public function store($path, $options = [])
     {
-        $fileData = $this->generateOutput($options, true);
+        $files = $this->generateOutput($options);
 
-        $file = fopen($path . DIRECTORY_SEPARATOR . $fileData['name'], 'wb');
-        fwrite($file, $fileData['data']);
-        fclose($file);
+        foreach($files as $fileData)
+        {
+            $file = fopen($path . DIRECTORY_SEPARATOR . $fileData['name'], 'wb');
+            fwrite($file, $fileData['data']);
+            fclose($file);
+        }
     }
 
     /**

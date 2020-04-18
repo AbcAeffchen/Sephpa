@@ -35,7 +35,8 @@ class SephpaStoreTest extends PHPUnit\Framework\TestCase
         $file = TDP::getFile($version, true, true, true);
         $this->assertNull($file->store(__DIR__ . DIRECTORY_SEPARATOR . 'output',
                                        ['addFileRoutingSlip' => true,
-                                        'addControlList'     => true]));
+                                        'addControlList'     => true,
+                                        'zipToOneFile'       => true]));
 
         $version = SephpaDirectDebit::SEPA_PAIN_008_001_02;
         $file = TDP::getFile($version, true, true, true);
