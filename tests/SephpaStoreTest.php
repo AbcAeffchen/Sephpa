@@ -32,13 +32,13 @@ class SephpaStoreTest extends PHPUnit\Framework\TestCase
         // assertNull is the way to test if a function that returns nothing was executed without errors or exceptions.
 
         $version = SephpaCreditTransfer::SEPA_PAIN_001_001_03;
-        $file = TDP::getCreditTransferFile($version, true, true, true);
+        $file = TDP::getFile($version, true, true, true);
         $this->assertNull($file->store(__DIR__ . DIRECTORY_SEPARATOR . 'output',
                                        ['addFileRoutingSlip' => true,
                                         'addControlList'     => true]));
 
         $version = SephpaDirectDebit::SEPA_PAIN_008_001_02;
-        $file = TDP::getDirectDebitFile($version, true, true, true);
+        $file = TDP::getFile($version, true, true, true);
         $this->assertNull($file->store(__DIR__ . DIRECTORY_SEPARATOR . 'output',
                                        ['addFileRoutingSlip' => true,
                                         'addControlList'     => true]));

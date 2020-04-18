@@ -1,5 +1,4 @@
-<?php
-/**
+<?php /**
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
@@ -7,8 +6,15 @@
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
- */
-
+ */ /**
+ * Sephpa
+ *
+ * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
+ * @copyright ©2020 Alexander Schickedanz
+ * @link      https://github.com/AbcAeffchen/Sephpa
+ *
+ * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
+ */ /** @noinspection PhpComposerExtensionStubsInspection */
 /** @noinspection PhpUnhandledExceptionInspection */
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -42,21 +48,21 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     public function ctVersionProvider()
     {
         return [
-            'ct2' => [SephpaCreditTransfer::SEPA_PAIN_001_002_03, __DIR__ . '/schemata/pain.001.002.03.xsd'],
-            'ct3' => [SephpaCreditTransfer::SEPA_PAIN_001_003_03, __DIR__ . '/schemata/pain.001.003.03.xsd'],
-            'ct1' => [SephpaCreditTransfer::SEPA_PAIN_001_001_03, __DIR__ . '/schemata/pain.001.001.03.xsd'],
-            'ct1_gbic' => [SephpaCreditTransfer::SEPA_PAIN_001_001_03, __DIR__ . '/schemata/pain.001.001.03_GBIC.xsd']
+            '001.002.03' => [SephpaCreditTransfer::SEPA_PAIN_001_002_03, __DIR__ . '/schemata/pain.001.002.03.xsd'],
+            '001.003.03' => [SephpaCreditTransfer::SEPA_PAIN_001_003_03, __DIR__ . '/schemata/pain.001.003.03.xsd'],
+            '001.001.03' => [SephpaCreditTransfer::SEPA_PAIN_001_001_03, __DIR__ . '/schemata/pain.001.001.03.xsd'],
+            '001.001.03_GBIC' => [SephpaCreditTransfer::SEPA_PAIN_001_001_03, __DIR__ . '/schemata/pain.001.001.03_GBIC.xsd']
         ];
     }
 
     public function ddVersionProvider()
     {
         return [
-            'dd2' => [SephpaDirectDebit::SEPA_PAIN_008_002_02, __DIR__ . '/schemata/pain.008.002.02.xsd'],
-            'dd3' => [SephpaDirectDebit::SEPA_PAIN_008_003_02, __DIR__ . '/schemata/pain.008.003.02.xsd'],
-            'dd1' => [SephpaDirectDebit::SEPA_PAIN_008_001_02, __DIR__ . '/schemata/pain.008.001.02.xsd'],
-            'dd1_gbic' => [SephpaDirectDebit::SEPA_PAIN_008_001_02, __DIR__ . '/schemata/pain.008.001.02_GBIC.xsd'],
-            'dd1_austrian' => [SephpaDirectDebit::SEPA_PAIN_008_001_02_AUSTRIAN_003, __DIR__ . '/schemata/pain.008.001.02.austrian.003.xsd']
+            '008.002.02' => [SephpaDirectDebit::SEPA_PAIN_008_002_02, __DIR__ . '/schemata/pain.008.002.02.xsd'],
+            '008.003.02' => [SephpaDirectDebit::SEPA_PAIN_008_003_02, __DIR__ . '/schemata/pain.008.003.02.xsd'],
+            '008.001.02' => [SephpaDirectDebit::SEPA_PAIN_008_001_02, __DIR__ . '/schemata/pain.008.001.02.xsd'],
+            '008.001.02_GBIC' => [SephpaDirectDebit::SEPA_PAIN_008_001_02, __DIR__ . '/schemata/pain.008.001.02_GBIC.xsd'],
+            'pain.008.001.02.austrian.003' => [SephpaDirectDebit::SEPA_PAIN_008_001_02_AUSTRIAN_003, __DIR__ . '/schemata/pain.008.001.02.austrian.003.xsd']
         ];
     }
 
@@ -114,7 +120,7 @@ class SephpaTest extends PHPUnit\Framework\TestCase
      * @return mixed
      * @throws ReflectionException
      */
-    private function invokeGenerateXml(Sephpa &$object)
+    private function invokeGenerateXml(Sephpa $object)
     {
         $reflection = new ReflectionClass(get_class($object));
         $method = $reflection->getMethod('generateXml');
@@ -139,21 +145,47 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     }
 
     /**
-     * @dataProvider ctVersionProvider
+     * @param Sephpa $sephpaFile
+     * @param string $xsdFile
+     * @throws ReflectionException
      */
-    public function testOrgId($version, $xsdFile)
+    private function validateSchema(Sephpa $sephpaFile, string $xsdFile)
     {
-        static::assertTrue($this->getDomDoc(TDP::getCreditTransferFile($version,true,true,true,[]))
-                                ->schemaValidate($xsdFile));
-        static::assertTrue($this->getDomDoc(TDP::getCreditTransferFile($version,true,true,true,['id' => 'testID']))
-                                ->schemaValidate($xsdFile));
-        static::assertTrue($this->getDomDoc(TDP::getCreditTransferFile($version,true,true,true,['bob' => 'BELADEBEXXX']))
-                                ->schemaValidate($xsdFile));
+        static::assertTrue($this->getDomDoc($sephpaFile)->schemaValidate($xsdFile));
     }
 
     /**
      * @dataProvider ctVersionProvider
      * @dataProvider ddVersionProvider
+     * @param $version
+     * @param $xsdFile
+     * @throws ReflectionException
+     * @throws SephpaInputException
+     */
+    public function testOrgId($version, $xsdFile)
+    {
+        $this->validateSchema(TDP::getFile($version, true, true, true, []), $xsdFile);
+        $this->validateSchema(TDP::getFile($version, true, true, true, ['id' => 'testID']), $xsdFile);
+        $this->validateSchema(TDP::getFile($version, true, true, true, ['bob' => 'BELADEBEXXX']), $xsdFile);
+
+        try
+        {
+            TDP::getFile($version, true, true, true, ['id'  => 'testID', 'bob' => 'BELADEBEXXX']);
+            static::fail('Exception was not thrown...');
+        }
+        catch(SephpaInputException $e)
+        {
+            static::assertSame('You cannot use orgid[id] and orgid[bob] simultaneously.', $e->getMessage());
+        }
+    }
+
+    /**
+     * @dataProvider ctVersionProvider
+     * @dataProvider ddVersionProvider
+     * @param $version
+     * @param $xsdFile
+     * @throws ReflectionException
+     * @throws SephpaInputException
      */
     public function testInitgPtyId($version, $xsdFile)
     {
@@ -161,136 +193,44 @@ class SephpaTest extends PHPUnit\Framework\TestCase
         if($version === SepaUtilities::SEPA_PAIN_008_001_02_AUSTRIAN_003)
             static::expectException(SephpaInputException::class);
 
-        if(SepaUtilities::version2transactionType($version) === SepaUtilities::SEPA_TRANSACTION_TYPE_CT)
-            static::assertTrue($this->getDomDoc(TDP::getCreditTransferFile($version,true,true,true,[],'InitgPtyId-123'))
-                                    ->schemaValidate($xsdFile));
-        else
-            static::assertTrue($this->getDomDoc(TDP::getDirectDebitFile($version,true,true,true,[],'InitgPtyId-123'))
-                                    ->schemaValidate($xsdFile));
+        $this->validateSchema(TDP::getFile($version, true, true, true, [], 'InitgPtyId-123'),
+                              $xsdFile);
     }
 
-    public function testCreditTransfer00100203()
+    /**
+     * @dataProvider ctVersionProvider
+     * @dataProvider ddVersionProvider
+     * @param $version
+     * @param $xsdFile
+     * @throws ReflectionException
+     * @throws SephpaInputException
+     */
+    public function testBasicFileValidity($version, $xsdFile)
     {
-        $version = SephpaCreditTransfer::SEPA_PAIN_001_002_03;
-        $xsdFile = __DIR__ . '/schemata/pain.001.002.03.xsd';
-        foreach($this->generateBooleanCombinations(2) as $b)
-            static::assertTrue($this->getDomDoc(TDP::getCreditTransferFile($version, true, $b[1], $b[0]))
-                                    ->schemaValidate($xsdFile));
+        $bicRequired = in_array($version, [SephpaCreditTransfer::SEPA_PAIN_001_002_03,
+                                           SephpaDirectDebit::SEPA_PAIN_008_002_02]);
 
-        // check for behavior about missing BIC
-        $exceptionCounter = 0;
-
-        foreach($this->generateBooleanCombinations(2) as $b)
-            try { $this->getDomDoc(TDP::getCreditTransferFile($version, false, $b[1], $b[0])); }
-            catch(SephpaInputException $e) { $exceptionCounter++; }
-
-        static::assertSame(4, $exceptionCounter);
-
-        // check if file contend is independent from checkAndSanitize
-        foreach([true, false] as $b)
-            static::assertSame($this->getDomDoc(TDP::getCreditTransferFile($version, true, $b, false))->saveXML(),
-                               $this->getDomDoc(TDP::getCreditTransferFile($version, true, $b, true))->saveXML());
-    }
-
-    public function testCreditTransfer00100303()
-    {
-        $version = SephpaCreditTransfer::SEPA_PAIN_001_003_03;
-        $xsdFile = __DIR__ . '/schemata/pain.001.003.03.xsd';
-        foreach($this->generateBooleanCombinations(3) as $b)
-            static::assertTrue($this->getDomDoc(TDP::getCreditTransferFile($version, $b[2], $b[1], $b[0]))
-                                    ->schemaValidate($xsdFile));
-
-        // check if file content is independent from checkAndSanitize
-        foreach($this->generateBooleanCombinations(2) as $b)
-            static::assertSame($this->getDomDoc(TDP::getCreditTransferFile($version, $b[1], $b[0], false))->saveXML(),
-                               $this->getDomDoc(TDP::getCreditTransferFile($version, $b[1], $b[0], true))->saveXML());
-    }
-
-    public function testCreditTransfer00100103()
-    {
-        $version = SephpaCreditTransfer::SEPA_PAIN_001_001_03;
-        foreach(['pain.001.001.03', 'pain.001.001.03_GBIC'] as $xsdFileVersion)
+        // validate against schema
+        foreach($this->generateBooleanCombinations(3) as [$bic, $opt, $check])
         {
-            $xsdFile = __DIR__ . '/schemata/' . $xsdFileVersion . '.xsd';
-            foreach($this->generateBooleanCombinations(3) as $b)
-                static::assertTrue($this->getDomDoc(TDP::getCreditTransferFile($version, $b[2], $b[1], $b[0]))
-                                        ->schemaValidate($xsdFile));
+            try
+            {
+                $this->validateSchema(TDP::getFile($version, $bic, $opt, $check), $xsdFile);
+            }
+            catch(SephpaInputException $e)
+            {
+                static::assertTrue($bicRequired && !$bic);
+            }
         }
 
-        // check if file contend is independent from checkAndSanitize
-        foreach($this->generateBooleanCombinations(2) as $b)
-            static::assertSame($this->getDomDoc(TDP::getCreditTransferFile($version, $b[1], $b[0], false))->saveXML(),
-                               $this->getDomDoc(TDP::getCreditTransferFile($version, $b[1], $b[0], true))->saveXML());
-    }
-
-    public function testDirectDebit00800202()
-    {
-        $version = SephpaDirectDebit::SEPA_PAIN_008_002_02;
-        $xsdFile = __DIR__ . '/schemata/pain.008.002.02.xsd';
-
-        foreach($this->generateBooleanCombinations(2) as $b)
-            static::assertTrue($this->getDomDoc(TDP::getDirectDebitFile($version, true, $b[1], $b[0]))
-                                    ->schemaValidate($xsdFile));
-
-        // check for behavior about missing BIC
-        $exceptionCounter = 0;
-
-        foreach($this->generateBooleanCombinations(2) as $b)
-            try { $this->getDomDoc(TDP::getDirectDebitFile($version, false, $b[1], $b[0])); }
-            catch(SephpaInputException $e) { $exceptionCounter++; }
-
-        static::assertSame(4, $exceptionCounter);
-
-        // check if file contend is independent from checkAndSanitize
-        foreach([true, false] as $b)
-            static::assertSame($this->getDomDoc(TDP::getDirectDebitFile($version,true,$b,false))->saveXML(),
-                               $this->getDomDoc(TDP::getDirectDebitFile($version,true,$b,true))->saveXML());
-    }
-
-    public function testDirectDebit00800302()
-    {
-        $version = SephpaDirectDebit::SEPA_PAIN_008_003_02;
-        $xsdFile = __DIR__ . '/schemata/pain.008.003.02.xsd';
-
-        foreach($this->generateBooleanCombinations(3) as $b)
-            static::assertTrue($this->getDomDoc(TDP::getDirectDebitFile($version, $b[2], $b[1], $b[0]))
-                                    ->schemaValidate($xsdFile));
-
-        // check if file contend is independent from checkAndSanitize
-        foreach($this->generateBooleanCombinations(2) as $b)
-            static::assertSame($this->getDomDoc(TDP::getDirectDebitFile($version, $b[1], $b[0], false))->saveXML(),
-                               $this->getDomDoc(TDP::getDirectDebitFile($version, $b[1], $b[0], true))->saveXML());
-    }
-
-    public function testDirectDebit00800102()
-    {
-        $version = SephpaDirectDebit::SEPA_PAIN_008_001_02;
-        foreach(['pain.008.001.02', 'pain.008.001.02_GBIC'] as $xsdFileVersion)
+        // check that checking does not change the result.
+        foreach($this->generateBooleanCombinations(2) as [$bic, $opt])
         {
-            $xsdFile = __DIR__ . '/schemata/' . $xsdFileVersion . '.xsd';
-            foreach($this->generateBooleanCombinations(3) as $b)
-                static::assertTrue($this->getDomDoc(TDP::getDirectDebitFile($version, $b[2], $b[1], $b[0]))
-                                        ->schemaValidate($xsdFile));
+            if($bicRequired && !$bic)
+                continue;
+
+            static::assertSame($this->getDomDoc(TDP::getFile($version, $bic, $opt, false))->saveXML(),
+                               $this->getDomDoc(TDP::getFile($version, $bic, $opt, true))->saveXML());
         }
-
-        // check if file contend is independent from checkAndSanitize
-        foreach($this->generateBooleanCombinations(2) as $b)
-            static::assertSame($this->getDomDoc(TDP::getDirectDebitFile($version, $b[1], $b[0], false))->saveXML(),
-                               $this->getDomDoc(TDP::getDirectDebitFile($version, $b[1], $b[0], true))->saveXML());
-    }
-
-    public function testDirectDebit00800102Austrian003()
-    {
-        $version = SephpaDirectDebit::SEPA_PAIN_008_001_02_AUSTRIAN_003;
-        $xsdFile = __DIR__ . '/schemata/pain.008.001.02.austrian.003.xsd';
-
-        foreach($this->generateBooleanCombinations(3) as $b)
-            static::assertTrue($this->getDomDoc(TDP::getDirectDebitFile($version, $b[2], $b[1], $b[0]))
-                                    ->schemaValidate($xsdFile));
-
-        // check if file contend is independent from checkAndSanitize
-        foreach($this->generateBooleanCombinations(2) as $b)
-            static::assertSame($this->getDomDoc(TDP::getDirectDebitFile($version, $b[1], $b[0], false))->saveXML(),
-                               $this->getDomDoc(TDP::getDirectDebitFile($version, $b[1], $b[0], true))->saveXML());
     }
 }

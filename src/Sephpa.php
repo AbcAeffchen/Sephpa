@@ -83,9 +83,8 @@ abstract class Sephpa
      * @param string   $initgPty   The name of the initiating party (max. 70 characters)
      * @param string   $msgId      The unique id of the file
      * @param string[] $orgId      It is not recommended to use this at all. If you have to use
-     *                             this, the standard only allows one of the two keys. If you provide
-     *                             both, both will be included in the SEPA file. So
-     *                             only use this if you know what you do. Available keys:
+     *                             this, the standard only allows one of the two keys.
+     *                             Only use this if you know what you do. Available keys:
      *                             - `id`: An Identifier of the organisation.
      *                             - `bob`: A BIC or BEI that identifies the organisation.
      * @param string   $initgPtyId An ID of the initiating party (max. 35 characters)
@@ -94,6 +93,9 @@ abstract class Sephpa
      */
     protected function __construct($initgPty, $msgId, array $orgId = [], $initgPtyId = null, $checkAndSanitize = true)
     {
+        if(isset($orgId['id'], $orgId['bob']))
+            throw new SephpaInputException('You cannot use orgid[id] and orgid[bob] simultaneously.');
+
         $this->checkAndSanitize = $checkAndSanitize;
         $this->creationDateTime = (new DateTime())->format('Y-m-d\TH:i:s');
 
