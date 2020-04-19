@@ -56,11 +56,15 @@ class SephpaStoreTest extends PHPUnit\Framework\TestCase
         // assertNull is the way to test if a function that returns nothing was executed without errors or exceptions.
 
         $sephpaMultiFile = new SephpaMultiFile();
-        $creditTransferFile = $sephpaMultiFile->addCreditTransferFile('Initiator Name', 'MessageID-1234',
-                                                                      SephpaCreditTransfer::SEPA_PAIN_001_001_03, [], null, true);
-        $directDebitFile = $sephpaMultiFile->addDirectDebitFile('Initiator Name',
-                                                                'MessageID-1235',
-                                                                SephpaDirectDebit::SEPA_PAIN_008_001_02, [], null, true);
+        $creditTransferFile = $sephpaMultiFile->addFile('Initiator Name', 'MessageID-1234',
+                                                        SephpaCreditTransfer::SEPA_PAIN_001_001_03,
+                                                        [], null, true);
+        static::assertSame('AbcAeffchen\Sephpa\SephpaCreditTransfer', get_class($creditTransferFile));
+
+        $directDebitFile = $sephpaMultiFile->addFile('Initiator Name', 'MessageID-1235',
+                                                     SephpaDirectDebit::SEPA_PAIN_008_001_02,
+                                                     [], null, true);
+        static::assertSame('AbcAeffchen\Sephpa\SephpaDirectDebit', get_class($directDebitFile));
 
         $creditTransferFile->addCollection(TDP::getCreditTransferData(false, false))
                            ->addPayment(TDP::getCreditTransferPaymentData(false, false));

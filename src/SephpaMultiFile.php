@@ -11,6 +11,7 @@
 
 namespace AbcAeffchen\Sephpa;
 
+use AbcAeffchen\SepaUtilities\SepaUtilities;
 use ZipArchive;
 
 /**
@@ -30,28 +31,15 @@ class SephpaMultiFile
      * @param array  $orgId
      * @param string $initgPtyId
      * @param bool   $checkAndSanitize
-     * @return SephpaCreditTransfer
+     * @return SephpaCreditTransfer|SephpaDirectDebit
      * @throws SephpaInputException
      */
-    public function &addCreditTransferFile($initgPty, $msgId, $version, array $orgId = [], $initgPtyId = null, $checkAndSanitize = true) : SephpaCreditTransfer
+    public function &addFile($initgPty, $msgId, $version, array $orgId = [], $initgPtyId = null, $checkAndSanitize = true) : Sephpa
     {
-        $this->files[] = new SephpaCreditTransfer($initgPty, $msgId, $version, $orgId, $initgPtyId, $checkAndSanitize);
-        return $this->files[count($this->files) - 1];
-    }
-
-    /**
-     * @param string $initgPty
-     * @param string $msgId
-     * @param int    $version Use SephpaDirectDebit::SEPA_PAIN_* constants
-     * @param array  $orgId
-     * @param string $initgPtyId
-     * @param bool   $checkAndSanitize
-     * @return SephpaDirectDebit
-     * @throws SephpaInputException
-     */
-    public function &addDirectDebitFile($initgPty, $msgId, $version, array $orgId = [], $initgPtyId = null, $checkAndSanitize = true) : SephpaDirectDebit
-    {
-        $this->files[] = new SephpaDirectDebit($initgPty, $msgId, $version, $orgId, $initgPtyId, $checkAndSanitize);
+        $class = SepaUtilities::version2transactionType($version) === SepaUtilities::SEPA_TRANSACTION_TYPE_CT
+            ? 'AbcAeffchen\Sephpa\SephpaCreditTransfer'
+            : 'AbcAeffchen\Sephpa\SephpaDirectDebit';
+        $this->files[] = new $class($initgPty, $msgId, $version, $orgId, $initgPtyId, $checkAndSanitize);
         return $this->files[count($this->files) - 1];
     }
 
