@@ -12,7 +12,6 @@
 namespace AbcAeffchen\Sephpa;
 
 use DateTime;
-use Mpdf\MpdfException;
 use ZipArchive;
 
 /**
@@ -58,9 +57,10 @@ class SephpaMultiFile
     }
 
     /**
-     * @param array $options @see Sephpa::generateOutput() for details.
+     * @param string $filename The name of the file that will be downloaded, including extension.
+     * @param array  $options @see Sephpa::generateOutput() for details.
      * @throws SephpaInputException
-     * @throws MpdfException
+     * @throws \Mpdf\MpdfException
      */
     public function download(array $options = [])
     {
@@ -74,7 +74,7 @@ class SephpaMultiFile
      * @param string $path
      * @param array  $options @see Sephpa::generateOutput() for details.
      * @throws SephpaInputException
-     * @throws MpdfException
+     * @throws \Mpdf\MpdfException
      */
     public function store($path, array $options = [])
     {
@@ -89,7 +89,7 @@ class SephpaMultiFile
      * @param array $options    @see Sephpa::generateOutput() for details
      * @return string[] [name, data]
      * @throws SephpaInputException
-     * @throws MpdfException
+     * @throws \Mpdf\MpdfException
      */
     private function generateCombinedZipFile(array $options)
     {

@@ -15,8 +15,6 @@ use AbcAeffchen\SepaDocumentor\ControlList;
 use AbcAeffchen\SepaDocumentor\FileRoutingSlip;
 use AbcAeffchen\SepaUtilities\SepaUtilities;
 use DateTime;
-use Exception;
-use Mpdf\MpdfException;
 use ZipArchive;
 
 // Set default Timezone
@@ -25,7 +23,7 @@ date_default_timezone_set(@date_default_timezone_get());
 /**
  * Class SephpaInputException thrown if an invalid input is detected
  */
-class SephpaInputException extends Exception {}
+class SephpaInputException extends \Exception {}
 
 /**
  * Base class for both credit transfer and direct debit
@@ -246,7 +244,7 @@ abstract class Sephpa
      *                       - (bool) `zipToOneFile`: If true, multiple files get zipped to one file.
      * @return string[][]    Returns a a pair [name, data] for each file
      * @throws SephpaInputException
-     * @throws MpdfException
+     * @throws \Mpdf\MpdfException
      */
     public function generateOutput(array $options = []) : array
     {
@@ -291,7 +289,7 @@ abstract class Sephpa
      *
      * @param array $options @see generateOutput() for details.
      * @return array A File Routing Slip and returns it as array of [name, data_string] arrays.
-     * @throws MpdfException
+     * @throws \Mpdf\MpdfException
      */
     protected function getFileRoutingSlips(array $options) : array
     {
@@ -332,7 +330,7 @@ abstract class Sephpa
      *
      * @param array $options @see generateOutput() for details.
      * @return array A Control List for each collection and returns it as array of [name, data_string] arrays.
-     * @throws MpdfException
+     * @throws \Mpdf\MpdfException
      */
     protected function getControlLists(array $options) : array
     {
@@ -378,7 +376,7 @@ abstract class Sephpa
      * @param array $options @see generateOutput() for details. zipToOneFile is forced to be true
      *                       if the settings lead to multiple files.
      * @throws SephpaInputException
-     * @throws MpdfException
+     * @throws \Mpdf\MpdfException
      */
     public function download($options = [])
     {
@@ -397,7 +395,7 @@ abstract class Sephpa
      * @param string $path    The path where the file gets stored without trailing DIRECTORY_SEPARATOR.
      * @param array  $options @see generateOutput() for details.
      * @throws SephpaInputException
-     * @throws MpdfException
+     * @throws \Mpdf\MpdfException
      */
     public function store($path, $options = [])
     {
