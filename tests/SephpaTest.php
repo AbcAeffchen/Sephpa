@@ -1,4 +1,5 @@
-<?php /**
+<?php
+/**
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
@@ -6,15 +7,9 @@
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
- */ /**
- * Sephpa
- *
- * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2020 Alexander Schickedanz
- * @link      https://github.com/AbcAeffchen/Sephpa
- *
- * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
- */ /** @noinspection PhpComposerExtensionStubsInspection */
+ */
+
+/** @noinspection PhpComposerExtensionStubsInspection */
 /** @noinspection PhpUnhandledExceptionInspection */
 
 require_once __DIR__ . '/../vendor/autoload.php';
