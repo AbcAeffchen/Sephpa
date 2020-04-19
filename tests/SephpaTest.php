@@ -114,32 +114,17 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     }
 
     /**
-     * Calls the protected method `generateXml()` of the provided Sephpa object.
-     *
-     * @param Sephpa $object
-     * @return mixed
-     * @throws ReflectionException
-     */
-    private function invokeGenerateXml(Sephpa $object)
-    {
-        $reflection = new ReflectionClass(get_class($object));
-        $method = $reflection->getMethod('generateXml');
-        $method->setAccessible(true);
-
-        return $method->invokeArgs($object, []);
-    }
-
-    /**
      * Get a DOMDocument object from a Sephpa Object. This is used to check the xml format.
      *
      * @param Sephpa $sephpaFile A Sephpa object (SephpaCreditTransfer or SephpaDirectDebit)
      * @return DOMDocument
-     * @throws ReflectionException
+     * @throws SephpaInputException
+     * @throws \Mpdf\MpdfException
      */
     private function getDomDoc(Sephpa $sephpaFile)
     {
         $domDoc = new DOMDocument();
-        $domDoc->loadXML($this->invokeGenerateXml($sephpaFile));
+        $domDoc->loadXML($sephpaFile->generateOutput()[0]['data']);
 
         return $domDoc;
     }
@@ -147,7 +132,8 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     /**
      * @param Sephpa $sephpaFile
      * @param string $xsdFile
-     * @throws ReflectionException
+     * @throws SephpaInputException
+     * @throws \Mpdf\MpdfException
      */
     private function validateSchema(Sephpa $sephpaFile, string $xsdFile)
     {
@@ -159,8 +145,8 @@ class SephpaTest extends PHPUnit\Framework\TestCase
      * @dataProvider ddVersionProvider
      * @param $version
      * @param $xsdFile
-     * @throws ReflectionException
      * @throws SephpaInputException
+     * @throws \Mpdf\MpdfException
      */
     public function testOrgId($version, $xsdFile)
     {
@@ -184,8 +170,8 @@ class SephpaTest extends PHPUnit\Framework\TestCase
      * @dataProvider ddVersionProvider
      * @param $version
      * @param $xsdFile
-     * @throws ReflectionException
      * @throws SephpaInputException
+     * @throws \Mpdf\MpdfException
      */
     public function testInitgPtyId($version, $xsdFile)
     {
@@ -202,8 +188,8 @@ class SephpaTest extends PHPUnit\Framework\TestCase
      * @dataProvider ddVersionProvider
      * @param $version
      * @param $xsdFile
-     * @throws ReflectionException
      * @throws SephpaInputException
+     * @throws \Mpdf\MpdfException
      */
     public function testBasicFileValidity($version, $xsdFile)
     {

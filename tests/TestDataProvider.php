@@ -15,6 +15,11 @@ use AbcAeffchen\SepaUtilities\SepaUtilities;
 
 class TestDataProvider
 {
+    private static function isCreditTransfer(int $version)
+    {
+        return SepaUtilities::version2transactionType($version) === SepaUtilities::SEPA_TRANSACTION_TYPE_CT;
+    }
+
     public static function getCreditTransferData(bool $addBIC, bool $addOptionalData) : array
     {
         $transferInformation = [
@@ -115,6 +120,20 @@ class TestDataProvider
         return $paymentData;
     }
 
+    public static function getCollectionData(int $version, bool $addBIC, bool $addOptionalData)
+    {
+        return self::isCreditTransfer($version)
+            ? self::getCreditTransferData($addBIC, $addOptionalData)
+            : self::getDirectDebitData($addBIC, $addOptionalData);
+    }
+
+    public static function getPaymentData(int $version, bool $addBIC, bool $addOptionalData)
+    {
+        return self::isCreditTransfer($version)
+            ? self::getCreditTransferPaymentData($addBIC, $addOptionalData)
+            : self::getDirectDebitPaymentData($addBIC, $addOptionalData);
+    }
+
     /**
      * @param int         $version Use SephpaCreditTransfer::SEPA_PAIN_001_* and SephpaDirectDebit::SEPA_PAIN_008_* constants.
      * @param bool        $addBIC
@@ -122,62 +141,30 @@ class TestDataProvider
      * @param bool        $checkAndSanitize
      * @param array       $orgId
      * @param string|null $initgPtyId
+     * @param int         $numCollections
+     * @param int         $numPayments
      * @return SephpaCreditTransfer|SephpaDirectDebit
      * @throws SephpaInputException
      */
-    public static function getFile(int $version, bool $addBIC, bool $addOptionalData, bool $checkAndSanitize, array $orgId = [], ?string $initgPtyId = null)
+    public static function getFile(int $version, bool $addBIC, bool $addOptionalData, bool $checkAndSanitize, array $orgId = [], ?string $initgPtyId = null, int $numCollections = 1, int $numPayments = 3)
     {
-        if(SepaUtilities::version2transactionType($version) === SepaUtilities::SEPA_TRANSACTION_TYPE_CT)
-            return self::getCreditTransferFile($version, $addBIC, $addOptionalData, $checkAndSanitize, $orgId, $initgPtyId);
-        else
-            return self::getDirectDebitFile($version, $addBIC, $addOptionalData, $checkAndSanitize, $orgId, $initgPtyId);
-    }
+        $fileClass = self::isCreditTransfer($version)
+            ? 'AbcAeffchen\Sephpa\SephpaCreditTransfer'
+            : 'AbcAeffchen\Sephpa\SephpaDirectDebit';
 
-    /**
-     * @param int         $version
-     * @param bool        $addBIC
-     * @param bool        $addOptionalData
-     * @param bool        $checkAndSanitize
-     * @param array       $orgId
-     * @param string|null $initgPtyId
-     * @return SephpaCreditTransfer
-     * @throws SephpaInputException
-     */
-    private static function getCreditTransferFile(int $version, bool $addBIC, bool $addOptionalData, bool $checkAndSanitize, array $orgId, ?string $initgPtyId)
-    {
-        $creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
-                                                       $version, $orgId, $initgPtyId, $checkAndSanitize);
+        $file = new $fileClass('Initiator Name', 'MessageID-1234', $version, $orgId,
+                               $initgPtyId, $checkAndSanitize);
 
-        $ctCollection = $creditTransferFile->addCollection(self::getCreditTransferData($addBIC, $addOptionalData));
+        for($i = 0; $i < $numCollections; $i++)
+        {
+            $collection = $file->addCollection(self::getCollectionData($version, $addBIC, $addOptionalData));
 
-        $ctCollection->addPayment(self::getCreditTransferPaymentData($addBIC, $addOptionalData));
-        $ctCollection->addPayment(self::getCreditTransferPaymentData($addBIC, $addOptionalData));
-        $ctCollection->addPayment(self::getCreditTransferPaymentData($addBIC, $addOptionalData));
+            for($j = 0; $j < $numPayments; $j++)
+            {
+                $collection->addPayment(self::getPaymentData($version, $addBIC, $addOptionalData));
+            }
+        }
 
-        return $creditTransferFile;
-    }
-
-    /**
-     * @param int         $version
-     * @param bool        $addBIC
-     * @param bool        $addOptionalData
-     * @param bool        $checkAndSanitize
-     * @param array       $orgId
-     * @param string|null $initgPtyId
-     * @return SephpaDirectDebit
-     * @throws SephpaInputException
-     */
-    private static function getDirectDebitFile(int $version, bool $addBIC, bool $addOptionalData, bool $checkAndSanitize, array $orgId, ?string $initgPtyId)
-    {
-        $directDebitFile = new SephpaDirectDebit('Initiator Name', 'MessageID-1235', $version,
-                                                 $orgId, $initgPtyId, $checkAndSanitize);
-
-        $debitCollection = $directDebitFile->addCollection(self::getDirectDebitData($addBIC, $addOptionalData));
-
-        $debitCollection->addPayment(self::getDirectDebitPaymentData($addBIC, $addOptionalData));
-        $debitCollection->addPayment(self::getDirectDebitPaymentData($addBIC, $addOptionalData));
-        $debitCollection->addPayment(self::getDirectDebitPaymentData($addBIC, $addOptionalData));
-
-        return $directDebitFile;
+        return $file;
     }
 }
