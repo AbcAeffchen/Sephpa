@@ -86,13 +86,4 @@ class SephpaCreditTransfer extends Sephpa
         $this->paymentCollections[] = new $class($collectionInfo, $this->checkAndSanitize, $this->sanitizeFlags);
         return end($this->paymentCollections);
     }
-
-    /**
-     * Returns the prefix of the names of the generated files.
-     * @return string The prefix of the names of the generated files.
-     */
-    protected function getFileName() : string
-    {
-        return 'Sephpa.CreditTransfer.' . str_replace(['\\', '/'], '-', $this->msgId);
-    }
 }

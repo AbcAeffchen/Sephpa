@@ -11,7 +11,6 @@
 
 namespace AbcAeffchen\Sephpa;
 
-use DateTime;
 use ZipArchive;
 
 /**
@@ -62,36 +61,33 @@ class SephpaMultiFile
      * @throws SephpaInputException
      * @throws \Mpdf\MpdfException
      */
-    public function download(array $options = [])
+    public function download(string $filename, array $options = []) : void
     {
-        $file = $this->generateCombinedZipFile($options);
-
-        header('Content-Disposition: attachment; filename="' . $file['name'] . '"');
-        print $file['data'];
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        print $this->generateCombinedZipFile($options);
     }
 
     /**
-     * @param string $path
+     * Generates a zip file containing all generated files.
+     * @param string $path Full path including filename and extension.
      * @param array  $options @see Sephpa::generateOutput() for details.
      * @throws SephpaInputException
      * @throws \Mpdf\MpdfException
      */
     public function store($path, array $options = [])
     {
-        $fileData = $this->generateCombinedZipFile($options);
-
-        $file = fopen($path . DIRECTORY_SEPARATOR . $fileData['name'], 'wb');
-        fwrite($file, $fileData['data']);
+        $file = fopen($path, 'wb');
+        fwrite($file, $this->generateCombinedZipFile($options));
         fclose($file);
     }
 
     /**
-     * @param array $options    @see Sephpa::generateOutput() for details
-     * @return string[] [name, data]
+     * @param array $options    @see Sephpa::generateOutput() for details.
+     * @return string The content of the zip file as a string.
      * @throws SephpaInputException
      * @throws \Mpdf\MpdfException
      */
-    private function generateCombinedZipFile(array $options)
+    private function generateCombinedZipFile(array $options) : string
     {
         if(!class_exists('ZipArchive'))
             throw new SephpaInputException('You need the libzip extension (class ZipArchive) to zip multiple files.');
@@ -114,12 +110,6 @@ class SephpaMultiFile
             $zip->close();
         }
 
-        return ['name' => $this->getFileName() . '.zip',
-                'data' => file_get_contents($tmpFile)];
-    }
-
-    private function getFileName()
-    {
-        return 'Sephpa.' . (new DateTime())->format('Y-m-d-H-i-s');
+        return file_get_contents($tmpFile);
     }
 }

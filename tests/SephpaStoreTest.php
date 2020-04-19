@@ -67,7 +67,7 @@ class SephpaStoreTest extends PHPUnit\Framework\TestCase
         $directDebitFile->addCollection(TDP::getDirectDebitData(false, false))
                         ->addPayment(TDP::getDirectDebitPaymentData(false, false));
 
-        $this->assertNull($sephpaMultiFile->store(__DIR__ . DIRECTORY_SEPARATOR . 'output',
+        $this->assertNull($sephpaMultiFile->store(__DIR__ . DIRECTORY_SEPARATOR . 'output' . DIRECTORY_SEPARATOR . 'MultiFileTest.zip',
                                                   ['addFileRoutingSlip' => true,
                                                    'addControlList'     => true]));
     }

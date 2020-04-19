@@ -30,6 +30,7 @@ class SephpaInputException extends \Exception {}
  */
 abstract class Sephpa
 {
+    private const DEFAULT_FILENAME_TEMPLATE = '%msgId%';
     /**
      * @type string $xmlInitString stores the initialization string of the xml file
      */
@@ -206,6 +207,9 @@ abstract class Sephpa
         $options['addControlList']     = isset($options['addControlList']) && $options['addControlList'];
         $options['zipToOneFile']       = isset($options['zipToOneFile']) && $options['zipToOneFile'];
 
+        if(!isset($options['filenameTemplate']))
+            $options['filenameTemplate'] = self::DEFAULT_FILENAME_TEMPLATE;
+
         // check dependencies
         if(($options['addFileRoutingSlip'] || $options['addControlList'])
             && !class_exists('\\AbcAeffchen\\SepaDocumentor\\BasicDocumentor'))
@@ -226,6 +230,8 @@ abstract class Sephpa
 
     /**
      * @param array $options possible fields:
+     *                       - (string) `filenameTemplate`: The template used for filenames.
+     *                       It can contain the placeholders `%msgId%` and `%initgPty%`. (default is '%msgId%')
      *                       - (bool) `addFileRoutingSlip`: If true, a file routing slip will be
      *                       added. Default ist false.
      *                       - (string) `FRSTemplate`: The path to the template for the file routing
@@ -251,7 +257,7 @@ abstract class Sephpa
         $options = $this->sanitizeOutputOptions($options);
 
         $files = [];
-        $files[] = ['name' => $this->getFileName() . '.xml',
+        $files[] = ['name' => $this->getFileName($options['filenameTemplate']) . '.xml',
                     'data' => $this->generateXml()];
 
         if($options['addFileRoutingSlip'])
@@ -279,7 +285,7 @@ abstract class Sephpa
             $zip->close();
         }
 
-        return [['name' => $this->getFileName() . '.zip',
+        return [['name' => $this->getFileName($options['filenameTemplate']) . '.zip',
                 'data' => file_get_contents($tmpFile)]];
     }
 
@@ -302,7 +308,7 @@ abstract class Sephpa
         foreach($this->paymentCollections as $paymentCollection)
         {
             $collectionData = array_merge($paymentCollection->getCollectionData($options['dateFormat']),
-                ['file_name'              => $this->getFileName() . '.xml',
+                ['file_name'              => $this->getFileName($options['filenameTemplate']) . '.xml',
                  'scheme_version'         => SepaUtilities::version2string($this->version),
                  'payment_type'           => SepaUtilities::version2transactionType($this->version) === SepaUtilities::SEPA_TRANSACTION_TYPE_CT ? 'Credit Transfer' : 'Direct Debit',
                  'message_id'             => $this->msgId,
@@ -315,7 +321,7 @@ abstract class Sephpa
                                                                    $options['moneyFormat']['thousands_sep'])),
                  'current_date'           => (new DateTime())->format($options['dateFormat'])]);
 
-            $fileRoutingSlips[] = ['name' => $this->getFileName()
+            $fileRoutingSlips[] = ['name' => $this->getFileName($options['filenameTemplate'])
                                             . '.' . str_replace(['\\', '/'], '-', $collectionData['collection_reference'])
                                             . '.FileRoutingSlip.pdf',
                                    'data' => FileRoutingSlip::createPDF($template, $collectionData)];
@@ -344,7 +350,7 @@ abstract class Sephpa
         foreach($this->paymentCollections as $paymentCollection)
         {
             $collectionData = array_merge($paymentCollection->getCollectionData($options['dateFormat']),
-                ['file_name'              => $this->getFileName() . '.xml',
+                ['file_name'              => $this->getFileName($options['filenameTemplate']) . '.xml',
                  'message_id'             => $this->msgId,
                  'creation_date_time'     => $this->creationDateTime,
                  'number_of_transactions' => $paymentCollection->getNumberOfTransactions(),
@@ -353,7 +359,7 @@ abstract class Sephpa
                                                                    $options['moneyFormat']['dec_point'],
                                                                    $options['moneyFormat']['thousands_sep']))]);
 
-            $controlLists[] = ['name' => $this->getFileName()
+            $controlLists[] = ['name' => $this->getFileName($options['filenameTemplate'])
                                         . '.' . str_replace(['\\', '/'], '-', $collectionData['collection_reference'])
                                         . '.ControlList.pdf',
                                'data' => ControlList::createPDF($template, $collectionData,
@@ -365,9 +371,20 @@ abstract class Sephpa
 
     /**
      * Returns the name prefix of the generated files.
+     *
+     * @param string $template The template used to create the filename. It must not have a file
+     *                         extension, since it depends on the file created. It supports the
+     *                         following placeholders:
+     *                         - '%msgId%': The message ID of the file.
+     *                         - '%initgPty%': The initiator of the file.
+     *                         Note: Symbols that cannot be part of a filename are replaced by a hyphen (-).
      * @return string The name prefix of the generated files.
      */
-    protected abstract function getFileName() : string;
+    protected final function getFileName(string $template) : string
+    {
+        return strtr($template, ['%msgId%' => str_replace(['\\', '/'], '-', $this->msgId),
+                                 '%initgPty%' => str_replace(['\\', '/'], '-', $this->initgPty)]);
+    }
 
     /**
      * Generates the SEPA file and starts a download using the header 'Content-Disposition: attachment;'
