@@ -214,4 +214,41 @@ class SephpaTest extends PHPUnit\Framework\TestCase
                                $this->getDomDoc(TDP::getFile($version, $bic, $opt, true))->saveXML());
         }
     }
+
+    /**
+     * @dataProvider ctVersionProvider
+     * @dataProvider ddVersionProvider
+     * @param $version
+     * @param $xsdFile
+     * @throws SephpaInputException
+     * @throws \Mpdf\MpdfException
+     */
+    public function testEmptyFilesAndCollections($version, $xsdFile)
+    {
+        $exceptionCounter = 0;
+        $file = TDP::getFile($version, true, true, true, [], null, 0, 0);
+        try
+        {
+            $file->generateOutput();    // no collections
+        }
+        catch(SephpaInputException $e) { $exceptionCounter++; }
+
+        try
+        {
+            $file->addCollection(TDP::getCollectionData($version, true, true));
+            $file->generateOutput();    // one empty collections
+        }
+        catch(SephpaInputException $e) { $exceptionCounter++; }
+
+        // both tries should have thrown.
+        static::assertSame(2, $exceptionCounter);
+
+        $collection = $file->addCollection(TDP::getCollectionData($version, true, true));
+        $collection->addPayment(TDP::getPaymentData($version, true, true));
+
+        $this->validateSchema($file, $xsdFile);
+
+        // file should only contain 1 collection. The first collection is empty and thus skipped.
+        static::assertSame(1, substr_count($file->generateOutput()[0]['data'], '<PmtInf>'));
+    }
 }
