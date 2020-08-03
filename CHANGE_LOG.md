@@ -31,6 +31,8 @@ It is *highly recommended not to use it* unless your bank requires this and you 
 are doing. 
 - fixed: invalid xml file if checkAndSanitize is turned off and `AmdmntInd` is not provided (issue #6)
 - fixed: some minor bugs no one seems to have noticed yet.
+- **fixed**: There was a typo in the parameter `ultmtDbtr` (was `ultmatDebtr` before). Make sure
+  to adjust your code if you used this parameter.
 - changed: updated SepaUtilities to ~1.2.3
 - changed: made generateXml private. This should not break any code, since no one should be using
 - changed: corrected some doc comments

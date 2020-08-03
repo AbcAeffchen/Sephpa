@@ -25,7 +25,7 @@ class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
 
     /**
      * @param mixed[] $transferInfo needed keys: 'pmtInfId', 'dbtr', 'iban';
-     *                              optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt', 'ultmtDebtr', 'bic'
+     *                              optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt', 'ultmtDbtr', 'bic'
      * @param bool $checkAndSanitize           All inputs will be checked and sanitized before creating the
      *                              collection. If you check the inputs yourself you can set this
      *                              to false.
