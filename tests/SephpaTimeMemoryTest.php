@@ -25,7 +25,7 @@ function testTimeMemory()
         'ccy'           => 'EUR',                       // Currency. Default is 'EUR'
         'btchBookg'     => 'true',                      // BatchBooking, only 'true' or 'false'
         'reqdExctnDt'   => '2013-11-25',                // Date: YYYY-MM-DD
-        'ultmtDebtr'    => 'Ultimate Debtor Name'       // just an information, this do not affect the payment (max 70 characters)
+        'ultmtDbtr'     => 'Ultimate Debtor Name'       // just an information, this do not affect the payment (max 70 characters)
     ];
 
     $creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',

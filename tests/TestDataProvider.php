@@ -36,7 +36,7 @@ class TestDataProvider
             $transferInformation['ccy']         = 'EUR';                     // Currency. Default is 'EUR'
             $transferInformation['btchBookg']   = 'true';                    // BatchBooking, only 'true' or 'false'
             $transferInformation['reqdExctnDt'] = '2013-11-25';              // Date: YYYY-MM-DD
-            $transferInformation['ultmtDebtr']  = 'Ultimate Debtor Name';    // just an information, this do not affect the payment (max 70 characters)
+            $transferInformation['ultmtDbtr']   = 'Ultimate Debtor Name';    // just an information, this do not affect the payment (max 70 characters)
         }
 
         return $transferInformation;
