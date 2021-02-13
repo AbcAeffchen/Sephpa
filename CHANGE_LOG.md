@@ -1,7 +1,7 @@
 Sephpa - Change Log
 ===============
 
-## 2.0.0 - *** *, '21
+## 2.0.0 - Feb 14, '21
 This is a new major release. It comes with many new features and changes. This also effects the
 interface (highlighted with **bold** text). The changes are as minimal as possible to make it as easy as possible to migrate to
 the new version, but still old code will not work with this version. To be clear: You should migrate
