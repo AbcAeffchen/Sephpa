@@ -1,9 +1,9 @@
 <?php
-/**
+/*
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2020 Alexander Schickedanz
+ * @copyright ©2021 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -37,6 +37,8 @@ class TestDataProvider
             $transferInformation['btchBookg']   = 'true';                    // BatchBooking, only 'true' or 'false'
             $transferInformation['reqdExctnDt'] = '2013-11-25';              // Date: YYYY-MM-DD
             $transferInformation['ultmtDbtr']   = 'Ultimate Debtor Name';    // just an information, this do not affect the payment (max 70 characters)
+            $transferInformation['dbtrPstlAdr'] = ['ctry' => 'DE',
+                                                   'adrLine' => ['test 1', 'test 2']];
         }
 
         return $transferInformation;

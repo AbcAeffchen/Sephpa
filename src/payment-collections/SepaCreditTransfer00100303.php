@@ -1,9 +1,9 @@
 <?php
-/**
+/*
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2020 Alexander Schickedanz
+ * @copyright ©2021 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -25,7 +25,8 @@ class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
 
     /**
      * @param mixed[] $transferInfo needed keys: 'pmtInfId', 'dbtr', 'iban';
-     *                              optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt', 'ultmtDbtr', 'bic'
+     *                              optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt',
+     *                              'ultmtDbtr', 'bic', 'dbtrPstlAdr'
      * @param bool $checkAndSanitize           All inputs will be checked and sanitized before creating the
      *                              collection. If you check the inputs yourself you can set this
      *                              to false.
@@ -119,6 +120,22 @@ class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
 
         $pmtInf->addChild('ReqdExctnDt', $reqdExctnDt);
         $pmtInf->addChild('Dbtr')->addChild('Nm', $this->transferInfo['dbtr']);
+
+        if(isset($this->transferInfo['dbtrPstlAdr']))
+        {
+            $pstlAdr = $pmtInf->Dbtr->addChild('PstlAdr');
+
+            if(isset($this->transferInfo['dbtrPstlAdr']['ctry']))
+                $pstlAdr->addChild('Ctry', $this->transferInfo['dbtrPstlAdr']['ctry']);
+
+            if(isset($this->transferInfo['dbtrPstlAdr']['adrLine']))
+            {
+                foreach(is_array($this->transferInfo['dbtrPstlAdr']['adrLine'])
+                            ? $this->transferInfo['dbtrPstlAdr']['adrLine']
+                            : [$this->transferInfo['dbtrPstlAdr']['adrLine']] as $adrLine)
+                    $pstlAdr->addChild('AdrLine', $adrLine);
+            }
+        }
 
         $dbtrAcct = $pmtInf->addChild('DbtrAcct');
         $dbtrAcct->addChild('Id')->addChild('IBAN', $this->transferInfo['iban']);

@@ -1,7 +1,7 @@
 Sephpa - Change Log
 ===============
 
-## 2.0.0 - *** *, '18
+## 2.0.0 - *** *, '21
 This is a new major release. It comes with many new features and changes. This also effects the
 interface (highlighted with **bold** text). The changes are as minimal as possible to make it as easy as possible to migrate to
 the new version, but still old code will not work with this version. To be clear: You should migrate
@@ -24,16 +24,19 @@ use this you have to also install the package `SepaDocumentor`. See the readme f
 an example.  
 It also supports to download multiple files as a single zip file.
 - new: `orgId > BICOrBEI` and `orgId > Othr > Id` are supported on the file level. This is needed in some countries.  
-It is *highly recommended not to use it* unless your bank requires this and you know what you 
+It is *highly recommended not to use it* unless your bank requires this, and you know what you 
 are doing. 
 - new: `InitgPtyId` is supported on the file level. This is also needed in some countries.  
-It is *highly recommended not to use it* unless your bank requires this and you know what you 
-are doing. 
+It is *highly recommended not to use it* unless your bank requires this, and you know what you 
+are doing.
+- new: `Ctry` and `AdrLine` is supported in credit transfer files to specify debtor address.
+  To make this more compact, both can be handed over an array with the keys `ctry` and/or `adrLine` to 
+  the option `dbtrPstlAdr`. Have a look in the documentation for details.
 - fixed: invalid xml file if checkAndSanitize is turned off and `AmdmntInd` is not provided (issue #6)
 - fixed: some minor bugs no one seems to have noticed yet.
 - **fixed**: There was a typo in the parameter `ultmtDbtr` (was `ultmatDebtr` before). Make sure
   to adjust your code if you used this parameter.
-- changed: updated SepaUtilities to ~1.2.3
+- changed: updated SepaUtilities to ~1.3.0
 - changed: made generateXml private. This should not break any code, since no one should be using
 - changed: corrected some doc comments
 this function directly. It was only public to directly access the generated xml for testing.
