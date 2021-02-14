@@ -7,7 +7,7 @@ interface (highlighted with **bold** text). The changes are as minimal as possib
 the new version, but still old code will not work with this version. To be clear: You should migrate
 to the new version, since version 1 is no longer supported.
 
-- new: support for PHP 7.2, 7.3, 7.4.
+- new: support for PHP 7.2, 7.3, 7.4, 8.0.
 - new: support for pain.001.001.03 and pain.008.001.02<br>
 Notice that this implementation fits the new german standard that is valid from November 2016. 
 It is said that this is compatible with the formats with the same name from 2009 that is used 
