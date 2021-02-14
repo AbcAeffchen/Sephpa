@@ -1,9 +1,9 @@
 <?php
-/**
+/*
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2020 Alexander Schickedanz
+ * @copyright ©2021 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -275,7 +275,7 @@ abstract class Sephpa
 
         $tmpFile = tempnam(sys_get_temp_dir(), 'sephpa');
         $zip = new ZipArchive();
-        if($zip->open($tmpFile, ZipArchive::CREATE))
+        if($zip->open($tmpFile, ZipArchive::OVERWRITE))
         {
             foreach($files as $file)
             {
