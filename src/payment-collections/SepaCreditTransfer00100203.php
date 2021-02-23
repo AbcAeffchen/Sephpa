@@ -26,7 +26,7 @@ class SepaCreditTransfer00100203 extends SepaCreditTransferCollection
     /**
      * @param mixed[] $transferInfo needed keys: 'pmtInfId', 'dbtr', 'iban', 'bic';
      *                              optional keys: 'ccy', 'btchBookg', 'ctgyPurp',
-     *                              'reqdExctnDt', 'ultmtDbtr', 'dbtrPstlAdr'
+     *                              'reqdExctnDt', 'ultmtDbtr', 'pstlAdr'
      * @param bool    $checkAndSanitize        All inputs will be checked and sanitized before creating
      *                              the collection. If you check the inputs yourself you can
      *                              set this to false.
@@ -41,6 +41,12 @@ class SepaCreditTransfer00100203 extends SepaCreditTransferCollection
         // All required information is provided?
         if(!SepaUtilities::checkRequiredCollectionKeys($transferInfo, self::VERSION))
             throw new SephpaInputException('The values of \'pmtInfId\', \'dbtr\', \'iban\', \'bic\' must not be empty.');
+
+        // backward compatibility / deprecated
+        if(isset($transferInfo['dbtrPstlAdr']) && !isset($transferInfo['pstlAdr']))
+        {
+            $transferInfo['pstlAdr'] = $transferInfo['dbtrPstlAdr'];
+        }
 
         if($this->checkAndSanitize)
         {
@@ -119,18 +125,18 @@ class SepaCreditTransfer00100203 extends SepaCreditTransferCollection
         $pmtInf->addChild('ReqdExctnDt', $reqdExctnDt);
         $pmtInf->addChild('Dbtr')->addChild('Nm', $this->transferInfo['dbtr']);
 
-        if(isset($this->transferInfo['dbtrPstlAdr']))
+        if(isset($this->transferInfo['pstlAdr']))
         {
             $pstlAdr = $pmtInf->Dbtr->addChild('PstlAdr');
 
-            if(isset($this->transferInfo['dbtrPstlAdr']['ctry']))
-                $pstlAdr->addChild('Ctry', $this->transferInfo['dbtrPstlAdr']['ctry']);
+            if(isset($this->transferInfo['pstlAdr']['ctry']))
+                $pstlAdr->addChild('Ctry', $this->transferInfo['pstlAdr']['ctry']);
 
-            if(isset($this->transferInfo['dbtrPstlAdr']['adrLine']))
+            if(isset($this->transferInfo['pstlAdr']['adrLine']))
             {
-                foreach(is_array($this->transferInfo['dbtrPstlAdr']['adrLine'])
-                            ? $this->transferInfo['dbtrPstlAdr']['adrLine']
-                            : [$this->transferInfo['dbtrPstlAdr']['adrLine']] as $adrLine)
+                foreach(is_array($this->transferInfo['pstlAdr']['adrLine'])
+                            ? $this->transferInfo['pstlAdr']['adrLine']
+                            : [$this->transferInfo['pstlAdr']['adrLine']] as $adrLine)
                     $pstlAdr->addChild('AdrLine', $adrLine);
             }
         }
