@@ -1,9 +1,9 @@
 <?php
-/**
+/*
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2018 Alexander Schickedanz
+ * @copyright ©2021 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -26,7 +26,7 @@ class SepaDirectDebit00800202 extends SepaDirectDebitCollection
     /**
      * @param mixed[] $debitInfo        Needed keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'cdtr',
      *                                  'iban', 'bic', 'ci'; optional keys: 'ccy', 'btchBookg',
-     *                                  'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt'
+     *                                  'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt', 'pstlAdr'
      * @param bool    $checkAndSanitize All inputs will be checked and sanitized before creating
      *                                  the collection. If you check the inputs yourself you can
      *                                  set this to false.
@@ -63,7 +63,7 @@ class SepaDirectDebit00800202 extends SepaDirectDebitCollection
      *                             'dbtr', 'iban';
      *                             optional keys: 'amdmntInd', 'orgnlMndtId', 'orgnlCdtrSchmeId_nm',
      *                             'orgnlCdtrSchmeId_id', 'orgnlDbtrAcct_iban', 'orgnlDbtrAgt',
-     *                             'elctrncSgntr', 'ultmtDbtr', 'purp', 'rmtInf'
+     *                             'elctrncSgntr', 'ultmtDbtr', 'purp', 'rmtInf', 'pstlAdr'
      * @throws SephpaInputException
      * @return void
      */
@@ -135,6 +135,22 @@ class SepaDirectDebit00800202 extends SepaDirectDebitCollection
 
         $pmtInf->addChild('ReqdColltnDt', $reqdColltnDt);
         $pmtInf->addChild('Cdtr')->addChild('Nm', $this->debitInfo['cdtr']);
+
+        if(isset($this->debitInfo['pstlAdr']))
+        {
+            $pstlAdr = $pmtInf->Cdtr->addChild('PstlAdr');
+
+            if(isset($this->debitInfo['pstlAdr']['ctry']))
+                $pstlAdr->addChild('Ctry', $this->debitInfo['pstlAdr']['ctry']);
+
+            if(isset($this->debitInfo['pstlAdr']['adrLine']))
+            {
+                foreach(is_array($this->debitInfo['pstlAdr']['adrLine'])
+                            ? $this->debitInfo['pstlAdr']['adrLine']
+                            : [$this->debitInfo['pstlAdr']['adrLine']] as $adrLine)
+                    $pstlAdr->addChild('AdrLine', $adrLine);
+            }
+        }
 
         $cdtrAcct = $pmtInf->addChild('CdtrAcct');
         $cdtrAcct->addChild('Id')->addChild('IBAN', $this->debitInfo['iban']);
@@ -212,6 +228,23 @@ class SepaDirectDebit00800202 extends SepaDirectDebitCollection
         $drctDbtTxInf->addChild('DbtrAgt')->addChild('FinInstnId')
                      ->addChild('BIC', $payment['bic']);
         $drctDbtTxInf->addChild('Dbtr')->addChild('Nm', $payment['dbtr']);
+
+        if(isset($payment['pstlAdr']))
+        {
+            $pstlAdr = $drctDbtTxInf->Dbtr->addChild('PstlAdr');
+
+            if(isset($payment['pstlAdr']['ctry']))
+                $pstlAdr->addChild('Ctry', $payment['pstlAdr']['ctry']);
+
+            if(isset($payment['pstlAdr']['adrLine']))
+            {
+                foreach(is_array($payment['pstlAdr']['adrLine'])
+                            ? $payment['pstlAdr']['adrLine']
+                            : [$payment['pstlAdr']['adrLine']] as $adrLine)
+                    $pstlAdr->addChild('AdrLine', $adrLine);
+            }
+        }
+
         $drctDbtTxInf->addChild('DbtrAcct')->addChild('Id')
                      ->addChild('IBAN', $payment['iban']);
         if( !empty( $payment['ultmtDbtr'] ) )

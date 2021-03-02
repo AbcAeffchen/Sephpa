@@ -187,6 +187,23 @@ class SepaCreditTransfer00100203 extends SepaCreditTransferCollection
         $cdtTrfTxInf->addChild('CdtrAgt')->addChild('FinInstnId')
                     ->addChild('BIC', $payment['bic']);
         $cdtTrfTxInf->addChild('Cdtr')->addChild('Nm', $payment['cdtr']);
+
+        if(isset($payment['pstlAdr']))
+        {
+            $pstlAdr = $cdtTrfTxInf->Cdtr->addChild('PstlAdr');
+
+            if(isset($payment['pstlAdr']['ctry']))
+                $pstlAdr->addChild('Ctry', $payment['pstlAdr']['ctry']);
+
+            if(isset($payment['pstlAdr']['adrLine']))
+            {
+                foreach(is_array($payment['pstlAdr']['adrLine'])
+                            ? $payment['pstlAdr']['adrLine']
+                            : [$payment['pstlAdr']['adrLine']] as $adrLine)
+                    $pstlAdr->addChild('AdrLine', $adrLine);
+            }
+        }
+
         $cdtTrfTxInf->addChild('CdtrAcct')->addChild('Id')->addChild('IBAN', $payment['iban']);
 
         if( isset( $payment['ultmtCdtr'] ) )

@@ -20,6 +20,22 @@ class TestDataProvider
         return SepaUtilities::version2transactionType($version) === SepaUtilities::SEPA_TRANSACTION_TYPE_CT;
     }
 
+    /**
+     * @param int|null $adrType 0 = string,
+     *                          1 = array with one element,
+     *                          2 = array with two elements,
+     *                          null = random
+     * @return array
+     */
+    private static function getPstlAdrData(?int $adrType = null) : array
+    {
+        if($adrType === null)
+            $adrType = random_int(0, 2);
+
+        return ['ctry' => 'DE',
+                'adrLine' => $adrType === 0 ? 'test 1' : ($adrType === 1 ? ['test 1'] : ['test 1', 'test 2'])];
+    }
+
     public static function getCreditTransferData(bool $addBIC, bool $addOptionalData) : array
     {
         $transferInformation = [
@@ -37,8 +53,7 @@ class TestDataProvider
             $transferInformation['btchBookg']   = 'true';                    // BatchBooking, only 'true' or 'false'
             $transferInformation['reqdExctnDt'] = '2013-11-25';              // Date: YYYY-MM-DD
             $transferInformation['ultmtDbtr']   = 'Ultimate Debtor Name';    // just an information, this do not affect the payment (max 70 characters)
-            $transferInformation['dbtrPstlAdr'] = ['ctry' => 'DE',
-                                                   'adrLine' => ['test 1', 'test 2']];
+            $transferInformation['pstlAdr']     = self::getPstlAdrData(2);
         }
 
         return $transferInformation;
@@ -62,6 +77,7 @@ class TestDataProvider
             $paymentData['ultmtDbtrId'] = 'Ultimate Debtor ID';
             $paymentData['ultmtCdrt'] = 'Ultimate Creditor Name';   // just an information, this do not affect the payment (max 70 characters)
             $paymentData['rmtInf']    = 'Remittance Information';   // unstructured information about the remittance (max 140 characters)
+            $paymentData['pstlAdr']   = self::getPstlAdrData(($id ?? 2) % 3);
         }
 
         return $paymentData;
@@ -87,6 +103,7 @@ class TestDataProvider
             $directDebitInformation['btchBookg']     = 'true';                  // BatchBooking, only 'true' or 'false'
             $directDebitInformation['ultmtCdtr']     = 'Ultimate Creditor Name';// just an information, this do not affect the payment (max 70 characters)
             $directDebitInformation['reqdColltnDt']  = '2013-11-25';            // Date: YYYY-MM-DD
+            $directDebitInformation['pstlAdr']       = self::getPstlAdrData(2);
         }
 
         return $directDebitInformation;
@@ -117,6 +134,7 @@ class TestDataProvider
             $paymentData['orgnlCdtrSchmeId_id'] = 'DE98AAA09999999999';
             $paymentData['orgnlDbtrAcct_iban']  = 'DE87200500001234567890';  // Original Debtor Account
             $paymentData['orgnlDbtrAgt']        = 'SMNDA';                   // only 'SMNDA' allowed if used
+            $paymentData['pstlAdr']             = self::getPstlAdrData(($id ?? 2) % 3);
         }
 
         return $paymentData;
@@ -129,11 +147,11 @@ class TestDataProvider
             : self::getDirectDebitData($addBIC, $addOptionalData);
     }
 
-    public static function getPaymentData(int $version, bool $addBIC, bool $addOptionalData)
+    public static function getPaymentData(int $version, bool $addBIC, bool $addOptionalData, int $id = 1)
     {
         return self::isCreditTransfer($version)
-            ? self::getCreditTransferPaymentData($addBIC, $addOptionalData)
-            : self::getDirectDebitPaymentData($addBIC, $addOptionalData);
+            ? self::getCreditTransferPaymentData($addBIC, $addOptionalData, $id)
+            : self::getDirectDebitPaymentData($addBIC, $addOptionalData, $id);
     }
 
     /**
@@ -163,7 +181,7 @@ class TestDataProvider
 
             for($j = 0; $j < $numPayments; $j++)
             {
-                $collection->addPayment(self::getPaymentData($version, $addBIC, $addOptionalData));
+                $collection->addPayment(self::getPaymentData($version, $addBIC, $addOptionalData, $j));
             }
         }
 
