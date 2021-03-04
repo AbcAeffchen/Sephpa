@@ -1,6 +1,22 @@
 Sephpa - Change Log
 ===============
 
+## 2.1.0 - Mar 4, '21
+- **changed**: renamed property key `dbtrPstlAdr` to `pstlAdr` for simplicity. 
+  The old key still works for backward compatibility, but is deprecated from now on.
+- **changed/fixed**: There was a documentation/consistency issue about some optional keys in direct 
+  debit files, namely:
+  - `orgnlCdtrSchmeId_Nm` -> `orgnlCdtrSchmeId_nm`
+  - `orgnlCdtrSchmeId_Id` -> `orgnlCdtrSchmeId_id`
+  Now the code matches the documentation. This is why this change is not considered breaking
+  any existing code and rather fix it. Another documentation issue effects `orgnlDbtrAgt`. In 
+  pain.008.001.02 this cannot be used, but it was checked and was mentioned in the documentation.
+  This should not be confused with 008.001.02.austrian.003 where `orgnlDbtrAgt` can be use.
+  In pain.008.001.02 `orgnlDbtrAgt_bic` is a valid keyword that was previously not documented.
+- `pstlAdr` is now supported for all credit transfer and directed debit versions on both the 
+  debtor and the creditor.
+- Updated SepaUtilities to 1.3.2.
+
 ## 2.0.0 - Feb 14, '21
 This is a new major release. It comes with many new features and changes. This also effects the
 interface (highlighted with **bold** text). The changes are as minimal as possible to make it as easy as possible to migrate to
@@ -92,9 +108,9 @@ sanitize all inputs its self.
 - ~~added an autoloader to load required files dynamic.~~
 - ~~added patterns to SepaUtilities that can be used in HTML5 pattern attribute~~
 - added checkAndSanitize function to SepaUtilities
-- added 'initgpty', 'mndtid', 'orgnlmndtid', 'orgnlcdtrschmeid_nm', 'orgnlcdtrschmeid_id',
-'orgnldbtracct_iban' to the fields that can be checked
-- added 'orgnlcdtrschmeid_nm' to the fields that can be sanitized
+- added 'initgpty', 'mndtid', 'orgnlmndtid', 'orgnlCdtrSchmeId_nm', 'orgnlCdtrSchmeId_id',
+'orgnlDbtrAcct_iban' to the fields that can be checked
+- added 'orgnlCdtrSchmeId_nm' to the fields that can be sanitized
 - fixed: a default timezone was added, so DateTime will work without timezone specified in the
 server settings
 - updated readme + example.php
