@@ -217,16 +217,16 @@ class SepaDirectDebit00800102 extends SepaDirectDebitCollection
                 $amdmntInd = $mndtRltdInf->addChild('AmdmntInfDtls');
                 if( !empty( $payment['orgnlMndtId'] ) )
                     $amdmntInd->addChild('OrgnlMndtId', $payment['orgnlMndtId']);
-                if( !empty( $payment['orgnlCdtrSchmeId_Nm'] ) || !empty( $payment['orgnlCdtrSchmeId_Id'] ) )
+                if( !empty( $payment['orgnlCdtrSchmeId_nm'] ) || !empty( $payment['orgnlCdtrSchmeId_id'] ) )
                 {
                     $orgnlCdtrSchmeId = $amdmntInd->addChild('OrgnlCdtrSchmeId');
-                    if( !empty( $payment['orgnlCdtrSchmeId_Nm'] ) )
-                        $orgnlCdtrSchmeId->addChild('Nm', $payment['orgnlCdtrSchmeId_Nm']);
-                    if( !empty( $payment['orgnlCdtrSchmeId_Id'] ) )
+                    if( !empty( $payment['orgnlCdtrSchmeId_nm'] ) )
+                        $orgnlCdtrSchmeId->addChild('Nm', $payment['orgnlCdtrSchmeId_nm']);
+                    if( !empty( $payment['orgnlCdtrSchmeId_id'] ) )
                     {
                         $othr = $orgnlCdtrSchmeId->addChild('Id')->addChild('PrvtId')
                                                  ->addChild('Othr');
-                        $othr->addChild('Id', $payment['orgnlCdtrSchmeId_Id']);
+                        $othr->addChild('Id', $payment['orgnlCdtrSchmeId_id']);
                         $othr->addChild('SchmeNm')->addChild('Prtry', 'SEPA');
                     }
                 }
