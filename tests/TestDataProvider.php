@@ -53,6 +53,7 @@ class TestDataProvider
             $transferInformation['btchBookg']   = 'true';                    // BatchBooking, only 'true' or 'false'
             $transferInformation['reqdExctnDt'] = '2013-11-25';              // Date: YYYY-MM-DD
             $transferInformation['ultmtDbtr']   = 'Ultimate Debtor Name';    // just an information, this do not affect the payment (max 70 characters)
+            $transferInformation['ctgyPurp']    = 'BONU';
             $transferInformation['pstlAdr']     = self::getPstlAdrData(2);
         }
 
@@ -75,8 +76,9 @@ class TestDataProvider
         {
             $paymentData['ultmtDbtr'] = 'Ultimate Debtor Name';
             $paymentData['ultmtDbtrId'] = 'Ultimate Debtor ID';
-            $paymentData['ultmtCdrt'] = 'Ultimate Creditor Name';   // just an information, this do not affect the payment (max 70 characters)
+            $paymentData['ultmtCdtr'] = 'Ultimate Creditor Name';   // just an information, this do not affect the payment (max 70 characters)
             $paymentData['rmtInf']    = 'Remittance Information';   // unstructured information about the remittance (max 140 characters)
+            $paymentData['purp']      = 'BONU';                     // Four letter code
             $paymentData['pstlAdr']   = self::getPstlAdrData(($id ?? 2) % 3);
         }
 
@@ -102,6 +104,7 @@ class TestDataProvider
             $directDebitInformation['ccy']           = 'EUR';                   // Currency. Default is 'EUR'
             $directDebitInformation['btchBookg']     = 'true';                  // BatchBooking, only 'true' or 'false'
             $directDebitInformation['ultmtCdtr']     = 'Ultimate Creditor Name';// just an information, this do not affect the payment (max 70 characters)
+            $directDebitInformation['ctgyPurp']      = 'BONU';
             $directDebitInformation['reqdColltnDt']  = '2013-11-25';            // Date: YYYY-MM-DD
             $directDebitInformation['pstlAdr']       = self::getPstlAdrData(2);
         }
@@ -128,13 +131,15 @@ class TestDataProvider
             $paymentData['amdmntInd']           = 'true';                    // Did the mandate change
             $paymentData['ultmtDbtr']           = 'Ultimate Debtor Name';    // just an information, this do not affect the payment (max 70 characters)
             $paymentData['rmtInf']              = 'Remittance Information';  // unstructured information about the remittance (max 140 characters)
+            $paymentData['purp']                = 'BONU';                    // Four letter code
+            $paymentData['pstlAdr']             = self::getPstlAdrData(($id ?? 2) % 3);
             // only use this if 'amdmntInd' is 'true'. at least one must be used
             $paymentData['orgnlMndtId']         = 'Original-Mandat-ID';
             $paymentData['orgnlCdtrSchmeId_nm'] = 'Creditor-Identifier Name';
             $paymentData['orgnlCdtrSchmeId_id'] = 'DE98AAA09999999999';
             $paymentData['orgnlDbtrAcct_iban']  = 'DE87200500001234567890';  // Original Debtor Account
             $paymentData['orgnlDbtrAgt']        = 'SMNDA';                   // only 'SMNDA' allowed if used
-            $paymentData['pstlAdr']             = self::getPstlAdrData(($id ?? 2) % 3);
+            $paymentData['orgnlDbtrAgt_bic']    = 'BELADEBEXXX';
         }
 
         return $paymentData;
