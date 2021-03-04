@@ -63,7 +63,7 @@ class SepaDirectDebit00800102 extends SepaDirectDebitCollection
      * @param mixed[] $paymentInfo needed keys: 'pmtId', 'instdAmt', 'mndtId', 'dtOfSgntr', 'bic',
      *                             'dbtr', 'iban';
      *                             optional keys: 'amdmntInd', 'orgnlMndtId', 'orgnlCdtrSchmeId_nm',
-     *                             'orgnlCdtrSchmeId_id', 'orgnlDbtrAcct_iban', 'orgnlDbtrAgt',
+     *                             'orgnlCdtrSchmeId_id', 'orgnlDbtrAcct_iban', 'orgnlDbtrAgt_bic',
      *                             'elctrncSgntr', 'ultmtDbtr', 'purp', 'rmtInf', 'pstlAdr'
      * @throws SephpaInputException
      * @return void
@@ -83,14 +83,14 @@ class SepaDirectDebit00800102 extends SepaDirectDebitCollection
             if($checkResult !== true)
                 throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
 
-            if( !empty( $paymentInfo['amdmntInd'] ) && $paymentInfo['amdmntInd'] === 'true' )
+            if( SepaDirectDebit00800102::class === get_called_class()
+                && !empty( $paymentInfo['amdmntInd'] ) && $paymentInfo['amdmntInd'] === 'true' )
             {
-
                 if( SepaUtilities::containsNotAnyKey($paymentInfo, ['orgnlMndtId',
                                                                     'orgnlCdtrSchmeId_nm',
                                                                     'orgnlCdtrSchmeId_id',
                                                                     'orgnlDbtrAcct_iban',
-                                                                    'orgnlDbtrAgt'])
+                                                                    'orgnlDbtrAgt_bic'])
                 )
                     throw new SephpaInputException('You set \'amdmntInd\' to \'true\', so you have to set also at least one of the following inputs: \'orgnlMndtId\', \'orgnlCdtrSchmeId_nm\', \'orgnlCdtrSchmeId_id\', \'orgnlDbtrAcct_iban\', \'orgnlDbtrAgt\'.');
 
@@ -233,12 +233,13 @@ class SepaDirectDebit00800102 extends SepaDirectDebitCollection
                 if( !empty( $payment['orgnlDbtrAcct_iban'] ) )
                     $amdmntInd->addChild('OrgnlDbtrAcct')->addChild('Id')
                               ->addChild('IBAN', $payment['orgnlDbtrAcct_iban']);
-                elseif( !empty( $payment['orgnlDbtrAgt_bic'] ) )
-                    $amdmntInd->addChild('OrgnlDbtrAgt')->addChild('FinInstnId')
-                              ->addChild('BIC', $payment['orgnlDbtrAgt_bic']);
                 else
                     $amdmntInd->addChild('OrgnlDbtrAcct')->addChild('Othr')
                               ->addChild('Id', 'SMNDA');
+
+                if( !empty( $payment['orgnlDbtrAgt_bic'] ) )
+                    $amdmntInd->addChild('OrgnlDbtrAgt')->addChild('FinInstnId')
+                              ->addChild('BIC', $payment['orgnlDbtrAgt_bic']);
             }
         }
         if( !empty( $payment['elctrncSgntr'] ) )
