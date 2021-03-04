@@ -1,6 +1,9 @@
 Sephpa - Change Log
 ===============
 
+## 2.1.1 - Mar 4, '21
+- Updated SepaUtilities to 1.3.3
+
 ## 2.1.0 - Mar 4, '21
 - **changed**: renamed property key `dbtrPstlAdr` to `pstlAdr` for simplicity. 
   The old key still works for backward compatibility, but is deprecated from now on.
