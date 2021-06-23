@@ -83,7 +83,7 @@ class SepaCreditTransfer00100103 extends SepaCreditTransferCollection
             $bicRequired = (!SepaUtilities::isEEATransaction($this->dbtrIban,$paymentInfo['iban']));
 
             $checkResult = SepaUtilities::checkAndSanitizeAll($paymentInfo, $this->sanitizeFlags,
-                                                              ['allowEmptyBic' => $bicRequired]);
+                                                              ['allowEmptyBic' => !$bicRequired]);
 
             if($checkResult !== true)
                 throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
