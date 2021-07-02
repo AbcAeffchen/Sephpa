@@ -174,7 +174,11 @@ abstract class Sephpa
         {
             $orgId = $initgPty->Id->addChild('OrgId');
             if(!empty($this->orgId['id']))
-                $orgId->addChild('Othr')->addChild('Id', $this->orgId['id']);
+            {
+                $initgPtyOthr = $orgId->addChild('Othr');
+                $initgPtyOthr->addChild('Id', $this->orgId['id']);
+                $initgPtyOthr->addChild('SchmeNm', '')->addChild("Prtry", "SEPA");
+            }
             if(!empty($this->orgId['bob']))
                 $orgId->addChild('BICOrBEI', $this->orgId['bob']);
         }
