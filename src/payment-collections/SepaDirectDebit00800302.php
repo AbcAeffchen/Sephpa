@@ -78,7 +78,7 @@ class SepaDirectDebit00800302 extends SepaDirectDebitCollection
             $bicRequired = (!SepaUtilities::isNationalTransaction($this->debitInfo['iban'], $paymentInfo['iban']) && $this->today <= SepaUtilities::BIC_REQUIRED_THRESHOLD);
 
             $checkResult = SepaUtilities::checkAndSanitizeAll($paymentInfo, $this->sanitizeFlags,
-                                                              ['allowEmptyBic' => $bicRequired, 'version' => self::VERSION]);
+                                                              ['allowEmptyBic' => !$bicRequired, 'version' => self::VERSION]);
 
             if($checkResult !== true)
                 throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
