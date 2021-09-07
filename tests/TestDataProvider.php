@@ -71,6 +71,8 @@ class TestDataProvider
 
         if($addBIC)
             $paymentData['bic'] = 'SPUEDE2UXXX';
+        else
+            $paymentData['bic'] = '';
 
         if($addOptionalData)
         {
@@ -125,6 +127,8 @@ class TestDataProvider
 
         if($addBIC)
             $paymentData['bic'] = 'BELADEBEXXX';
+        else
+            $paymentData['bic'] = '';
 
         if($addOptionalData)
         {
