@@ -5,8 +5,6 @@ dist: xenial
 os: linux
 
 arch:
-  - arm64
-  - ppc64le
   - s390x
 
 php:
