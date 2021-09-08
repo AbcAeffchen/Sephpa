@@ -1,9 +1,9 @@
 <?php
-/**
+/*
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2020 Alexander Schickedanz
+ * @copyright ©2021 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -151,12 +151,34 @@ class SephpaTest extends PHPUnit\Framework\TestCase
 
         try
         {
+            $this->validateSchema(TDP::getFile($version, true, true, true, ['id' => 'testID', 'scheme_name' => 'SEPA']), $xsdFile);
+        }
+        catch(SephpaInputException $e)
+        {
+            static::assertSame($version, SephpaDirectDebit::SEPA_PAIN_008_001_02_AUSTRIAN_003);
+        }
+
+        try
+        {
             TDP::getFile($version, true, true, true, ['id'  => 'testID', 'bob' => 'BELADEBEXXX']);
             static::fail('Exception was not thrown...');
         }
         catch(SephpaInputException $e)
         {
             static::assertSame('You cannot use orgid[id] and orgid[bob] simultaneously.', $e->getMessage());
+        }
+
+        try
+        {
+            TDP::getFile($version, true, true, true, ['scheme_name' => 'SEPA']);
+            static::fail('Exception was not thrown...');
+        }
+        catch(SephpaInputException $e)
+        {
+            if($version !== SephpaDirectDebit::SEPA_PAIN_008_001_02_AUSTRIAN_003)
+                static::assertSame('You cannot use orgid[scheme_name] without orgid[id].', $e->getMessage());
+            else
+                static::assertSame('orgid[scheme_name] is not supported by pain.008.001.02.austrian.003.', $e->getMessage());
         }
     }
 

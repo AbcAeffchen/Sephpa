@@ -1,9 +1,9 @@
 <?php
-/**
+/*
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2020 Alexander Schickedanz
+ * @copyright ©2021 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -57,6 +57,7 @@ class SephpaCreditTransfer extends Sephpa
      *                             only use this if you know what you do. Available keys:
      *                             - `id`: An Identifier of the organisation.
      *                             - `bob`: A BIC or BEI that identifies the organisation.
+     *                             - `scheme_name`: max. 35 characters.
      * @param string   $initgPtyId An ID of the initiating party (max. 35 characters)
      * @param bool     $checkAndSanitize
      * @throws SephpaInputException

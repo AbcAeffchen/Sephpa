@@ -1,9 +1,9 @@
 <?php
-/**
+/*
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2020 Alexander Schickedanz
+ * @copyright ©2021 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -64,14 +64,22 @@ class SephpaDirectDebit extends Sephpa
      *                             only use this if you know what you do. Available keys:
      *                             - `id`: An Identifier of the organisation.
      *                             - `bob`: A BIC or BEI that identifies the organisation.
+     *                             - `scheme_name`: max. 35 characters. Cannot be used for
+     *                                              version pain.008.001.02.austrian.003
      * @param string   $initgPtyId An ID of the initiating party (max. 35 characters)
      * @param bool     $checkAndSanitize
      * @throws SephpaInputException
      */
     public function __construct($initgPty, $msgId, int $version, array $orgId = [], $initgPtyId = null, $checkAndSanitize = true)
     {
-        if($version === self::SEPA_PAIN_008_001_02_AUSTRIAN_003 && $initgPtyId !== null)
-            throw new SephpaInputException('$initgPtyId is not supported by pain.008.001.02.austrian.003.');
+        if($version === self::SEPA_PAIN_008_001_02_AUSTRIAN_003)
+        {
+            if($initgPtyId !== null)
+                throw new SephpaInputException('$initgPtyId is not supported by pain.008.001.02.austrian.003.');
+
+            if(isset($orgId['scheme_name']))
+                throw new SephpaInputException('orgid[scheme_name] is not supported by pain.008.001.02.austrian.003.');
+        }
 
         parent::__construct($initgPty, $msgId, $orgId, $initgPtyId, $checkAndSanitize);
 

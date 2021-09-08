@@ -81,11 +81,12 @@ abstract class Sephpa
      *
      * @param string   $initgPty   The name of the initiating party (max. 70 characters)
      * @param string   $msgId      The unique id of the file
-     * @param string[] $orgId      It is not recommended to use this at all. If you have to use
+     * @param string[] $orgId      It is not recommended using this at all. If you have to use
      *                             this, the standard only allows one of the two keys.
      *                             Only use this if you know what you do. Available keys:
      *                             - `id`: An Identifier of the organisation.
      *                             - `bob`: A BIC or BEI that identifies the organisation.
+     *                             - `scheme_name`: max. 35 characters.
      * @param string   $initgPtyId An ID of the initiating party (max. 35 characters)
      * @param bool     $checkAndSanitize
      * @throws SephpaInputException
@@ -95,6 +96,9 @@ abstract class Sephpa
         if(isset($orgId['id'], $orgId['bob']))
             throw new SephpaInputException('You cannot use orgid[id] and orgid[bob] simultaneously.');
 
+        if(isset($orgId['scheme_name']) && !isset($orgId['id']))
+            throw new SephpaInputException('You cannot use orgid[scheme_name] without orgid[id].');
+
         $this->checkAndSanitize = $checkAndSanitize;
         $this->creationDateTime = (new DateTime())->format('Y-m-d\TH:i:s');
 
@@ -103,11 +107,12 @@ abstract class Sephpa
             $this->initgPty   = SepaUtilities::checkAndSanitize('initgpty', $initgPty);
             $this->initgPtyId = $initgPtyId === null ? null : SepaUtilities::checkAndSanitize('initgptyid', $initgPtyId);
             $this->msgId      = SepaUtilities::checkAndSanitize('msgid', $msgId);
-            $this->orgId      = ['id' => isset($orgId['id']) ? SepaUtilities::checkAndSanitize('orgid_id', $orgId['id']) : '',
-                                 'bob' =>isset($orgId['bob']) ? SepaUtilities::checkAndSanitize('orgid_bob', $orgId['bob']) : ''];
+            $this->orgId      = ['id'          => isset($orgId['id']) ? SepaUtilities::checkAndSanitize('orgid_id', $orgId['id']) : '',
+                                 'bob'         => isset($orgId['bob']) ? SepaUtilities::checkAndSanitize('orgid_bob', $orgId['bob']) : '',
+                                 'scheme_name' => isset($orgId['scheme_name']) ? SepaUtilities::checkAndSanitize('orgid_sm', $orgId['scheme_name']) : ''];
 
-            if($this->initgPty === false || $this->initgPtyId === false || $this->msgId === false ||
-                (!empty($this->orgId) && ($this->orgId['id'] === false || $this->orgId['bob'] === false)))
+            if($this->initgPty === false || $this->initgPtyId === false || $this->msgId === false
+                || in_array(false, $this->orgId, true))
                 throw new SephpaInputException('The input was invalid and couldn\'t be sanitized.');
         }
         else
@@ -115,8 +120,9 @@ abstract class Sephpa
             $this->initgPty   = $initgPty;
             $this->initgPtyId = $initgPtyId;
             $this->msgId      = $msgId;
-            $this->orgId      = ['id'  => isset($orgId['id']) ? $orgId['id'] : '',
-                                 'bob' => isset($orgId['bob']) ? $orgId['bob'] : ''];
+            $this->orgId = ['id'          => $orgId['id'] ?? '',
+                            'bob'         => $orgId['bob'] ?? '',
+                            'scheme_name' => $orgId['scheme_name'] ?? ''];
         }
     }
 
@@ -164,19 +170,27 @@ abstract class Sephpa
         $initgPty = $grpHdr->addChild('InitgPty');
         $initgPty->addChild('Nm', $this->initgPty);
 
-        if($this->initgPtyId !== null || !empty($this->orgId['bob']) || !empty($this->orgId['id']))
+        if($this->initgPtyId !== null || !empty($this->orgId['bob']) || !empty($this->orgId['id']) || !empty($this->orgId['scheme_name']))
+        {
             $initgPty->addChild('Id');
 
-        if($this->initgPtyId !== null)
-            $initgPty->Id->addChild('PrvtId')->addChild('Othr')->addChild('Id', $this->initgPtyId);
+            if($this->initgPtyId !== null)
+                $initgPty->Id->addChild('PrvtId')->addChild('Othr')->addChild('Id', $this->initgPtyId);
 
-        if(!empty($this->orgId['bob']) || !empty($this->orgId['id']))
-        {
-            $orgId = $initgPty->Id->addChild('OrgId');
-            if(!empty($this->orgId['id']))
-                $orgId->addChild('Othr')->addChild('Id', $this->orgId['id']);
-            if(!empty($this->orgId['bob']))
-                $orgId->addChild('BICOrBEI', $this->orgId['bob']);
+            if(!empty($this->orgId['bob']) || !empty($this->orgId['id']) || !empty($this->orgId['scheme_name']))
+            {
+                $orgId = $initgPty->Id->addChild('OrgId');
+                if(!empty($this->orgId['id']) || !empty($this->orgId['scheme_name']))
+                {
+                    $orgIdOthr = $orgId->addChild('Othr');
+                    if(!empty($this->orgId['id']))
+                        $orgIdOthr->addChild('Id', $this->orgId['id']);
+                    if(!empty($this->orgId['scheme_name']))
+                        $orgIdOthr->addChild('SchmeNm')->addChild('Prtry', $this->orgId['scheme_name']);
+                }
+                if(!empty($this->orgId['bob']))
+                    $orgId->addChild('BICOrBEI', $this->orgId['bob']);
+            }
         }
 
         foreach($this->paymentCollections as $paymentCollection)
