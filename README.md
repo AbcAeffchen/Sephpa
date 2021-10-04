@@ -107,7 +107,7 @@ Thanks to [sargac](https://github.com/sargac) for the help with the wiki pages a
 the nice logo.
 
 ## Support Sephpa
-If you use and like Sephpa, left me a note on what project you use it. I'm really curious. 
+If you use and like Sephpa, drop me a note on what project you use it. I'm really curious. 
 If you like it a lot, consider [buying me a coffee](https://www.buymeacoffee.com/schickedanz) :)
 
 ## License
