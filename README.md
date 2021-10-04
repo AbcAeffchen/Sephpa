@@ -25,7 +25,7 @@ the specifications of Electronic Banking Internet Communication Standard (EBICS)
     - pain.008.003.02
 
 ## Requirements
-Sephpa was created for PHP >=7.1 including PHP 8 and requires [SepaUtilities 1.3.1+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
+Sephpa was created for PHP >=7.1 including PHP 8 and requires [SepaUtilities 1.3.4+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
 Sephpa should also work with PHP <=5.6, but since these versions are very old and don't get
 any security updates, it is strongly recommended not to use PHP older than 5.6.
 
@@ -40,7 +40,7 @@ Just add
 ```json
 {
     "require": {
-        "abcaeffchen/sephpa": "~2.0.0"
+        "abcaeffchen/sephpa": "^2.0"
     }
 }
 ```
@@ -83,7 +83,7 @@ Routing Slips and Control Lists. If you are interested in this files you need to
 ```
 {
     "require": {
-        "abcaeffchen/sepa-documentor": "~1.0.0"
+        "abcaeffchen/sepa-documentor": "^1.0"
     }
 }
 ```
@@ -105,6 +105,10 @@ Thanks to [Hermann Herz](https://github.com/Heart1010) who supported me debuggin
 ideas to improve Sephpa and SepaUtilities.  
 Thanks to [sargac](https://github.com/sargac) for the help with the wiki pages and for creating 
 the nice logo.
+
+## Support Sephpa
+If you use and like Sephpa, left me a note on what project you use it. I'm really curious. 
+If you like it a lot, consider [buying me a coffee](https://www.buymeacoffee.com/schickedanz) :)
 
 ## License
 Licensed under the LGPL v3.0 License.
