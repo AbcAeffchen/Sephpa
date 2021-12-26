@@ -18,7 +18,8 @@ use AbcAeffchen\Sephpa\SephpaCreditTransfer;
 use AbcAeffchen\SepaUtilities\SepaUtilities;
 use AbcAeffchen\Sephpa\SephpaDirectDebit;
 
-require_once '../src/Sephpa.php';
+chdir(dirname(__DIR__));
+require __DIR__ . '/../vendor/autoload.php';
 
 $collectionData = [
                     // needed information about the payer
@@ -36,11 +37,13 @@ $collectionData = [
 
 // generate a SepaCreditTransfer object (pain.001.002.03).
 $creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
-                                               SephpaCreditTransfer::SEPA_PAIN_001_003_03,
-                                               $collectionData);
+                                               SephpaCreditTransfer::SEPA_PAIN_001_003_03);
+
+// generate and add SephpaCreditTransfer* collection object
+$creditTransferCollection = $creditTransferFile->addCollection($collectionData);
 
 // at least one in every CreditTransferCollection
-$creditTransferFile->addPayment([
+$creditTransferCollection->addPayment([
                     // needed information about the one who gets payed
                         'pmtId'     => 'TransferID-1234-1',     // ID of the payment (EndToEndId)
                         'instdAmt'  => 1.14,                    // amount, 
@@ -74,13 +77,15 @@ $collectionData = [
 ];
 
 $directDebitFile = new SephpaDirectDebit('Initiator Name', 'MessageID-1235',
-                                         SephpaDirectDebit::SEPA_PAIN_008_003_02,
-                                         $collectionData);
+                                         SephpaDirectDebit::SEPA_PAIN_008_003_02);
 
 // at least one in every SEPA file. No limit.
 
+// generate and add SephpaDirectDebit* collection object
+$directDebitCollection = $directDebitFile->addCollection($collectionData);
+
 // at least one in every DirectDebitCollection. No limit.
-$directDebitFile->addPayment([
+$directDebitCollection->addPayment([
                     // needed information about the 
                         'pmtId'         => 'TransferID-1235-1',     // ID of the payment (EndToEndId)
                         'instdAmt'      => 2.34,                    // amount
