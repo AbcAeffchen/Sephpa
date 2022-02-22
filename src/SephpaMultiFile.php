@@ -87,7 +87,7 @@ class SephpaMultiFile
         $tmpFile = tempnam(sys_get_temp_dir(), 'sephpa');
         if($zip->open($tmpFile, ZipArchive::OVERWRITE))
         {
-            foreach($this->files as $file)
+            foreach($this->getFiles() as $file)
             {
                 foreach($file->generateOutput($options) as $item)
                 {
@@ -99,5 +99,13 @@ class SephpaMultiFile
         }
 
         return file_get_contents($tmpFile);
+    }
+
+    /**
+     * @return Sephpa[]
+     */
+    public function getFiles(): array
+    {
+        return $this->files;
     }
 }
