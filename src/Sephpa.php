@@ -186,7 +186,7 @@ abstract class Sephpa
                     if(!empty($this->orgId['id']))
                         $orgIdOthr->addChild('Id', $this->orgId['id']);
                     if(!empty($this->orgId['scheme_name']))
-                        $orgIdOthr->addChild('SchmeNm')->addChild('Prtry', $this->orgId['scheme_name']);
+                        $orgIdOthr->addChild('SchmeNm')->addChild('Cd', $this->orgId['scheme_name']);
                 }
                 if(!empty($this->orgId['bob']))
                     $orgId->addChild('BICOrBEI', $this->orgId['bob']);
