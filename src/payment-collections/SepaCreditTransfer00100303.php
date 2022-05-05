@@ -16,12 +16,12 @@ use AbcAeffchen\Sephpa\SephpaInputException;
 /**
  * Manages credit transfers
  */
-class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
+class SepaCreditTransfer00100103 extends SepaCreditTransferCollection
 {
     /**
      * @type int VERSION The SEPA file version of this collection
      */
-    const VERSION = SepaUtilities::SEPA_PAIN_001_003_03;
+    const VERSION = SepaUtilities::SEPA_PAIN_001_001_03;
 
     /**
      * @param mixed[] $transferInfo needed keys: 'pmtInfId', 'dbtr', 'iban';
@@ -53,13 +53,15 @@ class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
             // All fields contain valid information?
             $checkResult = SepaUtilities::checkAndSanitizeAll($transferInfo, $this->sanitizeFlags, ['allowEmptyBic' => true]);
 
-            if($checkResult !== true)
-                throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
+		if(!isset($transferInfo['bgnr'])){
+		    if($checkResult !== true)
+			throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
 
-            $this->dbtrIban = $transferInfo['iban'];
+		    $this->dbtrIban = $transferInfo['iban'];
 
-            if(!empty($transferInfo['bic']) && !SepaUtilities::crossCheckIbanBic($transferInfo['iban'],$transferInfo['bic']))
-                throw new SephpaInputException('IBAN and BIC do not belong to each other.');
+		    if(!empty($transferInfo['bic']) && !SepaUtilities::crossCheckIbanBic($transferInfo['iban'],$transferInfo['bic']))
+			throw new SephpaInputException('IBAN and BIC do not belong to each other.');
+		}
         }
 
         $this->transferInfo = $transferInfo;
@@ -75,12 +77,12 @@ class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
      */
     public function addPayment(array $paymentInfo)
     {
-        if($this->checkAndSanitize)
+        if($this->checkAndSanitize && isset($paymentInfo['iban']))
         {
             if(!SepaUtilities::checkRequiredPaymentKeys($paymentInfo, self::VERSION) )
                 throw new SephpaInputException('One of the required inputs \'pmtId\', \'instdAmt\', \'iban\', \'cdtr\' is missing.');
 
-            $bicRequired = (!SepaUtilities::isNationalTransaction($this->dbtrIban,$paymentInfo['iban']) && $this->today <= SepaUtilities::BIC_REQUIRED_THRESHOLD);
+            $bicRequired = (!SepaUtilities::isEEATransaction($this->dbtrIban,$paymentInfo['iban']));
 
             $checkResult = SepaUtilities::checkAndSanitizeAll($paymentInfo, $this->sanitizeFlags,
                                                               ['allowEmptyBic' => !$bicRequired]);
@@ -120,7 +122,7 @@ class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
 
         $pmtTpInf = $pmtInf->addChild('PmtTpInf');
         $pmtTpInf->addChild('InstrPrty', 'NORM');
-        $pmtTpInf->addChild('SvcLvl')->addChild('Cd', 'SEPA');
+        #$pmtTpInf->addChild('SvcLvl')->addChild('Cd', 'SEPA');
         if( !empty( $this->transferInfo['ctgyPurp'] ) )
             $pmtTpInf->addChild('CtgyPurp')->addChild('Cd', $this->transferInfo['ctgyPurp']);
 
@@ -144,7 +146,13 @@ class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
         }
 
         $dbtrAcct = $pmtInf->addChild('DbtrAcct');
-        $dbtrAcct->addChild('Id')->addChild('IBAN', $this->transferInfo['iban']);
+	if (isset($this->transferInfo['bgnr'])) {
+		$Othr = $dbtrAcct->addChild('Id')->addChild('Othr');
+		$Othr->addChild('Id', $this->transferInfo['bgnr']);
+		$Othr->addChild('SchmeNm')->addChild('Prtry','BGNR');
+	} else {
+	        $dbtrAcct->addChild('Id')->addChild('IBAN', $this->transferInfo['iban']);
+	}
         $dbtrAcct->addChild('Ccy', $ccy);
 
         if( !empty( $this->transferInfo['bic'] ) )
@@ -157,7 +165,7 @@ class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
         if( isset( $this->transferInfo['ultmtDbtr'] ) )
             $pmtInf->addChild('UltmtDbtr')->addChild('Nm', $this->transferInfo['ultmtDbtr']);
 
-        $pmtInf->addChild('ChrgBr', 'SLEV');
+        $pmtInf->addChild('ChrgBr', 'DEBT');
 
         foreach($this->payments as $payment)
         {
@@ -165,7 +173,7 @@ class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
             $this->generatePaymentXml($cdtTrfTxInf, $payment, $ccy);
         }
     }
-    
+
     /**
      * generates the xml for a single payment
      * @param \SimpleXMLElement $cdtTrfTxInf
@@ -175,8 +183,10 @@ class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
      */
     private function generatePaymentXml(\SimpleXMLElement $cdtTrfTxInf, $payment, $ccy)
     {
-        $cdtTrfTxInf->addChild('PmtId')->addChild('EndToEndId', $payment['pmtId']);
-        $cdtTrfTxInf->addChild('Amt')->addChild('InstdAmt', $payment['instdAmt'])
+	$PmtId = $cdtTrfTxInf->addChild('PmtId');
+	$PmtId->addChild('InstrId', $payment['InstrId']);
+	$PmtId->addChild('EndToEndId',$payment['pmtId']);
+        $cdtTrfTxInf->addChild('Amt')->addChild('InstdAmt', sprintf("%01.2F", $payment['instdAmt']))
                     ->addAttribute('Ccy', $ccy);
 
         if( isset( $payment['ultmtDbtr'] ) ||  isset( $payment['ultmtDbtrId'] ) ){
@@ -193,7 +203,6 @@ class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
             $cdtTrfTxInf->addChild('CdtrAgt')->addChild('FinInstnId')
                         ->addChild('BIC', $payment['bic']);
 
-        $cdtTrfTxInf->addChild('Cdtr')->addChild('Nm', $payment['cdtr']);
 
         if(isset($payment['pstlAdr']))
         {
@@ -211,8 +220,19 @@ class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
             }
         }
 
-        $cdtTrfTxInf->addChild('CdtrAcct')->addChild('Id')->addChild('IBAN', $payment['iban']);
 
+	if (isset($payment['bgnr'])) {
+		$ClrSysMmbId = $cdtTrfTxInf->addChild('CdtrAgt')->addChild('FinInstnId')->addChild('ClrSysMmbId');
+		$ClrSysMmbId->addChild('ClrSysId')->addChild('Cd', 'SESBA');
+		$ClrSysMmbId->addChild('MmbId','9900');
+        $cdtTrfTxInf->addChild('Cdtr')->addChild('Nm', $payment['cdtr']);
+		$Othr = $cdtTrfTxInf->addChild('CdtrAcct')->addChild('Id')->addChild('Othr');
+		$Othr->addChild('Id', $payment['bgnr']);
+		$Othr->addChild('SchmeNm')->addChild('Prtry','BGNR');
+	} else {
+        	$cdtTrfTxInf->addChild('Cdtr')->addChild('Nm', $payment['cdtr']);
+	        $cdtTrfTxInf->addChild('CdtrAcct')->addChild('Id')->addChild('IBAN', $payment['iban']);
+	}
         if( isset( $payment['ultmtCdtr'] ) )
             $cdtTrfTxInf->addChild('UltmtCdtr')->addChild('Nm', $payment['ultmtCdtr']);
         if( isset( $payment['purp'] ) )
