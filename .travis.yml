@@ -13,10 +13,14 @@ php:
   - 7.3
   - 7.4
   - 8.0
+  - 8.1
+  - 8.2
 
 matrix:
   allow_failures:
     - php: 7.1
+    - php: 7.2
+    - php: 7.3
 
 install:
   - mkdir tests/output
