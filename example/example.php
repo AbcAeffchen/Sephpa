@@ -1,9 +1,9 @@
 <?php
-/**
+/*
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2018 Alexander Schickedanz
+ * @copyright ©2023 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -14,11 +14,10 @@
  * of the SEPA file format to learn more about using SEPA files.
  */
 
-use AbcAeffchen\Sephpa\SephpaCreditTransfer;
 use AbcAeffchen\SepaUtilities\SepaUtilities;
-use AbcAeffchen\Sephpa\SephpaDirectDebit;
+use AbcAeffchen\Sephpa\{SephpaCreditTransfer, SephpaDirectDebit};
 
-require_once '../src/Sephpa.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $collectionData = [
                     // needed information about the payer
@@ -36,11 +35,12 @@ $collectionData = [
 
 // generate a SepaCreditTransfer object (pain.001.002.03).
 $creditTransferFile = new SephpaCreditTransfer('Initiator Name', 'MessageID-1234',
-                                               SephpaCreditTransfer::SEPA_PAIN_001_003_03,
-                                               $collectionData);
+                                               SephpaCreditTransfer::SEPA_PAIN_001_003_03);
+
+$creditTransferCollection = $creditTransferFile->addCollection($collectionData);
 
 // at least one in every CreditTransferCollection
-$creditTransferFile->addPayment([
+$creditTransferCollection->addPayment([
                     // needed information about the one who gets payed
                         'pmtId'     => 'TransferID-1234-1',     // ID of the payment (EndToEndId)
                         'instdAmt'  => 1.14,                    // amount, 
@@ -74,13 +74,15 @@ $collectionData = [
 ];
 
 $directDebitFile = new SephpaDirectDebit('Initiator Name', 'MessageID-1235',
-                                         SephpaDirectDebit::SEPA_PAIN_008_003_02,
-                                         $collectionData);
+                                         SephpaDirectDebit::SEPA_PAIN_008_003_02);
 
 // at least one in every SEPA file. No limit.
 
+// generate and add SephpaDirectDebit* collection object
+$directDebitCollection = $directDebitFile->addCollection($collectionData);
+
 // at least one in every DirectDebitCollection. No limit.
-$directDebitFile->addPayment([
+$directDebitCollection->addPayment([
                     // needed information about the 
                         'pmtId'         => 'TransferID-1235-1',     // ID of the payment (EndToEndId)
                         'instdAmt'      => 2.34,                    // amount
