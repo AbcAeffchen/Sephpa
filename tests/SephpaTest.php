@@ -40,7 +40,7 @@ class ReturnReferenceTestClass
 
 class SephpaTest extends PHPUnit\Framework\TestCase
 {
-    public function ctVersionProvider()
+    public static function ctVersionProvider()
     {
         return [
             '001.002.03' => [SephpaCreditTransfer::SEPA_PAIN_001_002_03, __DIR__ . '/schemata/pain.001.002.03.xsd'],
@@ -50,7 +50,7 @@ class SephpaTest extends PHPUnit\Framework\TestCase
         ];
     }
 
-    public function ddVersionProvider()
+    public static function ddVersionProvider()
     {
         return [
             '008.002.02' => [SephpaDirectDebit::SEPA_PAIN_008_002_02, __DIR__ . '/schemata/pain.008.002.02.xsd'],
