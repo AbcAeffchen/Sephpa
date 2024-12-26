@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2021 Alexander Schickedanz
+ * @copyright ©2024 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -18,6 +18,40 @@ require_once __DIR__ . '/TestDataProvider.php';
 use AbcAeffchen\SepaUtilities\SepaUtilities;
 use AbcAeffchen\Sephpa\{Sephpa, SephpaCreditTransfer, SephpaDirectDebit, SephpaInputException};
 use AbcAeffchen\Sephpa\TestDataProvider as TDP;
+
+/**
+ * From https://www.php.net/manual/en/function.libxml-get-errors.php
+ * @param $error
+ * @return string
+ */
+function displayXmlError($error)
+{
+    $return = "";
+
+    switch($error->level)
+    {
+        case LIBXML_ERR_WARNING:
+            $return .= "Warning $error->code: ";
+            break;
+        case LIBXML_ERR_ERROR:
+            $return .= "Error $error->code: ";
+            break;
+        case LIBXML_ERR_FATAL:
+            $return .= "Fatal Error $error->code: ";
+            break;
+    }
+
+    $return .= trim($error->message) .
+        "\n  Line: $error->line" .
+        "\n  Column: $error->column";
+
+    if($error->file)
+    {
+        $return .= "\n  File: $error->file";
+    }
+
+    return "$return\n\n--------------------------------------------\n\n";
+}
 
 class ReturnReferenceTestClass
 {
@@ -132,7 +166,17 @@ class SephpaTest extends PHPUnit\Framework\TestCase
      */
     private function validateSchema(Sephpa $sephpaFile, string $xsdFile)
     {
-        static::assertTrue($this->getDomDoc($sephpaFile)->schemaValidate($xsdFile));
+        libxml_use_internal_errors(true);
+        $test = $this->getDomDoc($sephpaFile)->schemaValidate($xsdFile);
+
+        $errors = libxml_get_errors();
+        foreach($errors as $error)
+        {
+            print displayXmlError($error);
+        }
+        libxml_clear_errors();
+
+        static::assertTrue($test);
     }
 
     /**
