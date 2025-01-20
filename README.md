@@ -15,19 +15,21 @@ the specifications of Electronic Banking Internet Communication Standard (EBICS)
 
 ## Supported file versions
 - SEPA Credit Transfer
+    - pain.001.001.09
     - pain.001.001.03
     - pain.001.002.03
     - pain.001.003.03
 - SEPA Direct Debit
+    - pain.008.001.08
     - pain.008.001.02
     - pain.008.001.02.austrian.003
     - pain.008.002.02
     - pain.008.003.02
 
 ## Requirements
-Sephpa was created for PHP >=7.1 including PHP 8 and requires [SepaUtilities 1.3.4+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
-Sephpa should also work with PHP <=5.6, but since these versions are very old and don't get
-any security updates, it is strongly recommended not to use PHP older than 5.6.
+Sephpa was created for PHP >=8.1 and requires [SepaUtilities 3.3.4+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
+Sephpa should also work with PHP <=5.6, but since these versions are not officially supported anymore, 
+it is strongly recommended not to use PHP older than 8.0.
 
 If you want to download correctly sorted files, you also need the zip library and for documentation
 files you need [SepaDocumentor](https://github.com/AbcAeffchen/SepaDocumentor).
@@ -40,7 +42,7 @@ Just add
 ```json
 {
     "require": {
-        "abcaeffchen/sephpa": "^2.0"
+        "abcaeffchen/sephpa": "^3.0"
     }
 }
 ```
@@ -78,12 +80,12 @@ You need to define `PROJECT_ROOT` by yourself.
 
 ### Documentation Module
 Sephpa uses [SepaDocumentor](https://github.com/AbcAeffchen/SepaDocumentor) to create File
-Routing Slips and Control Lists. If you are interested in this files you need to add
+Routing Slips and Control Lists. If you are interested in these files, you need to add
 
 ```
 {
     "require": {
-        "abcaeffchen/sepa-documentor": "^1.0"
+        "abcaeffchen/sepa-documentor": "^3.0"
     }
 }
 ```
