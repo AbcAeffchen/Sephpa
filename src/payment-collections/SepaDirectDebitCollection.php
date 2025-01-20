@@ -1,9 +1,9 @@
 <?php
-/**
+/*
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2020 Alexander Schickedanz
+ * @copyright ©2025 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -12,6 +12,7 @@
 namespace AbcAeffchen\Sephpa\PaymentCollections;
 
 use AbcAeffchen\SepaUtilities\SepaUtilities;
+use AbcAeffchen\Sephpa\SephpaInputException;
 use DateTime;
 use Exception;
 use SimpleXMLElement;
@@ -57,12 +58,14 @@ abstract class SepaDirectDebitCollection implements SepaPaymentCollection
     /**
      * Adds a new payment to the collection.
      *
+     * @param mixed[] $paymentInfo
+     * @return void
+     * @throws SephpaInputException
+     *
      * @see SepaDirectDebit00800102::addPayment()
      * @see SepaDirectDebit00800102Austrian003::addPayment()
      * @see SepaDirectDebit00800202::addPayment()
      * @see SepaDirectDebit00800302::addPayment()
-     * @param mixed[] $paymentInfo
-     * @return boolean
      */
     abstract public function addPayment(array $paymentInfo);
 

@@ -1,15 +1,17 @@
 <?php
-/**
+/*
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2018 Alexander Schickedanz
+ * @copyright ©2025 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
  */
 
 namespace AbcAeffchen\Sephpa\PaymentCollections;
+
+use AbcAeffchen\Sephpa\SephpaInputException;
 
 /**
  * Abstract class for credit transfer and debit
@@ -26,6 +28,10 @@ interface SepaPaymentCollection
     public function __construct(array $info, $check = true, $flags = 0);
     /**
      * Adds a new payment to the collection.
+     * @param mixed[] $paymentInfo
+     * @return void
+     * @throws SephpaInputException
+     *
      * @see SepaCreditTransfer00100103::addPayment()
      * @see SepaCreditTransfer00100203::addPayment()
      * @see SepaCreditTransfer00100303::addPayment()
@@ -33,8 +39,6 @@ interface SepaPaymentCollection
      * @see SepaDirectDebit00800102Austrian003::addPayment()
      * @see SepaDirectDebit00800202::addPayment()
      * @see SepaDirectDebit00800302::addPayment()
-     * @param mixed[] $paymentInfo
-     * @return boolean
      */
     public function addPayment(array $paymentInfo);
     /**
