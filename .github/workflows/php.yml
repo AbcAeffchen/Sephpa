@@ -15,40 +15,32 @@ jobs:
     
     strategy:
       matrix:
-        php: [8.1, 8.2, 8.3, 8.4]
-        unsupported: [false]
-        include:
-          - php: 7.2
-            unsupported: true
-          - php: 7.3
-            unsupported: true
-          - php: 7.4
-            unsupported: true
-          - php: 8.0
-            unsupported: true
+        php: [ 8.1, 8.2, 8.3, 8.4 ]
 
-    continue-on-error: ${{ matrix.unsupported }}
-    
+    continue-on-error: true
+
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
 
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
 
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
 
-    - name: Create test output folder
-      run: mkdir tests/output
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
 
-    - name: Run test suite
-      run: vendor/phpunit/phpunit/phpunit
+      - name: Run test suite
+        run: vendor/phpunit/phpunit/phpunit
