@@ -1,6 +1,15 @@
 Sephpa - Change Log
 ===============
 
+## 3.0.0 - Jan 20, '24
+- Added support for pain.001.001.09 and pain.008.001.08 (#43)
+  - See the wiki for the new format of `pstlAdr`
+- Support up to PHP 8.4 and drop support for PHP 8.0 and older
+- Updated SepaUtilities to 2.0.0
+- Updated SepaDocumentor to 3.0.0
+- Fixed error reporting on failed input sanitation
+- Fixed documentation on `addPayment()` (#44)
+
 ## 2.1.1 - Mar 4, '21
 - Updated SepaUtilities to 1.3.3
 
@@ -14,7 +23,7 @@ Sephpa - Change Log
   Now the code matches the documentation. This is why this change is not considered breaking
   any existing code and rather fix it. Another documentation issue effects `orgnlDbtrAgt`. In 
   pain.008.001.02 this cannot be used, but it was checked and was mentioned in the documentation.
-  This should not be confused with 008.001.02.austrian.003 where `orgnlDbtrAgt` can be use.
+  This should not be confused with 008.001.02.austrian.003 where `orgnlDbtrAgt` can be used.
   In pain.008.001.02 `orgnlDbtrAgt_bic` is a valid keyword that was previously not documented.
 - `pstlAdr` is now supported for all credit transfer and directed debit versions on both the 
   debtor and the creditor.
@@ -87,12 +96,12 @@ in a useful way, the default value will be removed in the future.
 - added unit tests which compare the outputs to bank-validated files
 
 ## 1.2.1 - Oct 18, '14
-- updated SepaUtilities: Sephpa 1.2.0 throws an exception if you entering a purpose (`purp`) 
+- updated SepaUtilities: Sephpa 1.2.0 throws an exception if you enter a purpose (`purp`) 
 or a category purpose (`ctgypurp`) while `checkAndSanitize` is set to true.
 
 ## 1.2.0 - Oct 18, '14
 - Sephpa is now available via composer
-- Sephpa is now splitted up into `SephpaCreditTransfer` and `SephpaDirectDebit`
+- Sephpa is now split up into `SephpaCreditTransfer` and `SephpaDirectDebit`
 - [SepaUtilities](https://github.com/AbcAeffchen/SepaUtilities) is now a project on its own
 - added namespaces
 - changed the directory names
