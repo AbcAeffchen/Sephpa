@@ -34,11 +34,14 @@
     "ext-dom": "*",
     "ext-zip": "*",
     "phpunit/phpunit": "^11",
-    "abcaeffchen/sepa-documentor": "^2.0"
+    "abcaeffchen/sepa-documentor": "^3.0"
   },
   "suggest": {
     "ext-zip": "Needed to store or download multiple files at once.",
     "abcaeffchen/sepa-documentor": "^2.0"
+  },
+  "config": {
+    "discard-changes": true
   },
   "autoload": {
     "psr-4": {
