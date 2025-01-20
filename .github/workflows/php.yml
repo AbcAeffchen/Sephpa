@@ -42,5 +42,8 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
+      - name: Create test output folder
+        run: mkdir tests/output
+
       - name: Run test suite
         run: vendor/phpunit/phpunit/phpunit
