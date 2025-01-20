@@ -16,6 +16,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/TestDataProvider.php';
 
 use AbcAeffchen\SepaUtilities\SepaUtilities;
+use PHPUnit\Framework\Attributes\DataProvider;
 use AbcAeffchen\Sephpa\{Sephpa, SephpaCreditTransfer, SephpaDirectDebit, SephpaInputException};
 use AbcAeffchen\Sephpa\TestDataProvider as TDP;
 
@@ -182,13 +183,13 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     }
 
     /**
-     * @dataProvider ctVersionProvider
-     * @dataProvider ddVersionProvider
      * @param $version
      * @param $xsdFile
      * @throws SephpaInputException
      * @throws \Mpdf\MpdfException
      */
+    #[DataProvider('ctVersionProvider')]
+    #[DataProvider('ddVersionProvider')]
     public function testOrgId($version, $xsdFile)
     {
         $this->validateSchema(TDP::getFile($version, true, true, true, []), $xsdFile);
@@ -229,13 +230,13 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     }
 
     /**
-     * @dataProvider ctVersionProvider
-     * @dataProvider ddVersionProvider
      * @param $version
      * @param $xsdFile
      * @throws SephpaInputException
      * @throws \Mpdf\MpdfException
      */
+    #[DataProvider('ctVersionProvider')]
+    #[DataProvider('ddVersionProvider')]
     public function testInitgPtyId($version, $xsdFile)
     {
         // InitgPtyId is not supported by pain.008.001.02.austrian.003
@@ -247,13 +248,13 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     }
 
     /**
-     * @dataProvider ctVersionProvider
-     * @dataProvider ddVersionProvider
      * @param $version
      * @param $xsdFile
      * @throws SephpaInputException
      * @throws \Mpdf\MpdfException
      */
+    #[DataProvider('ctVersionProvider')]
+    #[DataProvider('ddVersionProvider')]
     public function testBasicFileValidity($version, $xsdFile)
     {
         $bicRequired = in_array($version, [SephpaCreditTransfer::SEPA_PAIN_001_002_03,
@@ -284,13 +285,13 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     }
 
     /**
-     * @dataProvider ctVersionProvider
-     * @dataProvider ddVersionProvider
      * @param $version
      * @param $xsdFile
      * @throws SephpaInputException
      * @throws \Mpdf\MpdfException
      */
+    #[DataProvider('ctVersionProvider')]
+    #[DataProvider('ddVersionProvider')]
     public function testEmptyFilesAndCollections($version, $xsdFile)
     {
         $exceptionCounter = 0;

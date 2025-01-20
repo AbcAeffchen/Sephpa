@@ -3,27 +3,27 @@
   ~ Sephpa
   ~
   ~ @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
-  ~ @copyright ©2021 Alexander Schickedanz
+  ~ @copyright ©2025 Alexander Schickedanz
   ~ @link      https://github.com/AbcAeffchen/Sephpa
   ~
   ~ @author  Alexander Schickedanz <abcaeffchen@gmail.com>
   -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          backupGlobals="false"
-         backupStaticAttributes="false"
          bootstrap="vendor/autoload.php"
          colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
-    <coverage processUncoveredFiles="true">
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         displayDetailsOnTestsThatTriggerErrors="true"
+         displayDetailsOnTestsThatTriggerNotices="true"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         displayDetailsOnPhpunitDeprecations="true">
+    <source>
         <include>
             <directory suffix=".php">./src</directory>
         </include>
-    </coverage>
+    </source>
     <testsuites>
         <testsuite name="Sephpa Tests">
             <file>./tests/SephpaTest.php</file>
