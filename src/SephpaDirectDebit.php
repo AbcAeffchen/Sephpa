@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2021 Alexander Schickedanz
+ * @copyright ©2025 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -24,23 +24,13 @@ class SephpaDirectDebit extends Sephpa
     public const SEPA_PAIN_008_001_02_AUSTRIAN_003 = SepaUtilities::SEPA_PAIN_008_001_02_AUSTRIAN_003;
     public const SEPA_PAIN_008_002_02 = SepaUtilities::SEPA_PAIN_008_002_02;
     public const SEPA_PAIN_008_003_02 = SepaUtilities::SEPA_PAIN_008_003_02;
+    public const SEPA_PAIN_008_001_08 = SepaUtilities::SEPA_PAIN_008_001_08;
 
-    /**
-     * @type string INITIAL_STRING_DD Initial sting for direct debit pain.008.001.02
-     */
     private const INITIAL_STRING_PAIN_008_001_02 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02 pain.008.001.02.xsd"></Document>';
-    /**
-     * @type string INITIAL_STRING_DD Initial sting for direct debit pain.008.001.02.austrian.003
-     */
     private const INITIAL_STRING_PAIN_008_001_02_AUSTRIAN_003 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="ISO:pain.008.001.02:APC:STUZZA:payments:003" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></Document>';
-    /**
-     * @type string INITIAL_STRING_DD Initial sting for direct debit pain.008.002.02
-     */
     private const INITIAL_STRING_PAIN_008_002_02 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.002.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.002.02 pain.008.002.02.xsd"></Document>';
-    /**
-     * @type string INITIAL_STRING_DD Initial sting for direct debit pain.008.003.02
-     */
     private const INITIAL_STRING_PAIN_008_003_02 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02 pain.008.003.02.xsd"></Document>';
+    private const INITIAL_STRING_PAIN_008_001_08 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.08" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.008.003.02 pain.008.001.08.xsd"></Document>';
 
     private const VERSIONS = [self::SEPA_PAIN_008_001_02              => ['class'   => '00800102',
                                                                           'initStr' => self::INITIAL_STRING_PAIN_008_001_02],
@@ -49,7 +39,9 @@ class SephpaDirectDebit extends Sephpa
                               self::SEPA_PAIN_008_002_02              => ['class'   => '00800202',
                                                                           'initStr' => self::INITIAL_STRING_PAIN_008_002_02],
                               self::SEPA_PAIN_008_003_02              => ['class'   => '00800302',
-                                                                          'initStr' => self::INITIAL_STRING_PAIN_008_003_02]];
+                                                                          'initStr' => self::INITIAL_STRING_PAIN_008_003_02],
+                              self::SEPA_PAIN_008_001_08              => ['class'   => '00800108',
+                                                                          'initStr' => self::INITIAL_STRING_PAIN_008_001_08]];
 
     /**
      * Creates a SepaXmlFile object and sets the head data
@@ -72,6 +64,8 @@ class SephpaDirectDebit extends Sephpa
      */
     public function __construct($initgPty, $msgId, int $version, array $orgId = [], $initgPtyId = null, $checkAndSanitize = true)
     {
+        $this->orgIdBicTag = $version === self::SEPA_PAIN_008_001_08 ? 'AnyBIC' : 'BICOrBEI';
+
         if($version === self::SEPA_PAIN_008_001_02_AUSTRIAN_003)
         {
             if($initgPtyId !== null)

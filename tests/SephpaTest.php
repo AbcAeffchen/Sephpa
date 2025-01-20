@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2024 Alexander Schickedanz
+ * @copyright ©2025 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -63,7 +63,7 @@ class ReturnReferenceTestClass
      */
     public function __construct()
     {
-        $this->testArray = [0,0,0,0,0];
+        $this->testArray = [0, 0, 0, 0, 0];
     }
 
     public function &getEnd()
@@ -77,29 +77,31 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     public static function ctVersionProvider()
     {
         return [
-            '001.002.03' => [SephpaCreditTransfer::SEPA_PAIN_001_002_03, __DIR__ . '/schemata/pain.001.002.03.xsd'],
-            '001.003.03' => [SephpaCreditTransfer::SEPA_PAIN_001_003_03, __DIR__ . '/schemata/pain.001.003.03.xsd'],
-            '001.001.03' => [SephpaCreditTransfer::SEPA_PAIN_001_001_03, __DIR__ . '/schemata/pain.001.001.03.xsd'],
-            '001.001.03_GBIC' => [SephpaCreditTransfer::SEPA_PAIN_001_001_03, __DIR__ . '/schemata/pain.001.001.03_GBIC.xsd']
+            '001.002.03'      => [SephpaCreditTransfer::SEPA_PAIN_001_002_03, __DIR__ . '/schemata/pain.001.002.03.xsd'],
+            '001.003.03'      => [SephpaCreditTransfer::SEPA_PAIN_001_003_03, __DIR__ . '/schemata/pain.001.003.03.xsd'],
+            '001.001.03'      => [SephpaCreditTransfer::SEPA_PAIN_001_001_03, __DIR__ . '/schemata/pain.001.001.03.xsd'],
+            '001.001.03_GBIC' => [SephpaCreditTransfer::SEPA_PAIN_001_001_03, __DIR__ . '/schemata/pain.001.001.03_GBIC.xsd'],
+            '001.001.09'      => [SephpaCreditTransfer::SEPA_PAIN_001_001_09, __DIR__ . '/schemata/pain.001.001.09_GBIC_4.xsd'],
         ];
     }
 
     public static function ddVersionProvider()
     {
         return [
-            '008.002.02' => [SephpaDirectDebit::SEPA_PAIN_008_002_02, __DIR__ . '/schemata/pain.008.002.02.xsd'],
-            '008.003.02' => [SephpaDirectDebit::SEPA_PAIN_008_003_02, __DIR__ . '/schemata/pain.008.003.02.xsd'],
-            '008.001.02' => [SephpaDirectDebit::SEPA_PAIN_008_001_02, __DIR__ . '/schemata/pain.008.001.02.xsd'],
-            '008.001.02_GBIC' => [SephpaDirectDebit::SEPA_PAIN_008_001_02, __DIR__ . '/schemata/pain.008.001.02_GBIC.xsd'],
-            'pain.008.001.02.austrian.003' => [SephpaDirectDebit::SEPA_PAIN_008_001_02_AUSTRIAN_003, __DIR__ . '/schemata/pain.008.001.02.austrian.003.xsd']
+            '008.002.02'                   => [SephpaDirectDebit::SEPA_PAIN_008_002_02, __DIR__ . '/schemata/pain.008.002.02.xsd'],
+            '008.003.02'                   => [SephpaDirectDebit::SEPA_PAIN_008_003_02, __DIR__ . '/schemata/pain.008.003.02.xsd'],
+            '008.001.02'                   => [SephpaDirectDebit::SEPA_PAIN_008_001_02, __DIR__ . '/schemata/pain.008.001.02.xsd'],
+            '008.001.02_GBIC'              => [SephpaDirectDebit::SEPA_PAIN_008_001_02, __DIR__ . '/schemata/pain.008.001.02_GBIC.xsd'],
+            'pain.008.001.02.austrian.003' => [SephpaDirectDebit::SEPA_PAIN_008_001_02_AUSTRIAN_003, __DIR__ . '/schemata/pain.008.001.02.austrian.003.xsd'],
+            '008.001.08'                   => [SephpaDirectDebit::SEPA_PAIN_008_001_08, __DIR__ . '/schemata/pain.008.001.08_GBIC_4.xsd'],
         ];
     }
 
     public function testEndReference()
     {
         $testObj = new ReturnReferenceTestClass();
-        $end = &$testObj->getEnd();
-        $end = 1;
+        $end     = &$testObj->getEnd();
+        $end     = 1;
         $this->assertSame(1, end($testObj->testArray));
     }
 
@@ -172,7 +174,7 @@ class SephpaTest extends PHPUnit\Framework\TestCase
         $errors = libxml_get_errors();
         foreach($errors as $error)
         {
-            print displayXmlError($error);
+            echo displayXmlError($error);
         }
         libxml_clear_errors();
 
@@ -204,7 +206,7 @@ class SephpaTest extends PHPUnit\Framework\TestCase
 
         try
         {
-            TDP::getFile($version, true, true, true, ['id'  => 'testID', 'bob' => 'BELADEBEXXX']);
+            TDP::getFile($version, true, true, true, ['id' => 'testID', 'bob' => 'BELADEBEXXX']);
             static::fail('Exception was not thrown...');
         }
         catch(SephpaInputException $e)
@@ -292,19 +294,19 @@ class SephpaTest extends PHPUnit\Framework\TestCase
     public function testEmptyFilesAndCollections($version, $xsdFile)
     {
         $exceptionCounter = 0;
-        $file = TDP::getFile($version, true, true, true, [], null, 0, 0);
+        $file             = TDP::getFile($version, true, true, true, [], null, 0, 0);
         try
         {
             $file->generateOutput();    // no collections
         }
-        catch(SephpaInputException $e) { $exceptionCounter++; }
+        catch(SephpaInputException) { $exceptionCounter++; }
 
         try
         {
             $file->addCollection(TDP::getCollectionData($version, true, true));
             $file->generateOutput();    // one empty collections
         }
-        catch(SephpaInputException $e) { $exceptionCounter++; }
+        catch(SephpaInputException) { $exceptionCounter++; }
 
         // both tries should have thrown.
         static::assertSame(2, $exceptionCounter);

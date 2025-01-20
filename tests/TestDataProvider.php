@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2021 Alexander Schickedanz
+ * @copyright ©2025 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -27,16 +27,35 @@ class TestDataProvider
      *                          null = random
      * @return array
      */
-    private static function getPstlAdrData(?int $adrType = null) : array
+    private static function getPstlAdrData(int $version, ?int $adrType = null) : array
     {
         if($adrType === null)
-            $adrType = random_int(0, 2);
+        {
+            try
+            {
+                $adrType = random_int(0, 2);
+            }
+            catch(\Exception)
+            {
+                $adrType = 0;
+            }
+        }
 
-        return ['ctry' => 'DE',
-                'adrLine' => $adrType === 0 ? 'test 1' : ($adrType === 1 ? ['test 1'] : ['test 1', 'test 2'])];
+        $pstlAdr = ['ctry' => 'DE'];
+
+        if(in_array($version, [SephpaCreditTransfer::SEPA_PAIN_001_001_09, SephpaDirectDebit::SEPA_PAIN_008_001_08]))
+        {
+            $pstlAdr['twnNm'] = 'testTown';
+        }
+        else
+        {
+            $pstlAdr['adrLine'] = $adrType === 0 ? 'test 1' : ($adrType === 1 ? ['test 1'] : ['test 1', 'test 2']);
+        }
+
+        return $pstlAdr;
     }
 
-    public static function getCreditTransferData(bool $addBIC, bool $addOptionalData) : array
+    public static function getCreditTransferData(int $version, bool $addBIC, bool $addOptionalData) : array
     {
         $transferInformation = [
             'pmtInfId'      => 'PaymentCollectionID-1234',  // ID of the payment collection
@@ -54,13 +73,13 @@ class TestDataProvider
             $transferInformation['reqdExctnDt'] = '2013-11-25';              // Date: YYYY-MM-DD
             $transferInformation['ultmtDbtr']   = 'Ultimate Debtor Name';    // just an information, this do not affect the payment (max 70 characters)
             $transferInformation['ctgyPurp']    = 'BONU';
-            $transferInformation['pstlAdr']     = self::getPstlAdrData(2);
+            $transferInformation['pstlAdr']     = self::getPstlAdrData($version, 2);
         }
 
         return $transferInformation;
     }
 
-    public static function getCreditTransferPaymentData(bool $addBIC, bool $addOptionalData, int $id = 1) : array
+    public static function getCreditTransferPaymentData(int $version, bool $addBIC, bool $addOptionalData, int $id = 1) : array
     {
         $paymentData = [
             'pmtId'     => 'PaymentID-1234-' . $id,     // ID of the payment (EndToEndId)
@@ -81,13 +100,13 @@ class TestDataProvider
             $paymentData['ultmtCdtr'] = 'Ultimate Creditor Name';   // just an information, this do not affect the payment (max 70 characters)
             $paymentData['rmtInf']    = 'Remittance Information';   // unstructured information about the remittance (max 140 characters)
             $paymentData['purp']      = 'BONU';                     // Four letter code
-            $paymentData['pstlAdr']   = self::getPstlAdrData(($id ?? 2) % 3);
+            $paymentData['pstlAdr']   = self::getPstlAdrData($version, ($id ?? 2) % 3);
         }
 
         return $paymentData;
     }
 
-    public static function getDirectDebitData(bool $addBIC, bool $addOptionalData) : array
+    public static function getDirectDebitData(int $version, bool $addBIC, bool $addOptionalData) : array
     {
         $directDebitInformation = [
             'pmtInfId'      => 'PaymentCollectionID-1235',  // ID of the payment collection
@@ -108,13 +127,13 @@ class TestDataProvider
             $directDebitInformation['ultmtCdtr']     = 'Ultimate Creditor Name';// just an information, this do not affect the payment (max 70 characters)
             $directDebitInformation['ctgyPurp']      = 'BONU';
             $directDebitInformation['reqdColltnDt']  = '2013-11-25';            // Date: YYYY-MM-DD
-            $directDebitInformation['pstlAdr']       = self::getPstlAdrData(2);
+            $directDebitInformation['pstlAdr']       = self::getPstlAdrData($version, 2);
         }
 
         return $directDebitInformation;
     }
 
-    public static function getDirectDebitPaymentData(bool $addBIC, bool $addOptionalData, int $id = 1) : array
+    public static function getDirectDebitPaymentData(int $version, bool $addBIC, bool $addOptionalData, int $id = 1) : array
     {
         $paymentData = [
             'pmtId'               => 'PaymentID-1235-' . $id,        // ID of the payment (EndToEndId)
@@ -135,8 +154,8 @@ class TestDataProvider
             $paymentData['amdmntInd']           = 'true';                    // Did the mandate change
             $paymentData['ultmtDbtr']           = 'Ultimate Debtor Name';    // just an information, this do not affect the payment (max 70 characters)
             $paymentData['rmtInf']              = 'Remittance Information';  // unstructured information about the remittance (max 140 characters)
-            $paymentData['purp']                = 'BONU';                    // Four letter code
-            $paymentData['pstlAdr']             = self::getPstlAdrData(($id ?? 2) % 3);
+            $paymentData['purp']                = 'BONU';                    // Four-letter code
+            $paymentData['pstlAdr']             = self::getPstlAdrData($version, ($id ?? 2) % 3);
             // only use this if 'amdmntInd' is 'true'. at least one must be used
             $paymentData['orgnlMndtId']         = 'Original-Mandat-ID';
             $paymentData['orgnlCdtrSchmeId_nm'] = 'Creditor-Identifier Name';
@@ -152,15 +171,15 @@ class TestDataProvider
     public static function getCollectionData(int $version, bool $addBIC, bool $addOptionalData)
     {
         return self::isCreditTransfer($version)
-            ? self::getCreditTransferData($addBIC, $addOptionalData)
-            : self::getDirectDebitData($addBIC, $addOptionalData);
+            ? self::getCreditTransferData($version, $addBIC, $addOptionalData)
+            : self::getDirectDebitData($version, $addBIC, $addOptionalData);
     }
 
     public static function getPaymentData(int $version, bool $addBIC, bool $addOptionalData, int $id = 1)
     {
         return self::isCreditTransfer($version)
-            ? self::getCreditTransferPaymentData($addBIC, $addOptionalData, $id)
-            : self::getDirectDebitPaymentData($addBIC, $addOptionalData, $id);
+            ? self::getCreditTransferPaymentData($version, $addBIC, $addOptionalData, $id)
+            : self::getDirectDebitPaymentData($version, $addBIC, $addOptionalData, $id);
     }
 
     /**

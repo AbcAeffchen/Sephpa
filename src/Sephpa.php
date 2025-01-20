@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2021 Alexander Schickedanz
+ * @copyright ©2025 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -15,6 +15,7 @@ use AbcAeffchen\SepaDocumentor\ControlList;
 use AbcAeffchen\SepaDocumentor\FileRoutingSlip;
 use AbcAeffchen\SepaUtilities\SepaUtilities;
 use DateTime;
+use SimpleXMLElement;
 use ZipArchive;
 
 // Set default Timezone
@@ -75,6 +76,8 @@ abstract class Sephpa
      * @type int $sanitizeFlags
      */
     protected $sanitizeFlags = 0;
+
+    protected string $orgIdBicTag;
 
     /**
      * Creates a SepaXmlFile object and sets the head data.
@@ -143,6 +146,24 @@ abstract class Sephpa
      */
     abstract protected function addCollection(array $information);
 
+    protected function handleOrigId(SimpleXMLElement $initgPty) {
+        if(empty($this->orgId['bob']) && empty($this->orgId['id']) && empty($this->orgId['scheme_name']))
+            return;
+
+        $orgId = $initgPty->Id->addChild('OrgId');
+        if(!empty($this->orgId['id']) || !empty($this->orgId['scheme_name']))
+        {
+            $orgIdOthr = $orgId->addChild('Othr');
+            if(!empty($this->orgId['id']))
+                $orgIdOthr->addChild('Id', $this->orgId['id']);
+            if(!empty($this->orgId['scheme_name']))
+                $orgIdOthr->addChild('SchmeNm')->addChild('Prtry', $this->orgId['scheme_name']);
+        }
+
+        if(!empty($this->orgId['bob']))
+            $orgId->addChild($this->orgIdBicTag, $this->orgId['bob']);
+    }
+
     /**
      * Generates the XML string from the given data. All empty collections are skipped.
      *
@@ -177,20 +198,7 @@ abstract class Sephpa
             if($this->initgPtyId !== null)
                 $initgPty->Id->addChild('PrvtId')->addChild('Othr')->addChild('Id', $this->initgPtyId);
 
-            if(!empty($this->orgId['bob']) || !empty($this->orgId['id']) || !empty($this->orgId['scheme_name']))
-            {
-                $orgId = $initgPty->Id->addChild('OrgId');
-                if(!empty($this->orgId['id']) || !empty($this->orgId['scheme_name']))
-                {
-                    $orgIdOthr = $orgId->addChild('Othr');
-                    if(!empty($this->orgId['id']))
-                        $orgIdOthr->addChild('Id', $this->orgId['id']);
-                    if(!empty($this->orgId['scheme_name']))
-                        $orgIdOthr->addChild('SchmeNm')->addChild('Prtry', $this->orgId['scheme_name']);
-                }
-                if(!empty($this->orgId['bob']))
-                    $orgId->addChild('BICOrBEI', $this->orgId['bob']);
-            }
+            $this->handleOrigId($initgPty);
         }
 
         foreach($this->paymentCollections as $paymentCollection)

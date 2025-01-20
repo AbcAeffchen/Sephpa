@@ -1,7 +1,7 @@
 {
   "name": "abcaeffchen/sephpa",
   "type": "library",
-  "description": "Generates SEPA files for credit transfers (pain.001.001.03, pain.001.002.03, pain.001.003.03) and direct debit (pain.008.001.02, pain.008.002.02, pain.008.003.02)",
+  "description": "Generates SEPA files for credit transfers (pain.001.001.03, pain.001.002.03, pain.001.003.03, pain.001.001.09) and direct debit (pain.008.001.02, pain.008.002.02, pain.008.003.02, pain.008.01.08)",
   "keywords": [
     "sepa",
     "xml",
@@ -28,7 +28,7 @@
     "php": ">=8.1",
     "ext-xml": "*",
     "ext-simplexml": "*",
-    "abcaeffchen/sepa-utilities": "^1.3.4"
+    "abcaeffchen/sepa-utilities": "^2.0.0"
   },
   "require-dev": {
     "ext-dom": "*",

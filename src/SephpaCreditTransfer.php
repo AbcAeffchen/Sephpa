@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2021 Alexander Schickedanz
+ * @copyright ©2025 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -23,26 +23,21 @@ class SephpaCreditTransfer extends Sephpa
     public const SEPA_PAIN_001_001_03 = SepaUtilities::SEPA_PAIN_001_001_03;
     public const SEPA_PAIN_001_002_03 = SepaUtilities::SEPA_PAIN_001_002_03;
     public const SEPA_PAIN_001_003_03 = SepaUtilities::SEPA_PAIN_001_003_03;
+    public const SEPA_PAIN_001_001_09 = SepaUtilities::SEPA_PAIN_001_001_09;
 
-    /**
-     * @type string INITIAL_STRING_CT Initial sting for credit transfer pain.001.001.03
-     */
     private const INITIAL_STRING_PAIN_001_001_03 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03 pain.001.001.03.xsd"></Document>';
-    /**
-     * @type string INITIAL_STRING_CT Initial sting for credit transfer pain.001.002.03
-     */
     private const INITIAL_STRING_PAIN_001_002_03 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.002.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.002.03 pain.001.002.03.xsd"></Document>';
-    /**
-     * @type string INITIAL_STRING_CT Initial sting for credit transfer pain.001.003.03
-     */
     private const INITIAL_STRING_PAIN_001_003_03 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03 pain.001.003.03.xsd"></Document>';
+    private const INITIAL_STRING_PAIN_001_001_09 = '<?xml version="1.0" encoding="UTF-8"?><Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09 pain.001.001.09.xsd"></Document>';
 
     private const VERSIONS = [self::SEPA_PAIN_001_001_03 => ['class'   => '00100103',
                                                              'initStr' => self::INITIAL_STRING_PAIN_001_001_03],
                               self::SEPA_PAIN_001_002_03 => ['class'   => '00100203',
                                                              'initStr' => self::INITIAL_STRING_PAIN_001_002_03],
                               self::SEPA_PAIN_001_003_03 => ['class'   => '00100303',
-                                                             'initStr' => self::INITIAL_STRING_PAIN_001_003_03]];
+                                                             'initStr' => self::INITIAL_STRING_PAIN_001_003_03],
+                              self::SEPA_PAIN_001_001_09 => ['class'   => '00100109',
+                                                             'initStr' => self::INITIAL_STRING_PAIN_001_001_09]];
 
     /**
      * Creates a SepaXmlFile object and sets the head data
@@ -65,6 +60,8 @@ class SephpaCreditTransfer extends Sephpa
     public function __construct($initgPty, $msgId, $version, array $orgId = [], $initgPtyId = null, $checkAndSanitize = true)
     {
         parent::__construct($initgPty, $msgId, $orgId, $initgPtyId, $checkAndSanitize);
+
+        $this->orgIdBicTag = $version === self::SEPA_PAIN_001_001_09 ? 'AnyBIC' : 'BICOrBEI';
 
         $this->paymentType = 'CstmrCdtTrfInitn';
 
