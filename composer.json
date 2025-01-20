@@ -33,7 +33,7 @@
   "require-dev": {
     "ext-dom": "*",
     "ext-zip": "*",
-    "phpunit/phpunit": "^11",
+    "phpunit/phpunit": "^11 || ^10",
     "abcaeffchen/sepa-documentor": "^3.0"
   },
   "suggest": {
