@@ -25,8 +25,8 @@ class SepaCreditTransfer00100109 extends SepaCreditTransferCollection
     const VERSION = SepaUtilities::SEPA_PAIN_001_001_09;
 
     /**
-     * @param mixed[] $transferInfo     needed keys: 'pmtInfId', 'dbtr', 'iban';
-     *                                  optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt',
+     * @param array $transferInfo       Needed keys: 'pmtInfId', 'dbtr', 'iban';
+     *                                  Optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt',
      *                                  'ultmtDbtr', 'bic', 'pstlAdr'
      * @param bool    $checkAndSanitize All inputs will be checked and sanitized before creating the
      *                                  collection. If you check the inputs yourself you can set this
@@ -157,7 +157,7 @@ class SepaCreditTransfer00100109 extends SepaCreditTransferCollection
     /**
      * generates the xml for a single payment
      * @param \SimpleXMLElement $cdtTrfTxInf
-     * @param mixed[]           $payment one of the payments in $this->payments
+     * @param array             $payment one of the payments in $this->payments
      * @param string            $ccy     currency
      * @return void
      */

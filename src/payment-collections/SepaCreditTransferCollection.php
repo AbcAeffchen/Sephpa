@@ -32,11 +32,11 @@ abstract class SepaCreditTransferCollection implements SepaPaymentCollection
      */
     protected $sanitizeFlags = 0;
     /**
-     * @var mixed[] $payments Saves all payments
+     * @var array $payments Saves all payments
      */
     protected $payments = [];
     /**
-     * @var mixed[] $transferInfo Saves the transfer information for the collection.
+     * @var array $transferInfo Saves the transfer information for the collection.
      */
     protected $transferInfo;
     /**
@@ -47,18 +47,18 @@ abstract class SepaCreditTransferCollection implements SepaPaymentCollection
     protected $today;
 
     /**
-     * @param mixed[] $info         The input data defining the collection
-     * @param bool    $check        All inputs will be checked and sanitized before creating
-     *                              the collection. If you check the inputs yourself you can
-     *                              set this to false.
-     * @param int     $flags        The flags used for sanitizing
+     * @param array $info  The input data defining the collection
+     * @param bool  $check All inputs will be checked and sanitized before creating
+     *                     the collection. If you check the inputs yourself you can
+     *                     set this to false.
+     * @param int   $flags The flags used for sanitizing
      */
     abstract public function __construct(array $info, $check = true, $flags = 0);
 
     /**
      * Adds a new payment to the collection.
      *
-     * @param mixed[] $paymentInfo
+     * @param array $paymentInfo
      * @return void
      * @throws SephpaInputException
      *

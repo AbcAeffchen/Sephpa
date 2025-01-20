@@ -141,7 +141,7 @@ abstract class Sephpa
     /**
      * Adds a new collection and sets main data.
      *
-     * @param mixed[] $information An array with information about the collection.
+     * @param array $information An array with information about the collection.
      * @throws SephpaInputException
      */
     abstract protected function addCollection(array $information);

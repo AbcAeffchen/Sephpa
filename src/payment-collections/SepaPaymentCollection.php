@@ -19,16 +19,16 @@ use AbcAeffchen\Sephpa\SephpaInputException;
 interface SepaPaymentCollection
 {
     /**
-     * @param mixed[] $info         The input data defining the collection
-     * @param bool    $check        All inputs will be checked and sanitized before creating
-     *                              the collection. If you check the inputs yourself you can
-     *                              set this to false.
-     * @param int     $flags        The flags used for sanitizing
+     * @param array $info  The input data defining the collection
+     * @param bool  $check All inputs will be checked and sanitized before creating
+     *                     the collection. If you check the inputs yourself you can
+     *                     set this to false.
+     * @param int   $flags The flags used for sanitizing
      */
     public function __construct(array $info, $check = true, $flags = 0);
     /**
      * Adds a new payment to the collection.
-     * @param mixed[] $paymentInfo
+     * @param array $paymentInfo
      * @return void
      * @throws SephpaInputException
      *

@@ -24,13 +24,13 @@ class SepaDirectDebit00800302 extends SepaDirectDebitCollection
     const VERSION = SepaUtilities::SEPA_PAIN_008_003_02;
 
     /**
-     * @param mixed[] $debitInfo        Needed keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'cdtr',
-     *                                  'iban', 'bic', 'ci'; optional keys: 'ccy', 'btchBookg',
-     *                                  'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt', 'pstlAdr'
-     * @param bool    $checkAndSanitize All inputs will be checked and sanitized before creating
-     *                                  the collection. If you check the inputs yourself you can
-     *                                  set this to false.
-     * @param int     $flags            The flags used for sanitizing
+     * @param array $debitInfo        Needed keys: 'pmtInfId', 'lclInstrm', 'seqTp', 'cdtr',
+     *                                'iban', 'bic', 'ci'; optional keys: 'ccy', 'btchBookg',
+     *                                'ctgyPurp', 'ultmtCdtr', 'reqdColltnDt', 'pstlAdr'
+     * @param bool  $checkAndSanitize All inputs will be checked and sanitized before creating
+     *                                the collection. If you check the inputs yourself you can
+     *                                set this to false.
+     * @param int   $flags            The flags used for sanitizing
      * @throws SephpaInputException
      */
     public function __construct(array $debitInfo, $checkAndSanitize = true, $flags = 0)
@@ -60,11 +60,11 @@ class SepaDirectDebit00800302 extends SepaDirectDebitCollection
     /**
      * calculates the sum of all payments in this collection
      *
-     * @param mixed[] $paymentInfo needed keys: 'pmtId', 'instdAmt', 'mndtId', 'dtOfSgntr', 'bic',
-     *                             'dbtr', 'iban';
-     *                             optional keys: 'amdmntInd', 'orgnlMndtId', 'orgnlCdtrSchmeId_nm',
-     *                             'orgnlCdtrSchmeId_id', 'orgnlDbtrAcct_iban', 'orgnlDbtrAgt',
-     *                             'elctrncSgntr', 'ultmtDbtr', 'purp', 'rmtInf', 'pstlAdr'
+     * @param array $paymentInfo Needed keys: 'pmtId', 'instdAmt', 'mndtId', 'dtOfSgntr', 'bic',
+     *                           'dbtr', 'iban';
+     *                           Optional keys: 'amdmntInd', 'orgnlMndtId', 'orgnlCdtrSchmeId_nm',
+     *                           'orgnlCdtrSchmeId_id', 'orgnlDbtrAcct_iban', 'orgnlDbtrAgt',
+     *                           'elctrncSgntr', 'ultmtDbtr', 'purp', 'rmtInf', 'pstlAdr'
      * @throws SephpaInputException
      * @return void
      */
@@ -186,7 +186,7 @@ class SepaDirectDebit00800302 extends SepaDirectDebitCollection
      * Generates the xml for a single payment
      *
      * @param \SimpleXMLElement $drctDbtTxInf
-     * @param mixed[]           $payment One of the payments in $this->payments
+     * @param array             $payment One of the payments in $this->payments
      * @param string            $ccy     currency
      * @return void
      */

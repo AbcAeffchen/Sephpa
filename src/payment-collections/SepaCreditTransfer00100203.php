@@ -24,13 +24,13 @@ class SepaCreditTransfer00100203 extends SepaCreditTransferCollection
     const VERSION = SepaUtilities::SEPA_PAIN_001_002_03;
 
     /**
-     * @param mixed[] $transferInfo needed keys: 'pmtInfId', 'dbtr', 'iban', 'bic';
-     *                              optional keys: 'ccy', 'btchBookg', 'ctgyPurp',
-     *                              'reqdExctnDt', 'ultmtDbtr', 'pstlAdr'
-     * @param bool    $checkAndSanitize        All inputs will be checked and sanitized before creating
-     *                              the collection. If you check the inputs yourself you can
-     *                              set this to false.
-     * @param int     $flags        The flags used for sanitizing
+     * @param array $transferInfo     Needed keys: 'pmtInfId', 'dbtr', 'iban', 'bic';
+     *                                Optional keys: 'ccy', 'btchBookg', 'ctgyPurp',
+     *                                'reqdExctnDt', 'ultmtDbtr', 'pstlAdr'
+     * @param bool  $checkAndSanitize All inputs will be checked and sanitized before creating
+     *                                the collection. If you check the inputs yourself you can
+     *                                set this to false.
+     * @param int     $flags          The flags used for sanitizing
      * @throws SephpaInputException
      */
     public function __construct(array $transferInfo, $checkAndSanitize = true, $flags = 0)
@@ -68,8 +68,8 @@ class SepaCreditTransfer00100203 extends SepaCreditTransferCollection
     /**
      * Adds a payment to the payment collection
      *
-     * @param mixed[] $paymentInfo needed keys: 'pmtId', 'instdAmt', 'iban', 'bic', 'cdtr';
-     *                             optional keys: 'ultmtCdrt', 'purp', 'rmtInf', 'ultmtDbtr', 'ultmtDbtrId'
+     * @param array $paymentInfo Needed keys: 'pmtId', 'instdAmt', 'iban', 'bic', 'cdtr';
+     *                           Optional keys: 'ultmtCdrt', 'purp', 'rmtInf', 'ultmtDbtr', 'ultmtDbtrId'
      * @throws SephpaInputException
      * @return void
      */
@@ -164,7 +164,7 @@ class SepaCreditTransfer00100203 extends SepaCreditTransferCollection
      * generates the xml for a single payment
      *
      * @param \SimpleXMLElement $cdtTrfTxInf
-     * @param mixed[]           $payment one of the payments in $this->payments
+     * @param array             $payment one of the payments in $this->payments
      * @param string            $ccy     currency
      * @return void
      */
