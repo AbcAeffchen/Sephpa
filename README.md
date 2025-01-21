@@ -27,9 +27,9 @@ the specifications of Electronic Banking Internet Communication Standard (EBICS)
     - pain.008.003.02
 
 ## Requirements
-Sephpa was created for PHP >=8.1 and requires [SepaUtilities 3.3.4+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
-Sephpa should also work with PHP <=5.6, but since these versions are not officially supported anymore, 
-it is strongly recommended not to use PHP older than 8.0.
+Sephpa was created for PHP >=8.1 and requires [SepaUtilities 2.0.0+](https://github.com/AbcAeffchen/SepaUtilities) and [SimpleXML](http://php.net/manual/en/book.simplexml.php).
+Sephpa should also work with PHP <=8.0, but since these versions are not officially supported anymore, 
+it is strongly recommended not to use PHP older than 8.1.
 
 If you want to download correctly sorted files, you also need the zip library and for documentation
 files you need [SepaDocumentor](https://github.com/AbcAeffchen/SepaDocumentor).
