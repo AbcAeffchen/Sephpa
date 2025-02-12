@@ -13,6 +13,7 @@
          bootstrap="vendor/autoload.php"
          colors="true"
          processIsolation="false"
+         failOnWarning="true"
          stopOnFailure="false"
          displayDetailsOnTestsThatTriggerDeprecations="true"
          displayDetailsOnTestsThatTriggerErrors="true"
