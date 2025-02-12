@@ -166,11 +166,11 @@ abstract class Sephpa
 
     /**
      * Generates the XML string from the given data. All empty collections are skipped.
-     *
+     * It is recommended not to use this function. Use `generateOutput()` instead.
      * @throws SephpaInputException
      * @return string Just the xml code of the file
      */
-    protected function generateXml() : string
+    public function generateXml() : string
     {
         if(count($this->paymentCollections) === 0)
             throw new SephpaInputException('No payment collections provided.');
