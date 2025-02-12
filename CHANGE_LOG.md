@@ -1,7 +1,11 @@
 Sephpa - Change Log
 ===============
 
-## 3.0.0 - Jan 20, '24
+## 3.0.1 - Feb 12, '25
+- `generateXml()` is now public (#42). However, it is recommended to use `generateOutput()`.
+- Updated SepaUtilities.
+
+## 3.0.0 - Jan 20, '25
 - Added support for pain.001.001.09 and pain.008.001.08 (#43)
   - See the wiki for the new format of `pstlAdr`
 - Support up to PHP 8.4 and drop support for PHP 8.0 and older
