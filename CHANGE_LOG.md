@@ -1,6 +1,9 @@
 Sephpa - Change Log
 ===============
 
+## 3.0.2 - Apr 14, '25
+- Fixed the generation of error messages during `addPayment` calls (#45).
+
 ## 3.0.1 - Feb 12, '25
 - `generateXml()` is now public (#42). However, it is recommended to use `generateOutput()`.
 - Updated SepaUtilities.
