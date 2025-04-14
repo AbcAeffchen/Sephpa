@@ -86,7 +86,7 @@ class SepaCreditTransfer00100103 extends SepaCreditTransferCollection
                                                               ['allowEmptyBic' => !$bicRequired]);
 
             if($checkResult !== true)
-                throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
+                throw new SephpaInputException('The values of ' . implode(', ', $checkResult) . ' are invalid.');
 
             // IBAN and BIC can belong to each other?
             if(!empty($paymentInfo['bic']) && !SepaUtilities::crossCheckIbanBic($paymentInfo['iban'],$paymentInfo['bic']))

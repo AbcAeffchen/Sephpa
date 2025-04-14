@@ -81,7 +81,7 @@ class SepaDirectDebit00800108 extends SepaDirectDebitCollection
                                                               ['allowEmptyBic' => !$bicRequired, 'version' => self::VERSION]);
 
             if($checkResult !== true)
-                throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
+                throw new SephpaInputException('The values of ' . implode(', ', $checkResult) . ' are invalid.');
 
             if( SepaDirectDebit00800108::class === get_called_class()
                 && !empty( $paymentInfo['amdmntInd'] ) && $paymentInfo['amdmntInd'] === 'true' )

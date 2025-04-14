@@ -46,7 +46,7 @@ class SepaDirectDebit00800202 extends SepaDirectDebitCollection
             $checkResult = SepaUtilities::checkAndSanitizeAll($debitInfo, $this->sanitizeFlags, ['version' => self::VERSION]);
 
             if($checkResult !== true)
-                throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
+                throw new SephpaInputException('The values of ' . implode(', ', $checkResult) . ' are invalid.');
 
             // IBAN and BIC can belong to each other?
             if(!SepaUtilities::crossCheckIbanBic($debitInfo['iban'], $debitInfo['bic']))

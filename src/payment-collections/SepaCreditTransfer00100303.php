@@ -54,7 +54,7 @@ class SepaCreditTransfer00100303 extends SepaCreditTransferCollection
             $checkResult = SepaUtilities::checkAndSanitizeAll($transferInfo, $this->sanitizeFlags, ['allowEmptyBic' => true]);
 
             if($checkResult !== true)
-                throw new SephpaInputException('The values of ' . $checkResult . ' are invalid.');
+                throw new SephpaInputException('The values of ' . implode(', ', $checkResult) . ' are invalid.');
 
             $this->dbtrIban = $transferInfo['iban'];
 
