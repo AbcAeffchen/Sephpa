@@ -1,6 +1,9 @@
 Sephpa - Change Log
 ===============
 
+## 3.0.3 - Aug 22, '25
+- Fixed schema location string for pain.008.001.08 files (#46) (thanks philku79)
+
 ## 3.0.2 - Apr 14, '25
 - Fixed the generation of error messages during `addPayment` calls (#45).
 
