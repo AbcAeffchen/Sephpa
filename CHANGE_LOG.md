@@ -1,6 +1,9 @@
 Sephpa - Change Log
 ===============
 
+## 3.0.4 - Jun 05, '26
+- Fixed error message in pain.008.001.02 (#49)
+
 ## 3.0.3 - Aug 22, '25
 - Fixed schema location string for pain.008.001.08 files (#46) (thanks philku79)
 
