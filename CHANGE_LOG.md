@@ -1,6 +1,10 @@
 Sephpa - Change Log
 ===============
 
+## 3.0.5 - Aug 25, '26
+- Fixed ignored 'reqdExctnDt' in pain.001.001.09 (#50)
+- Added missing documentation for 'reqdExctnDtTm'
+
 ## 3.0.4 - Jun 05, '26
 - Fixed error message in pain.008.001.02 (#49)
 

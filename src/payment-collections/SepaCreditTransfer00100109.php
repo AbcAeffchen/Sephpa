@@ -3,7 +3,7 @@
  * Sephpa
  *
  * @license   GNU LGPL v3.0 - For details have a look at the LICENSE file
- * @copyright ©2025 Alexander Schickedanz
+ * @copyright ©2026 Alexander Schickedanz
  * @link      https://github.com/AbcAeffchen/Sephpa
  *
  * @author  Alexander Schickedanz <abcaeffchen@gmail.com>
@@ -27,7 +27,7 @@ class SepaCreditTransfer00100109 extends SepaCreditTransferCollection
     /**
      * @param array $transferInfo       Needed keys: 'pmtInfId', 'dbtr', 'iban';
      *                                  Optional keys: 'ccy', 'btchBookg', 'ctgyPurp', 'reqdExctnDt',
-     *                                  'ultmtDbtr', 'bic', 'pstlAdr'
+     *                                  'reqdExctnDtTm' (do not use), 'ultmtDbtr', 'bic', 'pstlAdr'
      * @param bool    $checkAndSanitize All inputs will be checked and sanitized before creating the
      *                                  collection. If you check the inputs yourself you can set this
      *                                  to false.
@@ -110,7 +110,7 @@ class SepaCreditTransfer00100109 extends SepaCreditTransferCollection
 
         $datetime       = new \DateTime();
         $reqdExctnType  = isset($this->transferInfo['reqdExctnDtTm']) ? 'DtTm' : 'Dt';
-        $reqdExctnValue = $this->transferInfo['reqdExctnDtTm'] ?? $datetime->format('Y-m-d') ?? $this->transferInfo['reqdExctnDt'];
+        $reqdExctnValue = $this->transferInfo['reqdExctnDtTm'] ?? $this->transferInfo['reqdExctnDt'] ?? $datetime->format('Y-m-d');
 
         $pmtInf->addChild('PmtInfId', $this->transferInfo['pmtInfId']);
         $pmtInf->addChild('PmtMtd', 'TRF');
